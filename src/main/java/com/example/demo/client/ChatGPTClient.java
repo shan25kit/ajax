@@ -10,6 +10,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 @Component
@@ -34,6 +37,10 @@ private final RestTemplate restTemplate;
     // ChatGPT API 호출
     public String callChatGPT(String systemPrompt, String userMessage) {
         try {
+            // 디버깅 정보 (필요시에만)
+            System.out.println("API URL: " + apiUrl);
+            System.out.println("요청 시작...");
+            
             // HTTP 헤더 설정
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -46,10 +53,27 @@ private final RestTemplate restTemplate;
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
             ResponseEntity<Map> response = restTemplate.postForEntity(apiUrl, entity, Map.class);
             
-            // 응답에서 메시지 추출
-            return extractMessage(response.getBody());
+            if (response.getStatusCode().is2xxSuccessful()) {
+                System.out.println("API 호출 성공!");
+                return extractMessage(response.getBody());
+            } else {
+                System.out.println("예상치 못한 응답 코드: " + response.getStatusCode());
+                return "죄송합니다. 일시적인 오류가 발생했습니다.";
+            }
             
+        } catch (HttpClientErrorException e) {
+            System.out.println("클라이언트 오류 (4xx): " + e.getStatusCode());
+            System.out.println("응답 본문: " + e.getResponseBodyAsString());
+            return "요청에 문제가 있습니다.";
+        } catch (HttpServerErrorException e) {
+            System.out.println("서버 오류 (5xx): " + e.getStatusCode());
+            return "서버에서 오류가 발생했습니다.";
+        } catch (RestClientException e) {
+            System.out.println("네트워크 오류: " + e.getMessage());
+            return "네트워크 연결에 문제가 있습니다.";
         } catch (Exception e) {
+            System.out.println("예상치 못한 오류: " + e.getMessage());
+            e.printStackTrace(); // 디버깅용
             return "죄송합니다. 일시적인 오류가 발생했습니다.";
         }
     }
@@ -66,7 +90,7 @@ private final RestTemplate restTemplate;
         return Map.of(
             "model", "gpt-3.5-turbo",
             "messages", messages,
-            "max_tokens", 1000,
+            "max_tokens", 50,
             "temperature", 0.7
         );
     }

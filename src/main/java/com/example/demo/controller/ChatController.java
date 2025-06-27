@@ -38,6 +38,7 @@ public class ChatController {
 	    public ChatResponse sendMessageWithRole(@PathVariable String botType, 
 	                                       @RequestBody ChatRequest request) {
 	        System.out.println("봇타입: " + botType + " - 받은 메시지: " + request.getMessage());
+	        System.out.println("요청 시간: " + LocalDateTime.now());
 	        String response = chatService.sendMessageWithRole(request.getMessage(), botType);
 	        return new ChatResponse(response);
 	    }

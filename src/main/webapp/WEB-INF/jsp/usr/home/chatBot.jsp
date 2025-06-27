@@ -315,7 +315,7 @@
                             status: xhr.status,
                             statusText: xhr.statusText,
                             responseText: xhr.responseText,
-                            error: error);
+                            error: error})
                         hideTyping();
                         addMessage('bot', '죄송합니다. 오류가 발생했습니다.');
                         $('#sendBtn').prop('disabled', false);
