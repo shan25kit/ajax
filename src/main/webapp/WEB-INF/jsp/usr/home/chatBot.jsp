@@ -210,14 +210,13 @@
   <div class="chat-container">
         <!-- 헤더 -->
         <div class="chat-header">
-            <h1>🤖 AI 챗봇</h1>
+            <h1>🤖 감정별 전문 상담 AI 챗봇</h1>
             <div class="bot-tabs">
-                <button class="bot-tab active" data-type="general">일반</button>
-                <button class="bot-tab" data-type="productivity">생산성</button>
-                <button class="bot-tab" data-type="health">건강</button>
-                <button class="bot-tab" data-type="language">언어</button>
-                <button class="bot-tab" data-type="finance">금융</button>
-                <button class="bot-tab" data-type="counseling">상담</button>
+                <button class="bot-tab active" data-type="Anger">앵거</button>
+                <button class="bot-tab" data-type="Hope">호프</button>
+                <button class="bot-tab" data-type="Calm">캄</button>
+                <button class="bot-tab" data-type="Joy">조이</button>
+                <button class="bot-tab" data-type="Zen">젠</button>
             </div>
         </div>
 
