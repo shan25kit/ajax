@@ -32,7 +32,6 @@ build/
 ### VS Code ###
 .vscode/
 
-
 # 로그 파일 (API 키가 로그에 남을 수 있음)
 *.log
 logs/
@@ -44,4 +43,3 @@ log/
 *.swp
 *.swo
 *~
-
