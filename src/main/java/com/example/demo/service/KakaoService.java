@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Service
 public class KakaoService {
     private final String REST_API_KEY = "c3bee10d6c467c390191366ebf91e099";
-    private final String REDIRECT_URI = "http://localhost:8081/member/kakaoCallback";
+    private final String REDIRECT_URI = "http://localhost:8081/usr/member/kakaoCallback";
 
     public String getAccessToken(String code) {
         String tokenUrl = "https://kauth.kakao.com/oauth/token";

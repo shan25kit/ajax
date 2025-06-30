@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.example.demo.dto.GoogleUserInfo;
+import com.example.demo.dto.KakaoUserInfo;
+import com.example.demo.dto.LoginedMember;
 import com.example.demo.dto.Member;
 import com.example.demo.dto.NaverUserInfo;
 import com.example.demo.dto.Req;
@@ -15,9 +18,6 @@ import com.example.demo.service.KakaoService;
 import com.example.demo.service.MemberService;
 import com.example.demo.service.NaverService;
 import com.example.demo.util.Util;
-import com.example.demo.dto.GoogleUserInfo;
-import com.example.demo.dto.KakaoUserInfo;
-import com.example.demo.dto.LoginedMember;
 
 @Controller
 public class UsrMemberController {
