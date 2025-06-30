@@ -20,4 +20,9 @@ public class UsrHomeController {
 	public String chatBot() {
 		return "usr/home/chatBot";
 	}
+	
+	@GetMapping("/usr/home/testMap")
+	public String testMap() {
+		return "usr/home/testMap";
+	}
 }
