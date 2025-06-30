@@ -31,3 +31,25 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# API 키가 포함된 민감한 설정 파일들
+application-secret.yml
+application-local.yml
+application-dev.yml
+application-prod.yml
+*.secret.*
+*-secret.*
+secret.properties
+config/secret.*
+
+# 로그 파일 (API 키가 로그에 남을 수 있음)
+*.log
+logs/
+log/
+
+# 임시 파일
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
