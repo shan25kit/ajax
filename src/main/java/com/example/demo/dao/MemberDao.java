@@ -32,4 +32,11 @@ public interface MemberDao {
 			""")
 	Member getMemberByLoginId(String loginId);
 
+	@Select("""
+			SELECT *
+				FROM `member`
+				WHERE email = #{email}
+			""")
+	Member getMemberByEmail(String email);
+
 }
