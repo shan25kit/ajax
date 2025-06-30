@@ -39,4 +39,11 @@ public interface MemberDao {
 			""")
 	Member getMemberByEmail(String email);
 
+	@Select("""
+			SELECT nickName
+				FROM `member`
+				WHERE id = #{id}
+			""")
+	String getLoginId(int id);
+
 }
