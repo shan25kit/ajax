@@ -15,31 +15,10 @@
             font-family: Arial, sans-serif;
         }
         
-        #info {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            color: white;
-            z-index: 100;
-            background: rgba(0,0,0,0.7);
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-        
-        #loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-size: 18px;
-            z-index: 200;
-        }
     </style>
 </head>
 <body>
-    <div id="loading">게임 로딩 중...</div>
+
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -133,7 +112,9 @@
                 texture.wrapS = THREE.RepeatWrapping;
                 texture.wrapT = THREE.RepeatWrapping;
                 
-                const mapGeometry = new THREE.PlaneGeometry(30, 30);
+                texture.repeat.set(30, 30);
+                
+                const mapGeometry = new THREE.PlaneGeometry(1000, 1000);
                 const mapMaterial = new THREE.MeshBasicMaterial({
                     map: texture,
                     transparent: false,
@@ -304,7 +285,7 @@
     }
     function goToConsultationPage() {
         window.location.href = '/usr/home/chatBot';
-        console.log('상담페이지로 이동합니다!');
+        console.log('감정페이지로 이동합니다!');
     }
     renderer.domElement.addEventListener('click', onMouseClick, false);
     // 윈도우 리사이즈 처리
