@@ -32,9 +32,10 @@
 <!-- 카카오 로그인 -->
 <a href="https://kauth.kakao.com/oauth/authorize?client_id=c3bee10d6c467c390191366ebf91e099&redirect_uri=http://localhost:8081/usr/member/kakaoCallback&response_type=code">카카오로 로그인</a>
 
-
 <!-- 네이버 로그인 -->
 <a href="https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=PTJar8b7Xfd2XprSDQu0&redirect_uri=http://localhost:8081/usr/member/naverCallback&state=1234">네이버 로그인</a>
 
 <!-- 구글 로그인 -->
 <a href="https://accounts.google.com/o/oauth2/v2/auth?client_id=453369456336-r4v3ov9mg6i3lm96jrn095laqgiqlhj2.apps.googleusercontent.com&redirect_uri=http://localhost:8081/usr/member/googleCallback&response_type=code&scope=email%20profile">구글 로그인</a>
+
+<%@ include file="/WEB-INF/jsp/common/footer.jsp"%>
