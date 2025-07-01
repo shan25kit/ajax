@@ -33,29 +33,8 @@
             margin-bottom: 15px;
         }
 
-        .bot-tabs {
-            display: flex;
-            gap: 5px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
+       
 
-        .bot-tab {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.2s;
-        }
-
-        .bot-tab:hover,
-        .bot-tab.active {
-            background: rgba(255,255,255,0.3);
-            transform: scale(1.05);
-        }
 
         .chat-messages {
             height: 400px;
@@ -197,3 +176,92 @@
             background: #c1c1c1;
             border-radius: 3px;
         }
+        
+        /* 봇 선택 영역 */
+.bot-selection {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 16px 0;
+    padding: 0 16px;
+}
+
+/* 봇 카드 */
+.bot-card {
+    flex: 1;
+    min-width: 120px;
+    max-width: 140px;
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    padding: 16px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.bot-card:hover {
+    background: #e3f2fd;
+    border-color: #2196f3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.15);
+}
+
+.bot-card.selected {
+    background: #2196f3;
+    border-color: #1976d2;
+    color: white;
+}
+
+/* 봇 이모지 */
+.bot-emoji {
+    font-size: 32px;
+    margin-bottom: 8px;
+    line-height: 1;
+}
+
+/* 봇 이름 */
+.bot-name {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+    color: inherit;
+}
+
+/* 봇 설명 */
+.bot-desc {
+    font-size: 12px;
+    opacity: 0.7;
+    color: inherit;
+}
+
+.bot-card.selected .bot-desc {
+    opacity: 0.9;
+}
+
+/* 반응형 처리 */
+@media (max-width: 768px) {
+    .bot-selection {
+        gap: 8px;
+        padding: 0 12px;
+    }
+    
+    .bot-card {
+        min-width: 100px;
+        max-width: 120px;
+        padding: 12px 8px;
+    }
+    
+    .bot-emoji {
+        font-size: 28px;
+    }
+    
+    .bot-name {
+        font-size: 13px;
+    }
+    
+    .bot-desc {
+        font-size: 11px;
+    }
+}

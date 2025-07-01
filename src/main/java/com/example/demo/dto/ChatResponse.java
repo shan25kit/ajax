@@ -9,8 +9,11 @@ public class ChatResponse {
 	private String response;
     private long timestamp;
     
+    
     public ChatResponse(String response) {
         this.response = response;
         this.timestamp = System.currentTimeMillis();
+        this.response = response.replace("\n", "<br>");
     }
+    
 }
