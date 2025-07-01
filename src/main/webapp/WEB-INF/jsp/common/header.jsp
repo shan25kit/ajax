@@ -10,6 +10,9 @@
 <!-- CSS -->
 <!-- Main -->
 <link rel="stylesheet" href="/resource/css/main.css" />
+<link rel="stylesheet" href="/resource/css/login.css" />
+
+<!-- CSS 끝 -->
 
 <!-- lottie -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.6/lottie.min.js"></script>
