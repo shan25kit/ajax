@@ -48,7 +48,7 @@
 				
 				<!-- 이메일 회원가입 -->
 				<div>
-					<a href="#">Sign up With Email</a>
+					<a href="/usr/member/emailSignUp">Sign up With Email</a>
 				</div>
 					
 
@@ -63,20 +63,3 @@
 
 
 </div>
-
-<form action="/usr/member/doSignUp" method="post">
-    <input type="hidden" name="loginType" value="normal" />
-
-    <label>이메일</label><br/>
-    <input type="email" name="email" required /><br/><br/>
-
-    <label>아이디</label><br/>
-    <input type="text" name="loginId" required /><br/><br/>
-
-    <label>비밀번호</label><br/>
-    <input type="password" name="loginPw" required /><br/><br/>
-
-    <button type="submit">회원가입</button>
-</form>
-
-
