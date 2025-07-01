@@ -91,20 +91,63 @@ private final RestTemplate restTemplate;
             "model", "gpt-3.5-turbo",
             "messages", messages,
             "max_tokens", 100,
-            "temperature", 0.7
+            "temperature", 0.3
         );
     }
     
     // 응답에서 메시지 추출
     private String extractMessage(Map<String, Object> responseBody) {
-        try {
+    	try {
             List<Map<String, Object>> choices = (List<Map<String, Object>>) responseBody.get("choices");
             Map<String, Object> firstChoice = choices.get(0);
             Map<String, Object> message = (Map<String, Object>) firstChoice.get("message");
-            return (String) message.get("content");
+            String content = (String) message.get("content");
+            
+            // finish_reason 확인으로 끊김 감지
+            String finishReason = (String) firstChoice.get("finish_reason");
+            
+            if ("length".equals(finishReason)) {
+                System.out.println("경고: 응답이 토큰 제한으로 잘렸습니다.");
+                // 끊어진 응답 처리
+                return handleTruncatedResponse(content);
+            } else {
+                System.out.println("응답 완료: " + finishReason); // "stop"이면 정상 완료
+                return content;
+            }
+            
         } catch (Exception e) {
+            System.out.println("응답 파싱 오류: " + e.getMessage());
             return "응답을 처리하는 중 오류가 발생했습니다.";
         }
+
+    	
     }
+
+	private String handleTruncatedResponse(String content) {
+
+		 if (content == null || content.trim().isEmpty()) {
+		        return "응답이 너무 짧습니다.";
+		    }
+		    
+		    // 마지막 완전한 문장까지만 반환 (한국어 기준)
+		    String[] sentences = content.split("[.!?。！？]");
+		    
+		    if (sentences.length > 1) {
+		        // 마지막 불완전한 문장 제거하고 완전한 문장들만 조합
+		        StringBuilder result = new StringBuilder();
+		        for (int i = 0; i < sentences.length - 1; i++) {
+		            result.append(sentences[i].trim());
+		            if (i < sentences.length - 2) {
+		                result.append(". ");
+		            }
+		        }
+		        return result.toString() + ".";
+		    } else {
+		        // 완전한 문장이 하나도 없으면 "..." 추가
+		        return content.trim() + "...";
+		    }
+	}
+    
+    
 
 }
