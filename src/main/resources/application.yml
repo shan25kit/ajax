@@ -1,6 +1,6 @@
 spring:
   application:
-    name: d
+    name: demo
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/ajaxDB
@@ -10,6 +10,17 @@ spring:
     view:
       prefix: /WEB-INF/jsp/
       suffix: .jsp
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: mailsendcjh@gmail.com
+    password: nltkviptdeqhmner
+    properties:
+      mail: 
+        smtp: 
+          auth: true
+          starttls: 
+            enable: true
 server:
   port: 8081
 #  servlet:
@@ -19,4 +30,4 @@ openai:
     key: ${OPENAI_API_KEY:your-api-key}
     url: https://api.openai.com/v1/chat/completions
 #발급받은 apiKey는 깃허브 업로드시 지우고 업로드하세요 
-#gitignore에 해당설정파일을 추가하세요
+

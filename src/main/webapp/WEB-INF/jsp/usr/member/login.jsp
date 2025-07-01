@@ -15,7 +15,6 @@
 	
 	<div class="login-box glossy">
 
-		<h3 class="login_header">LOGIN</h3>
 
 		<div class="login_inner_box">
 
@@ -71,7 +70,5 @@
 
 
 </div>
-
-
 
 

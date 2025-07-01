@@ -230,7 +230,7 @@
             <div class="message bot">
                 <div class="avatar">🤖</div>
                 <div class="message-bubble">
-                    안녕하세요! 저는 당신의 AI 어시스턴트입니다. 무엇을 도와드릴까요?
+                    안녕하세요! 저는 당신의 AI 감정입니다. 무엇을 도와드릴까요?
                 </div>
             </div>
             <div class="typing" id="typing">AI가 답변을 생각하고 있습니다</div>
