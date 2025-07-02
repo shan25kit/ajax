@@ -242,6 +242,39 @@
 	width:auto;
 }
 
+input {
+	box-sizing: border-box; /* ✅ 패딩, 테두리를 포함한 고정 크기 유지 */
+	width: 100%;            /* 혹은 네가 원하는 고정 width */
+	padding: 0.5rem;        /* 원하는 padding */
+	transition: border 0.3s ease;
+}
+
+.input-error {
+	outline: 2px solid red !important;
+	border: none !important; /* 기존 border 제거 */
+}
+
+.input-success {
+	outline: 2px solid green !important;
+	border: none !important;
+}
+
+.pw-msg {
+	font-size: 0.85rem;
+	margin-left: 4px;
+	display: block;
+}
+
+#pwChkMsg {
+	font-size: 0.7rem;
+	color: red;
+	margin-top: 4px;
+	margin-left: 4px;
+	display: block;
+}
+
+
+
 
 
 

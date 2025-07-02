@@ -55,4 +55,14 @@ public interface MemberDao {
 
 	void modifyPassword(int loginedMemberId, String loginPw);
 
+	@Insert("""
+			INSERT INTO `member`
+				SET regDate = NOW()
+					, updateDate = NOW()
+					, email = #{email}
+					, loginId = #{loginId}
+					, loginPw = #{loginPw}
+			""")
+	void emailSignUp(String email, String loginId, String loginPw);
+
 }

@@ -74,5 +74,9 @@ public class MemberService {
                     + "</html>";
         sendEmail(member.getEmail(), subject, text);
     }
+
+	public void emailSignUp(String email, String loginId, String loginPw) {
+		this.memberDao.emailSignUp(email, loginId, loginPw);
+	}
     
 }

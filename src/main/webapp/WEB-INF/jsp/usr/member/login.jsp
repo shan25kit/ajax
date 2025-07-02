@@ -22,7 +22,7 @@
 			<form action="/usr/member/doLogin" method="post">
 				<input type="text" name="loginId" required placeholder="Email" /><br />
 				<input type="password" name="loginPw" placeholder="Password"
-					required /> <a class="find_pw" href="#">Forgot Password?</a>
+					required /> <a class="find_pw" href="/usr/member/findLoginPw">Forgot Password?</a>
 				<button type="submit">LOGIN</button>
 			</form>
 

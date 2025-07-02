@@ -64,6 +64,46 @@ public class UsrMemberController {
 		return Util.jsReplace("회원 가입이 완료되었습니다", "/");
 	}
 	
+	@GetMapping("/usr/member/emailSignUp")
+	public String emailSignup() {
+		return "usr/member/emailSignUp";
+	}
+	
+	@PostMapping("/usr/member/doEmailSignUp")
+	@ResponseBody
+	public String doEmailSignUp(String email, String loginId, String loginPw) {
+
+		this.memberService.emailSignUp(email, loginId, Util.encryptSHA256(loginPw));
+		
+		return Util.jsReplace("회원 가입이 완료되었습니다", "/");
+	}
+	
+	@GetMapping("/usr/member/loginIdDupChk")
+	@ResponseBody
+	public ResultData loginIdDupChk(String loginId) {
+
+		Member member = this.memberService.getMemberByLoginId(loginId);
+
+		if (member != null) {
+			return ResultData.from("F-1", String.format("[ %s ] 은(는) 이미 사용중인 아이디입니다", loginId));
+		}
+
+		return ResultData.from("S-1", String.format("[ %s ] 은(는) 사용가능한 아이디입니다", loginId));
+	}
+
+	@GetMapping("/usr/member/emailDupChk")
+	@ResponseBody
+	public ResultData emailDupChk(String email) {
+
+		Member member = this.memberService.getMemberByEmail(email);
+
+		if (member != null) {
+			return ResultData.from("F-1", String.format("[ %s ] 은(는) 이미 가입된 이메일입니다", email));
+		}
+
+		return ResultData.from("S-1", String.format("[ %s ] 은(는) 사용가능한 이메일입니다", email));
+	}
+	
 	// 카카오 로그인 콜백 처리
     @GetMapping("/usr/member/kakaoCallback")
     public String kakaoCallback(@RequestParam String code) {
@@ -116,20 +156,6 @@ public class UsrMemberController {
         req.login(new LoginedMember(member.getId()));
         return "redirect:/";
     }
-
-	
-	@GetMapping("/usr/member/loginIdDupChk")
-	@ResponseBody
-	public ResultData loginIdDupChk(String loginId) {
-
-		Member member = this.memberService.getMemberByLoginId(loginId);
-
-		if (member != null) {
-			return ResultData.from("F-1", String.format("[ %s ] 은(는) 이미 사용중인 아이디입니다", loginId));
-		}
-
-		return ResultData.from("S-1", String.format("[ %s ] 은(는) 사용가능한 아이디입니다", loginId));
-	}
 	
 	@GetMapping("/usr/member/login")
 	public String login() {
