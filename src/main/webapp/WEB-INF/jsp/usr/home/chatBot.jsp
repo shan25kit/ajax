@@ -7,67 +7,66 @@
 <%@ include file="/WEB-INF/jsp/common/header.jsp"%>
 <link rel="stylesheet" href="/resource/css/chatBot.css" />
 
-  <div class="chat-container">
-        <!-- 헤더 -->
-        <div class="chat-header">
-            <h1> 감정별 전문 상담 🤖 AI 챗봇</h1>
-            
-        </div>
+<div class="chat-container">
+	<!-- 헤더 -->
+	<div class="chat-header">
+		<h1>감정별 전문 상담 🤖 AI 챗봇</h1>
 
-        <!-- 현재 모드 표시 -->
-        <div class="current-mode">
-            <span id="currentMode">일반 채팅 모드</span>
-        </div>
+	</div>
 
-        <!-- 메시지 영역 -->
-        <div class="chat-messages" id="chatMessages">
-            <div class="message bot">
-                <div class="avatar">🤖</div>
-                <div class="message-bubble">
-                    안녕하세요! 저는 당신의 AI 감정입니다. 오늘 기분이 어때요?
-                </div>
-            </div>
-            <div class="bot-selection" id="botSelection">
-    <div class="bot-card" data-type="Anger">
-        <div class="bot-emoji">😤</div>
-        <div class="bot-name">버럭이</div>
-        <div class="bot-desc">화가 날 때</div>
-    </div>
-    <div class="bot-card" data-type="Hope">
-        <div class="bot-emoji">😢</div>
-        <div class="bot-name">슬픔이</div>
-        <div class="bot-desc">슬플 때</div>
-    </div>
-    <div class="bot-card" data-type="Calm">
-        <div class="bot-emoji">😰</div>
-        <div class="bot-name">소심이</div>
-        <div class="bot-desc">불안할 때</div>
-    </div>
-    <div class="bot-card" data-type="Joy">
-        <div class="bot-emoji">😊</div>
-        <div class="bot-name">기쁨이</div>
-        <div class="bot-desc">기쁠 때</div>
-    </div>
-    <div class="bot-card" data-type="Zen">
-        <div class="bot-emoji">😌</div>
-        <div class="bot-name">평온이</div>
-        <div class="bot-desc">평온하고 싶을 때</div>
-    </div>
+	<!-- 현재 모드 표시 -->
+	<div class="current-mode">
+		<span id="currentMode">일반 채팅 모드</span>
+	</div>
+
+	<!-- 메시지 영역 -->
+	<div class="chat-messages" id="chatMessages">
+		<div class="message bot">
+			<div class="avatar">🤖</div>
+			<div class="message-bubble">안녕하세요! 저는 당신의 AI 감정입니다. 오늘 기분이 어때요?
+			</div>
+		</div>
+		<div class="bot-selection" id="botSelection">
+			<div class="bot-card" data-type="Anger">
+				<div class="bot-emoji">😤</div>
+				<div class="bot-name">버럭이</div>
+				<div class="bot-desc">화가 날 때</div>
+			</div>
+			<div class="bot-card" data-type="Hope">
+				<div class="bot-emoji">😢</div>
+				<div class="bot-name">슬픔이</div>
+				<div class="bot-desc">슬플 때</div>
+			</div>
+			<div class="bot-card" data-type="Calm">
+				<div class="bot-emoji">😰</div>
+				<div class="bot-name">소심이</div>
+				<div class="bot-desc">불안할 때</div>
+			</div>
+			<div class="bot-card" data-type="Joy">
+				<div class="bot-emoji">😊</div>
+				<div class="bot-name">기쁨이</div>
+				<div class="bot-desc">기쁠 때</div>
+			</div>
+			<div class="bot-card" data-type="Zen">
+				<div class="bot-emoji">😌</div>
+				<div class="bot-name">평온이</div>
+				<div class="bot-desc">평온하고 싶을 때</div>
+			</div>
+		</div>
+
+
+
+		<div class="typing" id="typing">AI가 답변을 생각하고 있습니다</div>
+	</div>
+
+	<!-- 입력 영역 -->
+	<div class="chat-input">
+		<textarea id="messageInput" placeholder="메시지를 입력하세요..." rows="1"></textarea>
+		<button id="sendBtn">전송</button>
+	</div>
 </div>
-            
-            
-            
-            <div class="typing" id="typing">AI가 답변을 생각하고 있습니다</div>
-        </div>
 
-        <!-- 입력 영역 -->
-        <div class="chat-input">
-            <textarea id="messageInput" placeholder="메시지를 입력하세요..." rows="1"></textarea>
-            <button id="sendBtn">전송</button>
-        </div>
-    </div>
-
-    <script>
+<script>
     const botEmojis = {
     	    'Anger': '😤',
     	    'Hope': '😢', 
@@ -106,6 +105,7 @@
                 $('#botSelection').fadeOut(300);
                 
                 // 입력창 활성화 및 포커스
+                
                 $('#messageInput').prop('disabled', false).focus();
                 $('#sendBtn').prop('disabled', false);
             });
@@ -135,6 +135,7 @@
                     addMessage('bot', '먼저 상담사를 선택해주세요!');
                     return;
                 }
+            	
                 // 사용자 메시지 추가
                 addMessage('user', message);
                 $('#messageInput').val('').css('height', 'auto');
@@ -162,6 +163,26 @@
                     success: function(data) {
                         hideTyping();
                         addMessage('bot', data.response);
+                        if (data.response && (
+                                data.response.includes('상담이 일시 중단됩니다')
+                            )) {
+                                // 입력창 및 버튼 비활성화
+                                $('#messageInput').prop('disabled', true)
+                                                  .attr('placeholder', '상담이 종료되었습니다.')
+                                                  .css('background-color', '#f5f5f5');
+                                $('#sendBtn').prop('disabled', true)
+                                             .text('종료됨')
+                                             .css('background-color', '#ccc');
+                                
+                                // 봇 선택 카드들도 비활성화
+                                $('.bot-card').addClass('disabled').off('click');
+                                
+                                // 현재 모드 표시 변경
+                                $('#currentMode').text('상담 종료')
+                                                 .css('color', '#ff4444');
+                                
+                                return; // 더 이상 처리하지 않음
+                            }
                         $('#sendBtn').prop('disabled', false);
                     },
                     error: function(xhr, status, error) {
@@ -175,6 +196,7 @@
                         $('#sendBtn').prop('disabled', false);
                     }
                 });
+               
             }
 
             // 메시지 추가 함수
