@@ -35,78 +35,74 @@
 		form.loginPwChk.value = form.loginPwChk.value.trim();
 		form.email.value = form.email.value.trim();
 		form.emailChk.value = form.emailChk.value.trim();
-		
-		if (form.loginId.value.length == 0) {
-			alert('아이디를 입력 해주세요');
+
+		// 모든 input에서 기존 클래스 제거
+		[form.loginId, form.loginPw, form.loginPwChk, form.email].forEach(input => {
+			input.classList.remove("input-error", "input-success");
+		});
+
+		if (form.loginId.value.length == 0 || form.loginId.value != validLoginId) {
+			form.loginId.classList.add("input-error");
 			form.loginId.focus();
 			return false;
 		}
 
-		if (form.loginId.value != validLoginId) {
-			alert('[ ' + form.loginId.value + ' ] 은(는) 사용할 수 없는 아이디입니다.');
-			form.loginId.value = '';
-			form.loginId.focus();
-			return false;
-		}
-		
 		if (form.loginPw.value.length == 0) {
-			alert('비밀번호를 입력 해주세요');
+			form.loginPw.classList.add("input-error");
 			form.loginPw.focus();
 			return false;
 		}
 
-		if (form.loginPw.value != form.loginPwChk.value) {
-			form.loginPw.value = '';
-			form.loginPwChk.value = '';
+		if (form.loginPw.value !== form.loginPwChk.value) {
+			form.loginPw.classList.add("input-error");
+			form.loginPwChk.classList.add("input-error");
 			form.loginPw.focus();
 			return false;
 		}
-		
-		if (form.email.value.length == 0) {
-			alert('이메일을 입력 해주세요');
+
+		if (form.email.value.length == 0 || form.email.value != validEmail) {
+			form.email.classList.add("input-error");
 			form.email.focus();
 			return false;
 		}
 
-		if (form.email.value != validEmail) {
-			alert('[ ' + form.email.value + ' ] 은(는) 이미 가입된 이메일입니다.');
-			form.email.value = '';
-			form.email.focus();
-			return false;
-		}
+		return true;
 	}
+
 	
 	const checkPwMatch = function() {
 		const pw = document.querySelector('input[name="loginPw"]').value.trim();
-		const pwChk = document.querySelector('input[name="loginPwChk"]').value.trim();
+		const pwChkInput = document.querySelector('input[name="loginPwChk"]');
 		const msgEl = document.querySelector('#pwChkMsg');
 
-		if (pwChk.length === 0) {
-			msgEl.textContent = '';
+		pwChkInput.classList.remove('input-error', 'input-success');
+		msgEl.textContent = '';
+		msgEl.removeAttribute('style'); // 초기화
+
+		if (pwChkInput.value.trim().length === 0) {
 			return;
 		}
 
-		if (pw === pwChk) {
-			msgEl.classList.remove('text-red-500');
-			msgEl.classList.add('text-green-500');
-			msgEl.textContent = '비밀번호가 일치합니다';
+		if (pw === pwChkInput.value.trim()) {
+			pwChkInput.classList.add('input-success');
+			msgEl.textContent = 'Passwords match';
+			msgEl.style.color = 'green'; // ✅ 직접 스타일 주기
 		} else {
-			msgEl.classList.remove('text-green-500');
-			msgEl.classList.add('text-red-500');
-			msgEl.textContent = '비밀번호가 일치하지 않습니다';
+			pwChkInput.classList.add('input-error');
+			msgEl.textContent = 'Passwords do not match';
+			msgEl.style.color = 'red'; // ✅ 직접 스타일 주기
 		}
 	}
+
+
+
 
 	
 	const loginIdDupChk = function(el) {
 		el.value = el.value.trim();
 
-		let loginIdDupChkMsg = $('#loginIdDupChkMsg');
-
 		if (el.value.length == 0) {
-			loginIdDupChkMsg.removeClass('text-green-500');
-			loginIdDupChkMsg.addClass('text-red-500');
-			loginIdDupChkMsg.html('아이디를 입력 해주세요');
+			el.classList.add("input-error");
 			return;
 		}
 
@@ -119,32 +115,33 @@
 			dataType: 'json',
 			success: function(data) {
 				if (data.success) {
-					loginIdDupChkMsg.removeClass('text-red-500');
-					loginIdDupChkMsg.addClass('text-green-500');
-					loginIdDupChkMsg.html(`${data.rsMsg}`);
+					el.classList.remove("input-error");
+					el.classList.add("input-success");
 					validLoginId = el.value;
+
+					// ✅ 잠깐 초록색 보여주고 사라지게
+					setTimeout(() => {
+						if (document.activeElement !== el) {
+							el.classList.remove("input-success");
+						}
+					}, 1000);
+
 				} else {
-					loginIdDupChkMsg.removeClass('text-green-500');
-					loginIdDupChkMsg.addClass('text-red-500');
-					loginIdDupChkMsg.html(`${data.rsMsg}`);
+					el.classList.remove("input-success");
+					el.classList.add("input-error");
 					validLoginId = null;
 				}
-			},
-			error: function(_xhr, _status, error) {
-				console.log(error);
 			}
-		})
+		});
 	}
+
+
 	
 	const emailDupChk = function(el) {
 		el.value = el.value.trim();
 
-		let emailDupChkMsg = $('#emailDupChkMsg');
-
 		if (el.value.length == 0) {
-			emailDupChkMsg.removeClass('text-green-500');
-			emailDupChkMsg.addClass('text-red-500');
-			emailDupChkMsg.html('이메일을 입력 해주세요');
+			el.classList.add("input-error");
 			return;
 		}
 
@@ -157,22 +154,48 @@
 			dataType: 'json',
 			success: function(data) {
 				if (data.success) {
-					emailDupChkMsg.removeClass('text-red-500');
-					emailDupChkMsg.addClass('text-green-500');
-					emailDupChkMsg.html(`${data.rsMsg}`);
+					el.classList.remove("input-error");
+					el.classList.add("input-success");
 					validEmail = el.value;
+
+					// ✅ 잠깐 초록색 보여주고 사라지게
+					setTimeout(() => {
+						if (document.activeElement !== el) {
+							el.classList.remove("input-success");
+						}
+					}, 1000);
+
 				} else {
-					emailDupChkMsg.removeClass('text-green-500');
-					emailDupChkMsg.addClass('text-red-500');
-					emailDupChkMsg.html(`${data.rsMsg}`);
+					el.classList.remove("input-success");
+					el.classList.add("input-error");
 					validEmail = null;
 				}
-			},
-			error: function(_xhr, _status, error) {
-				console.log(error);
 			}
-		})
+		});
 	}
+	
+	window.addEventListener("DOMContentLoaded", () => {
+		const inputs = document.querySelectorAll("input");
+
+		inputs.forEach(input => {
+			// focus 시 에러 테두리 제거
+			input.addEventListener("focus", () => {
+				input.classList.remove("input-error");
+			});
+
+			// blur 시 초록 테두리/배경 제거 (비밀번호 확인은 제외)
+			input.addEventListener("blur", () => {
+				if (input.name !== "loginPwChk") {
+					input.classList.remove("input-success");
+					input.style.backgroundColor = ""; // ✅ 배경 초기화
+				}
+			});
+		});
+	});
+
+
+
+
 	
 </script>
 
@@ -211,10 +234,6 @@
 				
 				    <button type="submit">Send Verification Email</button>
 				</form>
-					
-
-
-
 
 			</div>
 
