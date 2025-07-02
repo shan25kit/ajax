@@ -28,7 +28,7 @@ public class Req {
 
 		this.session = request.getSession();
 
-		this.loginedMember = (LoginedMember) session.getAttribute("loginedMember");
+		this.loginedMember = (LoginedMember) session.getAttribute("loginedMember"); 
 
 		if (this.loginedMember == null) {
 			this.loginedMember = new LoginedMember();

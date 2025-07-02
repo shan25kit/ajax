@@ -1,5 +1,7 @@
 package com.example.demo.service;
 
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 
 import com.example.demo.client.ChatGPTClient;
@@ -9,48 +11,88 @@ public class ChatService {
     
     private final ChatGPTClient chatGPTClient;
     
+    
     public ChatService(ChatGPTClient chatGPTClient) {
         this.chatGPTClient = chatGPTClient;
     }
     
-    // 기본 메시지 처리
-    public String sendMessage(String userMessage) {
-        String systemPrompt = "당신은 친근하고 공감능력이 뛰어난 상담사입니다. 사용자의 감정을 이해하고 지지해주세요.";
-        return chatGPTClient.callChatGPT(systemPrompt, userMessage);
-    }
-    
+
     // 역할별 메시지 처리
-    public String sendMessageWithRole(String userMessage, String botType) {
-        String systemPrompt = getSystemPrompt(botType);
+    public String sendMessageWithRole(String userMessage, String botType, int phase, Map<String, Object> context) {
+        String systemPrompt = getSystemPrompt(botType,phase,context);
         return chatGPTClient.callChatGPT(systemPrompt, userMessage);
     }
-    
-    // 봇 타입별 시스템 프롬프트 반환
-    private String getSystemPrompt(String botType) {
-        switch (botType) {
-            case "Anger":
-                return "당신은 분노 조절 전문 상담사입니다." +
-                       "1~2문장으로 일상적으로 대화 나누며 감정 찾기, 개방형 질문으로 감정에 대한 원인 찾기, 감정 관리 기법을 제안하기";
-                       
-            case "Hope":
-                return "당신은 우울/절망 전문 상담사입니다. 따뜻한 공감을 통해 작은 희망 발견하고 점진적 활성화될 수 있도록 도와주세요. " +
-                       "행동을 증가하고 인지를 재구성으로 의미 회복 지원하세요.";
-                       
-            case "Calm":
-                return "당신은 불안/두려움 전문 상담사입니다. 불안 정상화하고 점진적 노출하여 단계별로 극복할 수 있도록 도와주세요." +
-                	   "즉시 진정법과 체계적 자신감 회복 전략 제공하세요.";
+ // CBT 기반 단계별 상세 프롬프트 시스템
+    private String getSystemPrompt(String botType, int phase, Map<String, Object> context) {
+        String basePersonality = getBotPersonality(botType);
+        
+        switch (phase) {
+            case 1: // 감정 식별 단계 (CBT: Emotional Awareness)
+                return basePersonality + getCBTPhase1Prompt(botType, context);
                 
-            case "Joy":
-                return "당신은 긍정감정 전문 상담사입니다. 감사를 발견하고 강점 활용해 의미 있는 활동 안내하세요. " +
-                       "작은 기쁨 축하하고 지속 가능한 행복 구축 지원하세요.";
-                       
-            case "Zen":
-                return "당신은 마음챙김 전문 상담사입니다. 현재 순간 집중하고 감정 관찰해 내면 평화를 안내하세요. " +
-                       "스트레스를 관리해 삶의 균형 찾기 지원하세요.";
-                       
+            case 2: // 인지 탐색 단계 (CBT: Cognitive Assessment) 
+                return basePersonality + getCBTPhase2Prompt(botType, context);
+                
+            case 3: // 개입 전략 단계 (CBT: Intervention Planning)
+                return basePersonality + getCBTPhase3Prompt(botType, context);
+                
             default:
-                return "당신은 친근하고 공감능력이 뛰어난 상담사입니다. 사용자의 감정을 이해하고 지지해주세요. " +
-                        "따뜻하고 격려하는 톤으로 대화하며, 의학적 진단은 절대 하지 마세요.";
+                return basePersonality + "CBT 모델을 기반으로 사용자를 도와주세요.";
         }
     }
+
+    // Phase 1: CBT 기반 감정 식별
+    private String getCBTPhase1Prompt(String botType, Map<String, Object> context) {
+        return "【CBT 1단계: 감정 찾기】" +
+               "• 구체적인 감정 이름과 강도(1-10) 파악하기 " +
+               "• 감정을 판단하지 말고 있는 그대로 수용하며 탐색하기";
+    }
+
+    // Phase 2: CBT 기반 인지 탐색  
+    private String getCBTPhase2Prompt(String botType, Map<String, Object> context) {
+        String emotion = (String) context.getOrDefault("emotion", "감정");
+        
+        return "【CBT 2단계: 이유 찾기】" +
+               String.format("• %s을(를) 느끼게 된 이유 찾기 ", emotion) +
+               "• 인지 왜곡 패턴 식별하기 (흑백사고, 재앙적 사고, 개인화 등) " +
+               "• 생각-감정-행동의 악순환 고리 파악하기 " +
+               "• '그때 어떤 생각이 드셨나요?', '가장 힘든 생각은 무엇인가요?' 질문 활용 " +
+               "• 사고의 현실성과 도움 정도 함께 평가하기";
+    }
+
+    // Phase 3: CBT 기반 개입 전략
+    private String getCBTPhase3Prompt(String botType, Map<String, Object> context) {
+        String emotion = (String) context.getOrDefault("emotion", "감정");
+        String causes = (String) context.getOrDefault("causes", "원인");
+        
+        return "【CBT 3단계: 즉시 실행 가능한 개입 전략 제안】" +
+               String.format("• %s 관리를 위한 인지 재구성 기법 제안 ", emotion) +
+               String.format("• %s 해결을 위한 구체적 행동 계획 수립 ", causes) +
+               "• 즉시 활용 가능한 대처 기술 안내 (호흡법, 이완기법 등) " +
+               "• 사고 기록표나 행동 실험 계획 제안 " +
+               "• 일상에서 실천 가능한 작은 단계부터 시작하도록 안내 " +
+               "• 효과 측정 방법과 후속 계획 함께 논의";
+    }
+    private String getBotPersonality(String botType) {
+        switch (botType) {
+            case "Anger Guide":
+                return "분노 조절 CBT 전문가로서 ";
+                
+            case "Hope Companion": 
+                return "우울증 치료 CBT 전문가로서 ";
+                
+            case "Calm Navigator":
+                return "불안장애 치료 CBT 전문가로서 ";
+                
+            case "Joy Coach":
+                return "긍정심리 CBT 전문가로서 ";
+                
+            case "Zen Guide":
+                return "스트레스 관리 CBT 전문가로서 ";
+                
+            default:
+                return "CBT 기반 상담 전문가로서 ";
+        }
+    }
+	
 }
