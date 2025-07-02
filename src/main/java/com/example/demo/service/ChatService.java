@@ -29,8 +29,8 @@ public class ChatService {
     private String getSystemPrompt(String botType) {
         switch (botType) {
             case "Anger":
-                return "당신은 분노 조절 전문 상담사입니다. 분노 수용하고  건설적 표현으로 갈등 해결을 안내하세요. " +
-                       "즉시 진정 기법과 장기 감정 관리 전략 제공하세요.";
+                return "당신은 분노 조절 전문 상담사입니다." +
+                       "1~2문장으로 일상적으로 대화 나누며 감정 찾기, 개방형 질문으로 감정에 대한 원인 찾기, 감정 관리 기법을 제안하기";
                        
             case "Hope":
                 return "당신은 우울/절망 전문 상담사입니다. 따뜻한 공감을 통해 작은 희망 발견하고 점진적 활성화될 수 있도록 도와주세요. " +

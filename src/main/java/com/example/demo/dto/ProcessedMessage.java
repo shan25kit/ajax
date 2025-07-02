@@ -2,7 +2,6 @@ package com.example.demo.dto;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import lombok.AllArgsConstructor;
@@ -48,24 +47,14 @@ public static ProcessedMessage safe(String rawMessage, String normalizedMessage)
  */
 public static ProcessedMessage emergency(String rawMessage, String normalizedMessage, 
                                        Set<String> detectedKeywords) {
-	 String emergencyMessage = """
-		        🚨 **중요한 알림** 🚨
-
-		        지금 힘든 시간을 보내고 계시는군요.
-		        혼자 견디지 마시고 전문가의 도움을 받으시기 바랍니다.
-
-		        **24시간 언제든 연락 가능한 전문기관:**
-
-		        📞 **생명의전화: 1588-9191**
-		        📞 **정신건강위기상담: 1577-0199**
-		        📞 **청소년전화: 1388** (청소년 전용)
-		        📞 **응급상황: 119**
-
-		        당신의 생명은 소중하고 귀중합니다.
-		        전문 상담사들이 24시간 대기하고 있으니 지금 바로 연락해 주세요.
-
-		        *상담이 일시 중단됩니다. 전문기관을 통해 적절한 도움을 받으시기 바랍니다.*
-		        """;
+	 String emergencyMessage = "당신의 생명은 소중하고 귀중합니다.\n" +
+			    "전문 상담사들이 24시간 대기하고 있으니 지금 바로 연락해 주세요.\n\n" +
+			    "🚨 24시간 언제든 연락 가능한 전문기관 🚨\n" +
+			    "📞 생명의전화: 1588-9191\n" +
+			    "📞 정신건강위기상담: 1577-0199\n" +
+			    "📞 청소년전화: 1388 (청소년 전용)\n" +
+			    "📞 응급상황: 119\n\n" +
+			    "상담이 일시 중단됩니다. 전문기관을 통해 적절한 도움을 받으시기 바랍니다.";;
     return ProcessedMessage.builder()
         .rawMessage(rawMessage)
         .processedText(normalizedMessage)

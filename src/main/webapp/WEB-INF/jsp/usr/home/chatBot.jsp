@@ -7,58 +7,108 @@
 <%@ include file="/WEB-INF/jsp/common/header.jsp"%>
 <link rel="stylesheet" href="/resource/css/chatBot.css" />
 
-  <div class="chat-container">
-        <!-- 헤더 -->
-        <div class="chat-header">
-            <h1>🤖 감정별 전문 상담 AI 챗봇</h1>
-            <div class="bot-tabs">
-                <button class="bot-tab active" data-type="Anger">앵거</button>
-                <button class="bot-tab" data-type="Hope">호프</button>
-                <button class="bot-tab" data-type="Calm">캄</button>
-                <button class="bot-tab" data-type="Joy">조이</button>
-                <button class="bot-tab" data-type="Zen">젠</button>
-            </div>
-        </div>
+<div class="chat-container">
+	<!-- 헤더 -->
+	<div class="chat-header">
+		<h1>감정별 전문 상담 🤖 AI 챗봇</h1>
 
-        <!-- 현재 모드 표시 -->
-        <div class="current-mode">
-            <span id="currentMode">일반 채팅 모드</span>
-        </div>
+	</div>
 
-        <!-- 메시지 영역 -->
-        <div class="chat-messages" id="chatMessages">
-            <div class="message bot">
-                <div class="avatar">🤖</div>
-                <div class="message-bubble">
-                    안녕하세요! 저는 당신의 AI 감정입니다. 무엇을 도와드릴까요?
-                </div>
-            </div>
-            <div class="typing" id="typing">AI가 답변을 생각하고 있습니다</div>
-        </div>
+	<!-- 현재 모드 표시 -->
+	<div class="current-mode">
+		<span id="currentMode">일반 채팅 모드</span>
+	</div>
 
-        <!-- 입력 영역 -->
-        <div class="chat-input">
-            <textarea id="messageInput" placeholder="메시지를 입력하세요..." rows="1"></textarea>
-            <button id="sendBtn">전송</button>
-        </div>
-    </div>
+	<!-- 메시지 영역 -->
+	<div class="chat-messages" id="chatMessages">
+		<div class="message bot">
+			<div class="avatar">🤖</div>
+			<div class="message-bubble">안녕하세요! 저는 당신의 AI 감정입니다. 오늘 기분이 어때요?
+			</div>
+		</div>
+		<div class="bot-selection" id="botSelection">
+			<div class="bot-card" data-type="Anger">
+				<div class="bot-emoji">😤</div>
+				<div class="bot-name">버럭이</div>
+				<div class="bot-desc">화가 날 때</div>
+			</div>
+			<div class="bot-card" data-type="Hope">
+				<div class="bot-emoji">😢</div>
+				<div class="bot-name">슬픔이</div>
+				<div class="bot-desc">슬플 때</div>
+			</div>
+			<div class="bot-card" data-type="Calm">
+				<div class="bot-emoji">😰</div>
+				<div class="bot-name">소심이</div>
+				<div class="bot-desc">불안할 때</div>
+			</div>
+			<div class="bot-card" data-type="Joy">
+				<div class="bot-emoji">😊</div>
+				<div class="bot-name">기쁨이</div>
+				<div class="bot-desc">기쁠 때</div>
+			</div>
+			<div class="bot-card" data-type="Zen">
+				<div class="bot-emoji">😌</div>
+				<div class="bot-name">평온이</div>
+				<div class="bot-desc">평온하고 싶을 때</div>
+			</div>
+		</div>
 
-    <script>
+
+
+		<div class="typing" id="typing">AI가 답변을 생각하고 있습니다</div>
+	</div>
+
+	<!-- 입력 영역 -->
+	<div class="chat-input">
+		<textarea id="messageInput" placeholder="메시지를 입력하세요..." rows="1"></textarea>
+		<button id="sendBtn">전송</button>
+	</div>
+</div>
+
+<script>
+    const botEmojis = {
+    	    'Anger': '😤',
+    	    'Hope': '😢', 
+    	    'Calm': '😰',
+    	    'Joy': '😊',
+    	    'Zen': '😌'
+    	};
+    let currentBotEmoji = '🤖'; 
         $(document).ready(function() {
-            let currentBotType = 'general';
+        	let currentBotType = null;
+        	// 초기 상태에서 입력창 비활성화
+            $('#messageInput').prop('disabled', true).attr('placeholder', '상담사를 먼저 선택해주세요...');
+            $('#sendBtn').prop('disabled', true);
             
-            // 봇 타입 변경
-            $('.bot-tab').click(function() {
-                $('.bot-tab').removeClass('active');
-                $(this).addClass('active');
+            // 현재 모드 초기 메시지
+            $('#currentMode').text('상담사를 선택해주세요');
+           
+            $('.bot-card').click(function() {
+                // 기존 선택 해제
+                $('.bot-card').removeClass('selected');
+                
+                // 현재 카드 선택
+                $(this).addClass('selected');
                 
                 currentBotType = $(this).data('type');
-                const botName = $(this).text();
-                console.log(botName);
+                currentBotEmoji = botEmojis[currentBotType];
+                const botName = $(this).find('.bot-name').text();
+                
+                // 모드 표시 업데이트
                 $('#currentMode').text(botName + ' 채팅 모드');
-                addMessage('bot', `\${botName} 모드로 변경되었습니다. 어떻게 도와드릴까요?`);
+                
+                // 봇 선택 완료 메시지 추가
+                addMessage('bot', `\${botName} 모드로 설정되었습니다. 이제 대화를 시작해보세요!`);
+                
+                // 봇 선택 영역 숨김 (선택 후)
+                $('#botSelection').fadeOut(300);
+                
+                // 입력창 활성화 및 포커스
+                
+                $('#messageInput').prop('disabled', false).focus();
+                $('#sendBtn').prop('disabled', false);
             });
-
             // 메시지 전송 (엔터키)
             $('#messageInput').keypress(function(e) {
                 if (e.which === 13 && !e.shiftKey) {
@@ -80,6 +130,12 @@
             function sendMessage() {
                 const message = $('#messageInput').val().trim();
                 if (!message) return;
+             // 봇이 선택되지 않은 경우 처리
+                if (!currentBotType) {
+                    addMessage('bot', '먼저 상담사를 선택해주세요!');
+                    return;
+                }
+            	
                 // 사용자 메시지 추가
                 addMessage('user', message);
                 $('#messageInput').val('').css('height', 'auto');
@@ -107,6 +163,26 @@
                     success: function(data) {
                         hideTyping();
                         addMessage('bot', data.response);
+                        if (data.response && (
+                                data.response.includes('상담이 일시 중단됩니다')
+                            )) {
+                                // 입력창 및 버튼 비활성화
+                                $('#messageInput').prop('disabled', true)
+                                                  .attr('placeholder', '상담이 종료되었습니다.')
+                                                  .css('background-color', '#f5f5f5');
+                                $('#sendBtn').prop('disabled', true)
+                                             .text('종료됨')
+                                             .css('background-color', '#ccc');
+                                
+                                // 봇 선택 카드들도 비활성화
+                                $('.bot-card').addClass('disabled').off('click');
+                                
+                                // 현재 모드 표시 변경
+                                $('#currentMode').text('상담 종료')
+                                                 .css('color', '#ff4444');
+                                
+                                return; // 더 이상 처리하지 않음
+                            }
                         $('#sendBtn').prop('disabled', false);
                     },
                     error: function(xhr, status, error) {
@@ -120,11 +196,18 @@
                         $('#sendBtn').prop('disabled', false);
                     }
                 });
+               
             }
 
             // 메시지 추가 함수
             function addMessage(sender, content) {
-                const avatar = sender === 'user' ? '👤' : '🤖';
+            	let avatar;
+                if (sender === 'user') {
+                    avatar = '👤';
+                } else {
+                    // 봇의 경우 현재 선택된 봇의 이모지 사용
+                    avatar = currentBotEmoji || '🤖';
+                }
                 const messageHtml = `
                     <div class="message \${sender}">
                         <div class="avatar">\${avatar}</div>
