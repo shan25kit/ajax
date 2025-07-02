@@ -217,7 +217,7 @@
 			<div class="email_sign_button">
 
 				
-				<form action="/usr/member/doSignUp" method="post" onsubmit="return signupFormChk(this);">
+				<form action="doSignUp" method="post" onsubmit="return signupFormChk(this);">
 				    <input type="hidden" name="loginType" value="normal" />
 				
 				    <input type="email" name="email" onblur="emailDupChk(this);" placeholder="Email" required /><br/>
@@ -232,7 +232,7 @@
 				    <input type="password" name="loginPwChk" placeholder="Check Password" required oninput="checkPwMatch();" /><br/>
 				    <span id="pwChkMsg"></span>
 				
-				    <button type="submit">Send Verification Email</button>
+				    <button type="submit">Sign Up</button>
 				</form>
 
 			</div>

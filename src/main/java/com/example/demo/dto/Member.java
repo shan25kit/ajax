@@ -17,4 +17,5 @@ public class Member {
 	private String email;
 	private String loginId;
 	private String loginPw;
+	private String nickName;
 }

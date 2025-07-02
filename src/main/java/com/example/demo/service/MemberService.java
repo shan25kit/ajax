@@ -78,5 +78,17 @@ public class MemberService {
 	public void emailSignUp(String email, String loginId, String loginPw) {
 		this.memberDao.emailSignUp(email, loginId, loginPw);
 	}
+
+	public void insertNickName(int memberId, String nickName) {
+		this.memberDao.insertNickName(memberId, nickName);
+	}
+
+	public Member getMemberByNickName(String nickName) {
+		return this.memberDao.getMemberByNickName(nickName);
+	}
+
+	public Member getMemberByLoginIdChk(String loginId) {
+		return this.memberDao.getMemberByLoginIdChk(loginId);
+	}
     
 }

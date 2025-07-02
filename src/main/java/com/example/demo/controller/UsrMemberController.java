@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,6 +19,7 @@ import com.example.demo.service.KakaoService;
 import com.example.demo.service.MemberService;
 import com.example.demo.service.NaverService;
 import com.example.demo.util.Util;
+
 
 @Controller
 public class UsrMemberController {
@@ -59,7 +61,7 @@ public class UsrMemberController {
 			}
 		}
 
-		this.memberService.signupMember(loginType, email, loginId, Util.encryptSHA256(loginPw));
+		this.memberService.signupMember(loginType, email, loginId, loginPw);
 		
 		return Util.jsReplace("회원 가입이 완료되었습니다", "/");
 	}
@@ -69,20 +71,11 @@ public class UsrMemberController {
 		return "usr/member/emailSignUp";
 	}
 	
-	@PostMapping("/usr/member/doEmailSignUp")
-	@ResponseBody
-	public String doEmailSignUp(String email, String loginId, String loginPw) {
-
-		this.memberService.emailSignUp(email, loginId, Util.encryptSHA256(loginPw));
-		
-		return Util.jsReplace("회원 가입이 완료되었습니다", "/");
-	}
-	
 	@GetMapping("/usr/member/loginIdDupChk")
 	@ResponseBody
 	public ResultData loginIdDupChk(String loginId) {
 
-		Member member = this.memberService.getMemberByLoginId(loginId);
+		Member member = this.memberService.getMemberByLoginIdChk(loginId);
 
 		if (member != null) {
 			return ResultData.from("F-1", String.format("[ %s ] 은(는) 이미 사용중인 아이디입니다", loginId));
@@ -123,7 +116,7 @@ public class UsrMemberController {
         // 4. 세션 로그인 처리
         req.login(new LoginedMember(member.getId()));
 
-        return "redirect:/";
+        return "redirect:/usr/member/info";
     }
     
     @GetMapping("/usr/member/naverCallback")
@@ -138,7 +131,7 @@ public class UsrMemberController {
         }
 
         req.login(new LoginedMember(member.getId()));
-        return "redirect:/";
+        return "redirect:/usr/member/info";
     }
     
  // ✅ 구글 로그인 콜백
@@ -154,7 +147,7 @@ public class UsrMemberController {
         }
 
         req.login(new LoginedMember(member.getId()));
-        return "redirect:/";
+        return "redirect:/usr/member/info";
     }
 	
 	@GetMapping("/usr/member/login")
@@ -171,14 +164,18 @@ public class UsrMemberController {
 		if (member == null) {
 			return Util.jsReplace(String.format("[ %s ] 은(는) 존재하지 않는 아이디입니다", loginId), "login");
 		}
-
+		
 		if (member.getLoginPw().equals(Util.encryptSHA256(loginPw)) == false) {
 			return Util.jsReplace("비밀번호가 일치하지 않습니다", "login");
 		}
-
+		
 		this.req.login(new LoginedMember(member.getId()));
 
-		return Util.jsReplace("환영합니다", "/");
+		if (member.getNickName() == null) {
+			return Util.jsReplace("환영합니다 최초 닉네임을 설정하세요", "/usr/member/info");
+		}
+
+		return Util.jsReplace("환영합니다", "/usr/home/testMap");
 	}
 	
 	@GetMapping("/usr/member/logout")
@@ -245,4 +242,42 @@ public class UsrMemberController {
 		
 		return ResultData.from("S-1", "회원님의 이메일주소로 임시 패스워드가 발송되었습니다");
 	}
+	
+	@GetMapping("/usr/member/info")
+	public String info(Model model) {
+		int loginedMember = this.req.getLoginedMember().getId();
+		
+		model.addAttribute("loginedMember", loginedMember);
+		
+		return "usr/member/info";
+	}
+	
+	@PostMapping("/usr/member/memberInfo")
+	@ResponseBody
+	public String memberInfo(int memberId, String nickName) {
+		
+		Member member = this.memberService.getMemberByNickName(nickName);
+		
+		if (member != null) {
+			return Util.jsReplace(String.format("[ %s ] 은(는) 이미 사용중인 닉네임입니다", nickName), "usr/member/info");
+		}
+		
+		this.memberService.insertNickName(memberId, nickName);
+		
+		return Util.jsReplace("닉네임 등록이 완료되었습니다", "/usr/home/testMap");
+	}
+	
+	@GetMapping("/usr/member/nickNameDupChk")
+	@ResponseBody
+	public ResultData nickNameDupChk(String nickName) {
+
+		Member member = this.memberService.getMemberByNickName(nickName);
+		
+		if (member != null) {
+			return ResultData.from("F-1", String.format("[ %s ] 은(는) 이미 사용중인 닉네임입니다", nickName));
+		}
+
+		return ResultData.from("S-1", "사용 가능한 닉네임입니다");
+	}
+	
 }
