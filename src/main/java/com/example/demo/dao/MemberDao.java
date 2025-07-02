@@ -26,9 +26,11 @@ public interface MemberDao {
 	int getLastInsertId();
 
 	@Select("""
-			SELECT *
-				FROM `member`
-				WHERE loginId = #{loginId}
+			SELECT mi.*, m.*
+			 FROM memberInfo mi
+			 RIGHT JOIN `member` m
+			 ON mi.memberId = m.id
+			 WHERE loginId = #{loginId}
 			""")
 	Member getMemberByLoginId(String loginId);
 
@@ -64,5 +66,28 @@ public interface MemberDao {
 					, loginPw = #{loginPw}
 			""")
 	void emailSignUp(String email, String loginId, String loginPw);
+
+	@Insert("""
+			INSERT INTO memberInfo
+			 	SET memberId = #{memberId}
+			 		, nickName = #{nickName}
+			""")
+	void insertNickName(int memberId, String nickName);
+
+	@Select("""
+			SELECT mi.*
+			    FROM memberInfo mi
+			    INNER JOIN `member` m
+			    ON mi.memberId = m.id
+			    WHERE mi.nickName = #{nickName}
+			""")
+	Member getMemberByNickName(String nickName);
+
+	@Select("""
+			SELECT *
+				FROM member
+				WHERE loginId = #{loginId}
+			""")
+	Member getMemberByLoginIdChk(String loginId);
 
 }

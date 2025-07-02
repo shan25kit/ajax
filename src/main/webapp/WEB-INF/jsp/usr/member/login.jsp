@@ -20,7 +20,7 @@
 
 			<!-- 일반 로그인 폼 -->
 			<form action="/usr/member/doLogin" method="post">
-				<input type="text" name="loginId" required placeholder="Email" /><br />
+				<input type="text" name="loginId" required placeholder="ID" /><br />
 				<input type="password" name="loginPw" placeholder="Password"
 					required /> <a class="find_pw" href="/usr/member/findLoginPw">Forgot Password?</a>
 				<button type="submit">LOGIN</button>

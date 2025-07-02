@@ -3,11 +3,38 @@ CREATE DATABASE ajaxDB;
 USE ajaxDB;
 
 CREATE TABLE `member` (
-  id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT
-  , regDate DATETIME NOT NULL
-  , updateDate DATETIME NOT NULL
-  , loginType VARCHAR(20)
-  , email VARCHAR(50) UNIQUE
-  , loginId VARCHAR(50) UNIQUE
-  , loginPw VARCHAR(100)
+    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT
+    , regDate DATETIME NOT NULL
+    , updateDate DATETIME NOT NULL
+    , loginType VARCHAR(20)
+    , email VARCHAR(50) UNIQUE
+    , loginId VARCHAR(50) UNIQUE
+    , loginPw VARCHAR(100)
 );
+
+CREATE TABLE memberInfo (
+    memberId INT UNSIGNED NOT NULL
+    , nickName VARCHAR(50) NOT NULL UNIQUE
+);
+
+SELECT * FROM `member`;
+SELECT * FROM `memberInfo`;
+
+INSERT INTO memberInfo
+    SET memberId = 1
+        , nickName = '재이';
+
+SELECT mi.*, m.*
+    FROM memberInfo mi
+    INNER JOIN `member` m
+    ON mi.memberId = m.id
+    WHERE m.id = 1;
+   
+TRUNCATE TABLE `member`;
+TRUNCATE TABLE memberInfo;
+
+SELECT mi.*, m.*
+			 FROM memberInfo mi
+			 RIGHT JOIN `member` m
+			 ON mi.memberId = m.id
+			 WHERE loginId = 'asd'
