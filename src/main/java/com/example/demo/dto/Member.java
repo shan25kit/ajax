@@ -1,0 +1,21 @@
+package com.example.demo.dto;
+
+import com.example.demo.dto.Member;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class Member {
+	private int id;
+	private String regDate;
+	private String updateDate;
+	private String loginType;
+	private String email;
+	private String loginId;
+	private String loginPw;
+	private String nickName;
+}

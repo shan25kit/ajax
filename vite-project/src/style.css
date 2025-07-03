@@ -1,0 +1,17 @@
+body {
+  margin: 0;
+  overflow: hidden;
+  background-color: #f0f0f0;
+  font-family: sans-serif;
+}
+
+/* 캔버스 꽉 채우기 */
+canvas {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+
+
+/*여기서부터 작성*/
+
