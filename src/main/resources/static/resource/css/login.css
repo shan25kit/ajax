@@ -242,6 +242,8 @@
 	width:auto;
 }
 
+/* 이메일 회원가입 */
+
 input {
 	box-sizing: border-box; /* ✅ 패딩, 테두리를 포함한 고정 크기 유지 */
 	width: 100%;            /* 혹은 네가 원하는 고정 width */
@@ -316,15 +318,93 @@ input {
 	margin-top: 5px;
 }
 
+/* 비밀번호찾기 */
 
+.find-box {
+	width:500px;
+	margin:0 auto;
+	padding-top:50px;
+	padding-bottom:60px;
+	border-radius: 50px;
+	margin-top:130px;
+}
 
+.find_header{
+	font-family: 'Pretendard-Regular';
+	font-size:2.2rem;
+	font-weight:900;
+	color:#fff;
+	letter-spacing: 2px;
+	text-align: center;
+	margin-bottom:30px;
+}
 
+.find_inner_box {
+	display: block;
+	width: 55%;
+	margin: 0 auto;
+}
 
+.find_inner_box input{
+	box-sizing:border-box;
+	border:none;
+	outline: 3px solid rgba(255,255,255, 0);
+	width:100%;
+	height:35px; 
+	padding-left:20px;
+	margin-top:10px; 
+	border-radius: 8px;
+	background-color:rgba(255,255,255,0.7);
+	line-height: 35px;
+}
 
+.find_inner_box input::placeholder{
+	color:#a1a1a1;
+	font-size:0.7rem;
+}
 
+.find_inner_box input:focus{
+	outline:2px solid rgba(144,70,206, 0.6);
+}
 
+.find_inner_box button{
+	width:100%;
+	height:35px;
+	border:none;
+	border-radius: 8px;
+	letter-spacing: 1.5px;
+	font-weight:400;
+	color:#fff;
+	margin-top:15px;
+	cursor: pointer;
+	font-size:0.7rem;
+	background-color:#9a42b3;
+	box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.2),
+    0 6px 12px rgba(0, 0, 0, 0.1);
+}
 
+.find_inner_box button:hover{
+	background-color:#662c77;
+}
 
+.find_inner_box .find-pw {
+	padding-top:10px;
+	
+}
+
+.find_inner_box .find-pw a {
+	display: block;
+	float:right;
+	color:#fff;
+	text-decoration: none;
+	opacity: 0.5;
+	font-size:0.7rem;
+	font-weight:100;
+	height:15px;
+	line-height: 15px;
+	text-align: right;
+}
 
 
 

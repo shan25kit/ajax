@@ -202,7 +202,7 @@ public class UsrMemberController {
 	@ResponseBody
 	public ResultData doFindLoginId(String email) {
 		
-		Member member = this.memberService.getMemberByNameAndEmail(email);
+		Member member = this.memberService.getMemberByEmail(email);
 		
 		if (member == null) {
 			return ResultData.from("F-1", "입력하신 정보와 일치하는 회원이 없습니다");

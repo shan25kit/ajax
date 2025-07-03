@@ -6,19 +6,11 @@
 
 <%@ include file="/WEB-INF/jsp/common/header.jsp"%>
 
-<script>Add commentMore actions
+<script>
 		const findLoginId = async function() {
-			let inputName = $("input[name='name']");
 			let inputEmail = $("input[name='email']");
 			
-			let inputNameTrim = inputName.val(inputName.val().trim());
 			let inputEmailTrim = inputEmail.val(inputEmail.val().trim());
-			
-			if (inputNameTrim.val().length == 0) {
-				alert('이름을 입력해주세요');
-				inputName.focus();
-				return;
-			}
 			
 			if (inputEmailTrim.val().length == 0) {
 				alert('이메일을 입력해주세요');
@@ -26,7 +18,7 @@
 				return;
 			}
 	
-			const rs = await doFindLoginId(inputNameTrim.val(), inputEmailTrim.val());
+			const rs = await doFindLoginId(inputEmailTrim.val());
 	
 			if (rs) {
 				alert(rs.rsMsg);
@@ -34,19 +26,17 @@
 				if (rs.success) {
 					location.replace("login");
 				} else {
-					inputName.val('');
 					inputEmail.val('');
-					inputName.focus();
+					inputEmail.focus();
 				}
 			}
 		}
 		
-		const doFindLoginId = function(name, email) {
+		const doFindLoginId = function(email) {
 			return $.ajax({
 				url : '/usr/member/doFindLoginId',
 				type : 'GET',
 				data : {
-					name : name,
 					email : email
 				},
 				dataType : 'json'
@@ -54,28 +44,24 @@
 		}
 	</script>
 
-	<div>
-		<div>
-			<div>
-				<div>
-					<div>
-						<div>이름</div>
-						<div><input class="input input-neutral" name="name" type="text" /></div>
-					</div>
-					<div>
-						<div>이메일</div>
-						<div><input class="input input-neutral" name="email" type="text" /></div>
-					</div>
-					<div>
-						<div><button onclick="findLoginId();">아이디 찾기</button></div>
-					</div>
-				</div>
-			</div>
+	<div  class="background">
+	
+		<div class="logo-top">
+			<img src="/resource/img/logo-w.png" alt="온기로고" />
+		</div>
+	
+		<div class="find-box glossy">
+		
+			<h3 class="find_header">Find Your Login ID</h3>
 			
-			<div>
+			<div class="find_inner_box">
 				<div>
-					<div><a href="findLoginPw">비밀번호 찾기</a></div>
-					<div><a href="login">로그인</a></div>
+					<input class="input input-neutral" name="email" type="text" placeholder="Email" required/><br />
+					<button onclick="findLoginId();">Forgot ID</button>
+					<div class="find-pw">
+						<a href="findLoginPw">Forgot Password?</a><br />
+						<a href="login">Login</a>
+					</div>
 				</div>
 			</div>
 		</div>
