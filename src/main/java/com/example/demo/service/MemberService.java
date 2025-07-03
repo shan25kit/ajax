@@ -42,7 +42,7 @@ public class MemberService {
 	}
 
 	public Member getMemberByNameAndEmail(String email) {
-		return memberDao.getMemberByNameAndEmail(email);
+		return memberDao.getMemberByEmail(email);
 	}
 
 	public void modifyPassword(int loginedMemberId, String loginPw) {

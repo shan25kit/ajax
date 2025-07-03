@@ -78,7 +78,6 @@ const nickNameFormChk = function(form) {
 			<!-- 일반 로그인 폼 -->
 			<form action="/usr/member/memberInfo" method="post" onsubmit="return nickNameFormChk(this);">
 				<input type="hidden" name="memberId" value="${loginedMember }" />
-				<div>${loginedMember }</div>
 				
 				<input type="text" name="nickName" required onblur="nickNameDupChk(this);" />
 				<button type="submit">확인</button>

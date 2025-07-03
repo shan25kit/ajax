@@ -6,7 +6,7 @@
 
 <%@ include file="/WEB-INF/jsp/common/header.jsp"%>
 
-<script>Add commentMore actions
+<script>
 		const findLoginPw = async function() {
 			let inputLoginId = $("input[name='loginId']");
 			let inputEmail = $("input[name='email']");
@@ -59,33 +59,25 @@
 		}
 	</script>
 
-	<div>
-		<div>
-			<div>
-				<div>
-					<div>
-						<div>아이디</div>
-						<div><input class="input input-neutral" name="loginId" type="text" /></div>
-					</div>
-					<div>
-						<div>이메일</div>
-						<div><input class="input input-neutral" name="email" type="text" /></div>
-					</div>
-					<div>
-						<div>
-							<button id="findBtn" onclick="findLoginPw();">비밀번호 찾기</button>
-							<div class="mt-4 loading-layer hidden">
-								<span class="loading loading-bars loading-xl"></span>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
+	<div  class="background">
+	
+		<div class="logo-top">
+			<img src="/resource/img/logo-w.png" alt="온기로고" />
+		</div>
+	
+		<div class="find-box glossy">
+		
+			<h3 class="find_header">Reset Your Password</h3>
 			
-			<div>
+			<div class="find_inner_box">
 				<div>
-					<div><a href="findLoginId">아이디 찾기</a></div>
-					<div><a href="login">로그인</a></div>
+					<input class="input input-neutral" name="loginId" type="text" placeholder="ID" required/><br />
+					<input class="input input-neutral" name="email" type="text" placeholder="Email" required/><br />
+					<button id="findBtn" onclick="findLoginPw();">Forgot Password</button><br />
+					<div class="find-pw">
+						<a href="findLoginId">Forgot ID?</a><br />
+						<a href="login">Login</a>
+					</div>
 				</div>
 			</div>
 		</div>
