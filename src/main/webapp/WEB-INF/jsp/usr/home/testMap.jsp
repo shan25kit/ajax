@@ -314,9 +314,9 @@
                 // 레이캐스터 업데이트
                 raycaster.setFromCamera(mouse, camera);
 
-                if (character1) {
+                if (aiChatbot) {
                     // 캐릭터와의 교차점 검사
-                    const intersects = raycaster.intersectObject(character1, true);
+                    const intersects = raycaster.intersectObject(aiChatbot, true);
                     
                     if (intersects.length > 0) {
                         console.log('캐릭터 클릭됨!');
