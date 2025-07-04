@@ -175,7 +175,7 @@ public class UsrMemberController {
 			return Util.jsReplace("환영합니다 최초 닉네임을 설정하세요", "/usr/member/info");
 		}
 
-		return Util.jsReplace("환영합니다", "/usr/home/testMap");
+		return Util.jsReplace("환영합니다", "/usr/member/customPageTest");
 	}
 	
 	@GetMapping("/usr/member/logout")
