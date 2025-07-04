@@ -43,9 +43,14 @@
 	margin-right:2.5%;
 }
 
+
+
 /* login */
 
-
+input{
+	font-size:0.8rem !important;
+	color:#777;
+}
 
 .login-box{
 	width:450px;
@@ -79,7 +84,7 @@
 	outline: 3px solid rgba(255,255,255, 0);
 	width:100%;
 	height:35px; 
-	padding-left:20px;
+	padding-left:12px;
 	margin-top:10px; 
 	border-radius: 8px;
 	background-color:rgba(255,255,255,0.7);
@@ -194,12 +199,12 @@
 	display: block;
 	box-sizing:border-box;
 	width:100%; 
-	height:50px;
+	height:45px;
 	padding:5px;
 	padding-left:20px;
-	line-height: 40px;
+	line-height: 35px;
 	border-radius: 15px;
-	margin-bottom:10px;
+	margin-bottom:15px;
 	text-decoration: none;
 	color:#fff;
 	letter-spacing: 0.5px;
@@ -238,7 +243,7 @@
 	display: block;
 	float:left;
 	margin-top:5px;
-	height:30px;
+	height:25px;
 	width:auto;
 }
 
@@ -252,12 +257,12 @@ input {
 }
 
 .input-error {
-	outline: 2px solid red !important;
+	outline: 2px solid rgba(252,3,26,0.5) !important;
 	border: none !important; /* 기존 border 제거 */
 }
 
 .input-success {
-	outline: 2px solid green !important;
+	outline: 2px solid rgba(14,166,0,0.5) !important;
 	border: none !important;
 }
 
@@ -317,6 +322,75 @@ input {
 	margin-left: 10px;
 	margin-top: 5px;
 }
+
+/* 경희 수정 시작  */ 
+ 
+.submit_button{
+	margin-top:30px !important;
+	margin-bottom:20px;
+}
+
+.email_check{
+	display: flex;
+	justify-content: space-between;
+}
+
+
+.email_check input{
+	width:67% !important;
+}
+
+.email_check button{
+	width:30% !important; 
+	margin-top:10px !important;
+	letter-spacing: 0px !important;
+}
+
+
+.email_check_box input{
+	width:67% !important;
+}
+
+
+.email_check_confirm{
+	width:30% !important;
+	margin-top:10px !important;
+	float:right;
+}
+
+.signUp_box input:disabled{
+	background-color:rgba(255,255,255,0.2);
+}
+
+.signUp_box input:disabled::placeholder{
+	color:rgba(255,255,255,0.6);
+}
+
+
+#emailDupMsg{
+	display:none;
+	width:100%;
+	font-size:0.7rem;
+	padding-top:5px;
+	padding-left:5px;
+}
+
+#loginIdDupChkMsg{
+	display:none;
+	width:100%;
+	font-size:0.7rem;
+	padding-top:5px;
+	padding-left:5px;
+}
+
+#pwChkMsg{
+	display:none;
+	width:100%;
+	font-size:0.7rem;
+	padding-top:5px;
+	padding-left:5px;
+}
+
 
 /* 비밀번호찾기 */
 

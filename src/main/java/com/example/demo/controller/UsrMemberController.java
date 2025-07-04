@@ -14,6 +14,7 @@ import com.example.demo.dto.Member;
 import com.example.demo.dto.NaverUserInfo;
 import com.example.demo.dto.Req;
 import com.example.demo.dto.ResultData;
+import com.example.demo.service.EmailAuthService;
 import com.example.demo.service.GoogleService;
 import com.example.demo.service.KakaoService;
 import com.example.demo.service.MemberService;
@@ -25,13 +26,15 @@ import com.example.demo.util.Util;
 public class UsrMemberController {
 
 	private MemberService memberService;
+	private EmailAuthService emailAuthService;
 	private KakaoService kakaoService;
 	private NaverService naverService;
 	private GoogleService googleService;
 	private Req req;
 	
-	public UsrMemberController(MemberService memberService, KakaoService kakaoService, NaverService naverService, GoogleService googleService, Req req) {
+	public UsrMemberController(MemberService memberService, KakaoService kakaoService, NaverService naverService, GoogleService googleService, Req req , EmailAuthService emailAuthService) {
 		this.memberService = memberService;
+		this.emailAuthService = emailAuthService;
 		this.naverService = naverService;
 		this.kakaoService = kakaoService;
 		this.googleService = googleService;
@@ -57,7 +60,7 @@ public class UsrMemberController {
 
 			// loginId와 email은 필수값이어야 함
 			if (email == null || loginId == null || loginPw == null) {
-				return Util.jsReplace("일반 회원가입에 필요한 정보가 부족합니다.", "usr/member/signup");
+				return Util.jsReplace("일반 회원가입에 필요한 정보가 부족합니다.", "/usr/member/signup");
 			}
 		}
 
@@ -70,6 +73,7 @@ public class UsrMemberController {
 	public String emailSignup() {
 		return "usr/member/emailSignUp";
 	}
+		
 	
 	@GetMapping("/usr/member/loginIdDupChk")
 	@ResponseBody
@@ -78,11 +82,14 @@ public class UsrMemberController {
 		Member member = this.memberService.getMemberByLoginIdChk(loginId);
 
 		if (member != null) {
-			return ResultData.from("F-1", String.format("[ %s ] 은(는) 이미 사용중인 아이디입니다", loginId));
+			return ResultData.from("F-1", String.format("이미 사용중인 아이디입니다", loginId));
 		}
 
-		return ResultData.from("S-1", String.format("[ %s ] 은(는) 사용가능한 아이디입니다", loginId));
+		return ResultData.from("S-1", String.format("사용가능한 아이디입니다", loginId));
 	}
+	
+	
+	
 
 	@GetMapping("/usr/member/emailDupChk")
 	@ResponseBody
@@ -91,10 +98,10 @@ public class UsrMemberController {
 		Member member = this.memberService.getMemberByEmail(email);
 
 		if (member != null) {
-			return ResultData.from("F-1", String.format("[ %s ] 은(는) 이미 가입된 이메일입니다", email));
+			return ResultData.from("F-1", String.format("이미 가입된 이메일입니다", email));
 		}
 
-		return ResultData.from("S-1", String.format("[ %s ] 은(는) 사용가능한 이메일입니다", email));
+		return ResultData.from("S-1", String.format("사용가능한 이메일입니다", email));
 	}
 	
 	// 카카오 로그인 콜백 처리
@@ -279,5 +286,27 @@ public class UsrMemberController {
 
 		return ResultData.from("S-1", "사용 가능한 닉네임입니다");
 	}
+	
+	
+	
+	//이메일 인증번호 보내기
+    @GetMapping("/usr/member/sendToEmailForconfirm")
+    @ResponseBody
+    public String sendToEmailForconfirm(@RequestParam String email) {
+        emailAuthService.sendAuthCode(email);
+        return "인증코드가 전송되었습니다.";
+    }
+
+    @GetMapping("/usr/member/verifyEmailCode")
+    @ResponseBody
+    public String verifyEmailCode(@RequestParam String email, @RequestParam String code) {
+        boolean success = emailAuthService.verifyCode(email, code);
+        return success ? "인증 성공" : "인증 실패";
+    }
+	
+	
+	
+	
+	
 	
 }

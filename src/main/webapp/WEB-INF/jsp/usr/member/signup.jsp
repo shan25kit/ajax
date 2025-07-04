@@ -16,7 +16,7 @@
 	
 	<div class="login-box glossy">
 
-		<h3 class="login_header">SING UP</h3>
+		<h3 class="login_header">SIGN UP</h3>
 
 		<div class="login_inner_box">
 
