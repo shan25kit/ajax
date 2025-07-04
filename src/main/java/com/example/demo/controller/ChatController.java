@@ -38,12 +38,12 @@ public class ChatController {
 		System.out.println("받은 메시지: " + request.getMessage()); // 디버깅
 		System.out.println("요청 시간: " + LocalDateTime.now());
 
-		// rawMessage와 userId 추출
+		// rawMessage와 memberId 추출
 		String rawMessage = request.getMessage();
-		int userId = req.getLoginedMember().getId();// 세션에서 userId 가져오기
+		int memberId = req.getLoginedMember().getId();// 세션에서 memberId 가져오기
 
 		// 전처리 서비스 호출
-		ProcessedMessage processed = messagePreprocessingService.preprocessMessage(rawMessage, userId);
+		ProcessedMessage processed = messagePreprocessingService.preprocessMessage(rawMessage, memberId);
 		// 1. 오류 상황 처리
 		if (processed.isHasError()) {
 			return new ChatResponse(processed.getErrorMessage());
@@ -64,12 +64,12 @@ public class ChatController {
 	public ChatResponse sendMessageWithRole(@PathVariable String botType, @RequestBody ChatRequest request) {
 		System.out.println("봇타입: " + botType + " - 받은 메시지: " + request.getMessage());
 		System.out.println("요청 시간: " + LocalDateTime.now());
-		// rawMessage와 userId 추출
+		// rawMessage와 memberId 추출
 		String rawMessage = request.getMessage();
-		int userId = req.getLoginedMember().getId();// 세션에서 userId 가져오기
+		int memberId = req.getLoginedMember().getId();// 세션에서 memberId 가져오기
 
 		// 전처리 서비스 호출
-		ProcessedMessage processed = messagePreprocessingService.preprocessMessage(rawMessage, userId);
+		ProcessedMessage processed = messagePreprocessingService.preprocessMessage(rawMessage, memberId);
 		if (processed.isHasError()) {
 			return new ChatResponse(processed.getErrorMessage());
 		}

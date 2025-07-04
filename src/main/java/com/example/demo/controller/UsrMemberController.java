@@ -264,7 +264,7 @@ public class UsrMemberController {
 		
 		this.memberService.insertNickName(memberId, nickName);
 		
-		return Util.jsReplace("닉네임 등록이 완료되었습니다", "/usr/home/testMap");
+		return Util.jsReplace("닉네임 등록이 완료되었습니다", "/usr/member/customPageTest");
 	}
 	
 	@GetMapping("/usr/member/nickNameDupChk")

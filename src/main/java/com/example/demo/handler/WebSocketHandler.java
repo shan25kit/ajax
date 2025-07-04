@@ -1,24 +1,27 @@
-package com.example.demo.config;
+package com.example.demo.handler;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Component;
-import org.springframework.web.socket.*;
+import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import com.example.demo.dto.PlayerInfo;
-import com.example.demo.dto.Position;
+import com.example.demo.dto.Player;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 @Component
 public class WebSocketHandler extends TextWebSocketHandler {
     
     // 연결된 플레이어들 저장
     private final Map<String, WebSocketSession> players = new ConcurrentHashMap<>();
-    private final Map<String, PlayerInfo> playerInfos = new ConcurrentHashMap<>();
+    private final Map<String, Player> playerInfos = new ConcurrentHashMap<>();
     
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -50,40 +53,49 @@ public class WebSocketHandler extends TextWebSocketHandler {
     // 맵 입장 처리
     private void handleJoinMap(WebSocketSession session, JsonNode messageNode) throws Exception {
         String sessionId = session.getId();
-        String username = messageNode.get("username").asText();
-        JsonNode characterNode = messageNode.get("character");
-        
+        int memberId = messageNode.get("memberId").asInt();
+        String nickName = messageNode.get("username").asText();
+        JsonNode avatarInfo = messageNode.get("avatarInfo"); 
+      
         // 플레이어 정보 저장
-        PlayerInfo playerInfo = new PlayerInfo();
-        playerInfo.setId(sessionId);
-        playerInfo.setUsername(username);
-        playerInfo.setPosition(new Position(0, 0, 0)); // 시작 위치
-        playerInfo.setCharacter(characterNode);
+        Player player = new Player();
+        player.setId(sessionId);
+        player.setMemberId(memberId);
+        player.setNickName(nickName);
+        player.setAvatarInfo(avatarInfo);
+		 
+		Map<String, Double> initialPosition = new HashMap<>();
+		initialPosition.put("x", 0.0);
+		initialPosition.put("y", 0.0);
+		initialPosition.put("z", 0.0);
+		player.setPosition(initialPosition);
+		
         
-        playerInfos.put(sessionId, playerInfo);
+        playerInfos.put(sessionId, player);
+        System.out.println("플레이어 저장 완료: " + nickName);
         
         // 다른 플레이어들에게 새 플레이어 알림
-        broadcastToOthers(sessionId, createPlayerJoinedMessage(playerInfo));
-        
-        // 새 플레이어에게 기존 플레이어들 정보 전송
+        broadcastToOthers(sessionId, createPlayerJoinedMessage(player));
         sendExistingPlayers(session);
+        System.out.println("브로드캐스팅 완료");
     }
     
     // 플레이어 움직임 처리
     private void handlePlayerMove(String sessionId, JsonNode messageNode) throws Exception {
-        PlayerInfo playerInfo = playerInfos.get(sessionId);
-        if (playerInfo != null) {
-            JsonNode positionNode = messageNode.get("position");
-            Position newPosition = new Position(
-                positionNode.get("x").asDouble(),
-                positionNode.get("y").asDouble(),
-                positionNode.get("z").asDouble()
-            );
+        Player player = playerInfos.get(sessionId);
+        if (player != null) {
+            JsonNode position = messageNode.get("position");
             
-            playerInfo.setPosition(newPosition);
+         // Map으로 위치 업데이트
+            Map<String, Double> newPosition = new HashMap<>();
+            newPosition.put("x", position.get("x").asDouble());
+            newPosition.put("y", position.get("y").asDouble());
+            newPosition.put("z", position.get("z").asDouble());
+            
+            player.updatePosition(newPosition);
             
             // 다른 플레이어들에게 위치 업데이트 브로드캐스트
-            broadcastToOthers(sessionId, createPlayerMovedMessage(sessionId, newPosition));
+            broadcastToOthers(sessionId, createPlayerMovedMessage(sessionId, player));
         }
     }
     
@@ -100,21 +112,20 @@ public class WebSocketHandler extends TextWebSocketHandler {
             });
     }
     
-    // 기존 플레이어들 정보 전송
-    private void sendExistingPlayers(WebSocketSession session) throws Exception {
-        List<PlayerInfo> existingPlayers = playerInfos.values().stream()
-            .filter(player -> !player.getId().equals(session.getId()))
-            .collect(Collectors.toList());
-        
-        if (!existingPlayers.isEmpty()) {
-            String message = createExistingPlayersMessage(existingPlayers);
-            session.sendMessage(new TextMessage(message));
-        }
-    }
+	 // 기존 플레이어들 정보 전송 
+     private void sendExistingPlayers(WebSocketSession session) throws Exception { 
+     List<Player> existingPlayers = playerInfos.values().stream().filter(player ->
+	 !player.getId().equals(session.getId())).toList();
+	  
+	  if (!existingPlayers.isEmpty()) { 
+		  String message = createExistingPlayersMessage(existingPlayers); 
+		  session.sendMessage(new TextMessage(message)); } }
+	 
     
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         String sessionId = session.getId();
+        Player player = playerInfos.get(sessionId);
         players.remove(sessionId);
         playerInfos.remove(sessionId);
         
@@ -122,27 +133,29 @@ public class WebSocketHandler extends TextWebSocketHandler {
         broadcastToOthers(sessionId, createPlayerLeftMessage(sessionId));
         
         System.out.println("플레이어 연결 해제: " + sessionId);
+        String nickName = player != null ? player.getNickName() : "Unknown";
+        System.out.println("플레이어 연결 해제: " + nickName + " (" + sessionId + ")");
     }
     
     // 메시지 생성 메서드들
-    private String createPlayerJoinedMessage(PlayerInfo playerInfo) throws Exception {
+    private String createPlayerJoinedMessage(Player player) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Object> message = new HashMap<>();
         message.put("type", "player-joined");
-        message.put("player", playerInfo);
+        message.put("player", player);
         return mapper.writeValueAsString(message);
     }
     
-    private String createPlayerMovedMessage(String playerId, Position position) throws Exception {
+    private String createPlayerMovedMessage(String memberId, Player player) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Object> message = new HashMap<>();
         message.put("type", "player-moved");
-        message.put("playerId", playerId);
-        message.put("position", position);
+        message.put("memberId", memberId);
+        message.put("position", player.getPositionForBroadcast());
         return mapper.writeValueAsString(message);
     }
     
-    private String createExistingPlayersMessage(List<PlayerInfo> players) throws Exception {
+    private String createExistingPlayersMessage(List<Player> players) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Object> message = new HashMap<>();
         message.put("type", "existing-players");
@@ -150,11 +163,12 @@ public class WebSocketHandler extends TextWebSocketHandler {
         return mapper.writeValueAsString(message);
     }
     
-    private String createPlayerLeftMessage(String playerId) throws Exception {
+    private String createPlayerLeftMessage(String memberId) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Object> message = new HashMap<>();
         message.put("type", "player-left");
-        message.put("playerId", playerId);
+        message.put("memberId", memberId);
         return mapper.writeValueAsString(message);
     }
+
 }

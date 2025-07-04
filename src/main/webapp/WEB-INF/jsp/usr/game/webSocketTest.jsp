@@ -137,14 +137,14 @@
                     updateOtherPlayers();
                     break;
                 case 'player-moved':
-                    const player = otherPlayers.get(message.playerId);
+                    const player = otherPlayers.get(message.memberId);
                     if (player) {
                         player.position = message.position;
                         updateOtherPlayers();
                     }
                     break;
                 case 'player-left':
-                    otherPlayers.delete(message.playerId);
+                    otherPlayers.delete(message.memberId);
                     updateOtherPlayers();
                     break;
             }

@@ -69,7 +69,7 @@ public class MemberService {
         String text = "<html>"
                     + "<body>"
                     + "<h3>임시 패스워드 : " + tempPassword + "</h3>"
-                    + "<a style='display:inline-block;padding:10px;border-radius:10px;border:5px solid black;font-size:4rem;color:inherit;text-decoration:none;' href='http://localhost:8080/usr/member/login' target='_blank'>로그인 하러가기</a>"
+                    + "<a style='display:inline-block;padding:10px;border-radius:10px;border:5px solid black;font-size:4rem;color:inherit;text-decoration:none;' href='http://localhost:8081/usr/member/login' target='_blank'>로그인 하러가기</a>"
                     + "</body>"
                     + "</html>";
         sendEmail(member.getEmail(), subject, text);
