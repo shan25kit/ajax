@@ -25,4 +25,9 @@ public class UsrHomeController {
 	public String testMap() {
 		return "usr/home/testMap";
 	}
+	
+	@GetMapping("/usr/home/webSocketTest")
+	public String webSocketTest() {
+		return "usr/home/webSocketTest";
+	}
 }

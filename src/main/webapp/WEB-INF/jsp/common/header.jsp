@@ -11,7 +11,7 @@
 <!-- Main -->
 <link rel="stylesheet" href="/resource/css/main.css" />
 <link rel="stylesheet" href="/resource/css/login.css" />
-
+<link rel="stylesheet" href="/resource/css/socketTest.css" />
 <!-- CSS 끝 -->
 
 <!-- lottie -->

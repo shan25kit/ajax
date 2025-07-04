@@ -173,7 +173,7 @@
             }
 
             // 캐릭터 변수
-            let character1;
+            let aiChatbot;
             let character2;
             let loadedCharacters = 0; // 로딩 완료 카운터
 
@@ -194,17 +194,17 @@
                     '/resource/images/default.glb',
                     function(gltf) {
                         console.log('첫 번째 GLTF 모델 로드 성공');
-                        character1 = gltf.scene;
+                        aiChatbot = gltf.scene;
                         
                         // 바운딩 박스 계산
-                        const box = new THREE.Box3().setFromObject(character1);
-                        console.log('Character1 Bounding Box:', box);
+                        const box = new THREE.Box3().setFromObject(aiChatbot);
+                        console.log('aiChatbot Bounding Box:', box);
                         
-                        character1.scale.set(2, 2, 2);
-                        character1.position.set(0, -2, 1);
+                        aiChatbot.scale.set(2, 2, 2);
+                        aiChatbot.position.set(0, -2, 1);
 
                         // 모든 메시의 재질 속성을 조정하여 더 밝게
-                        character1.traverse((child) => {
+                        aiChatbot.traverse((child) => {
                             if (child.isMesh && child.material) {
                                 child.material = child.material.clone();
 
@@ -221,17 +221,17 @@
                             }
                         });
 
-                        character1.rotation.y = Math.PI / 4;
-                        character1.rotation.x = Math.PI / 6;
+                        aiChatbot.rotation.y = Math.PI / 4;
+                        aiChatbot.rotation.x = Math.PI / 6;
 
-                        scene.add(character1);
+                        scene.add(aiChatbot);
                         hideLoading();
                     },
                     undefined,
                     function(error) {
                         console.log('첫 번째 GLTF 모델 로드 실패, 기본 캐릭터 사용');
-                        character1 = createDefaultCharacter();
-                        character1.position.set(-2, 0, 1);
+                        aiChatbot = createDefaultCharacter();
+                        aiChatbot.position.set(-2, 0, 1);
                         hideLoading();
                     }
                 );
@@ -279,8 +279,8 @@
                 );
             } else {
                 console.log('GLTFLoader 사용 불가, 기본 캐릭터 사용');
-                character1 = createDefaultCharacter();
-                character1.position.set(-2, 0, 1);
+                aiChatbot = createDefaultCharacter();
+                aiChatbot.position.set(-2, 0, 1);
                 character2 = createDefaultCharacter();
                 character2.position.set(2, 0, 1);
                 hideLoading();
@@ -341,7 +341,7 @@
 
                 for (let i = 0; i < 10; i++) {
                     const particle = new THREE.Mesh(particleGeometry, particleMaterial);
-                    particle.position.copy(character1.position);
+                    particle.position.copy(aiChatbot.position);
                     particle.position.x += (Math.random() - 0.5) * 3;
                     particle.position.y += (Math.random() - 0.5) * 3;
                     particle.position.z += Math.random() * 2;
