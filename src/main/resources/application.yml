@@ -14,11 +14,13 @@ spring:
     username: 0810nayoon@gmail.com
     password: ggedeafqixwrtllx
     properties:
-      mail: 
-        smtp: 
+      mail:
+        smtp:
           auth: true
-          starttls: 
+          starttls:
             enable: true
+            required: true
+    default-encoding: UTF-8
 server:
   port: 8081
 #  servlet:

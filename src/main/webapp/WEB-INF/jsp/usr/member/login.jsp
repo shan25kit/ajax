@@ -15,8 +15,9 @@
 	
 	<div class="login-box glossy">
 
-
 		<div class="login_inner_box">
+		
+		<h3 class="login_header">LOGIN</h3>
 
 			<!-- 일반 로그인 폼 -->
 			<form action="/usr/member/doLogin" method="post">

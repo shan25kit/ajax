@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import com.example.demo.dto.EmailAuth;
 import com.example.demo.dto.Member;
 
 @Mapper
@@ -83,6 +84,7 @@ public interface MemberDao {
 			""")
 	Member getMemberByNickName(String nickName);
 
+	
 	@Select("""
 			SELECT *
 				FROM member
@@ -90,4 +92,6 @@ public interface MemberDao {
 			""")
 	Member getMemberByLoginIdChk(String loginId);
 
-}
+	
+	}
+
