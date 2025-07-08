@@ -90,6 +90,10 @@ public class MemberService {
 		return this.memberDao.getMemberByLoginIdChk(loginId);
 	}
 
+	public Member getMemberById(int id) {
+		return this.memberDao.getMemberById(id);
+	}
+
 	
 
 	// 이메일 인증 메일 보내기
