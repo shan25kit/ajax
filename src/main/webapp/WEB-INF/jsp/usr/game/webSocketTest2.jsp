@@ -10,7 +10,7 @@
 	src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script
 	src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
- <script>
+<script>
  console.log('=== 서버 데이터 원본 ===');
  console.log('Member ID Raw:', '${player.memberId}');
  console.log('Nick Name Raw:', '${player.nickName}');
@@ -21,10 +21,9 @@
         let player = {
             memberId: ${player.memberId},
             nickName: "${player.nickName}",
-            avatarInfo: JSON.parse('${player.avatarInfo}') // JsonNode를 JavaScript 객체로
+            avatarInfo: typeof '${player.avatarInfo}' === 'string' ? JSON.parse('${player.avatarInfo}') : '${player.avatarInfo}' // 문자열 체크 후 파싱
         };
 
-        console.log('플레이어 데이터:', player);
 
         // 웹소켓 연결 및 게임 시작
         class GameClient {
@@ -35,32 +34,34 @@
                 this.camera = null;
                 this.renderer = null;
                 this.loader = null;
-                this.playerCharacters = new Map(); // sessionId -> character 매핑
+         		this.playerCharacters = new Map(); // sessionId -> character 매핑
                 this.myCharacter = null;
-                this.initThreeJS();
+                this.keys = {};
+                this.speed = 0.2;
             }
 
             // Three.js 초기화 (기존 코드 기반)
             initThreeJS() {
                 // 씬, 카메라, 렌더러 설정
                 this.scene = new THREE.Scene();
-                this.scene.background = new THREE.Color(0x000000);
 
                 this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+                // 카메라를 정면에서 내려다보는 위치로 설정
                 const distance = 30;
-                const angle45 = Math.PI / 4;
-                
-                this.camera.position.set(
-                    distance * Math.cos(angle45) * Math.cos(angle45),
-                    distance * Math.sin(angle45),
-                    distance * Math.cos(angle45) * Math.sin(angle45)
-                );
+                this.camera.position.set(0, distance, 0); // 위에서 내려다보는 시점
                 this.camera.lookAt(0, 0, 0);
 
-                this.renderer = new THREE.WebGLRenderer({ antialias: true });
+                this.renderer = new THREE.WebGLRenderer({ 
+                    antialias: true,
+                    alpha: true // 투명 배경 활성화
+                });
                 this.renderer.setSize(window.innerWidth, window.innerHeight);
+                // 배경을 투명하게 설정
+                this.renderer.setClearColor(0x000000, 0); // 두 번째 매개변수가 알파값 (0 = 완전투명)
                 
-                if (this.renderer.outputEncoding !== undefined) {
+                if (this.renderer.outputColorSpace !== undefined) {
+                    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+                } else if (this.renderer.outputEncoding !== undefined) {
                     this.renderer.outputEncoding = THREE.sRGBEncoding;
                 }
                 
@@ -69,32 +70,28 @@
                 // 조명 설정
                 this.setupLighting();
                 
-                // 맵 로드
-                this.loadMap();
-
                 // GLTFLoader 초기화
                 if (typeof THREE.GLTFLoader !== 'undefined') {
                     this.loader = new THREE.GLTFLoader();
                 }
-
                 // 애니메이션 시작
                 this.animate();
             }
 
             setupLighting() {
-                const ambient = new THREE.AmbientLight(0xffffff, 2.0);
+                const ambient = new THREE.AmbientLight(0xffffff, .5);
                 this.scene.add(ambient);
 
-                const light = new THREE.DirectionalLight(0xffffff, 2.5);
-                light.position.set(5, 10, 5);
+                const light = new THREE.DirectionalLight(0xffffff, .5);
+                light.position.set(0, 20, 10);
                 this.scene.add(light);
 
-                const light2 = new THREE.DirectionalLight(0xffffff, 2.0);
-                light2.position.set(-5, 5, 10);
-                this.scene.add(light2);
+            /*     const light2 = new THREE.DirectionalLight(0xffffff, .5);
+                light2.position.set(10, 15, 0);
+                this.scene.add(light2); */
 
-                const pointLight = new THREE.PointLight(0xffffff, 2.0, 50);
-                pointLight.position.set(0, 5, 5);
+                const pointLight = new THREE.PointLight(0xffffff, .5, 50);
+                pointLight.position.set(0, 15, 0);
                 this.scene.add(pointLight);
             }
 
@@ -112,294 +109,223 @@
                         const mapMaterial = new THREE.MeshBasicMaterial({
                             map: texture,
                             transparent: false,
-                            side: THREE.FrontSide
+                            side: THREE.DoubleSide
                         });
                         
                         const mapPlane = new THREE.Mesh(mapGeometry, mapMaterial);
-                        mapPlane.position.z = -0.1;
-                        mapPlane.userData.isMap = true;
+                        // 맵을 수평으로 눕혀서 위에서 내려다볼 수 있게 설정
+                        mapPlane.rotation.x = -Math.PI / 2; // 90도 회전
+                        mapPlane.position.set(0, -0.5, 0);
                         this.scene.add(mapPlane);
+                        
                     },
                     undefined,
                     (error) => {
-                        console.log('맵 이미지 로드 실패, 기본 패턴 사용');
-                        this.createDefaultMap();
+                        console.log('맵 이미지 로드 실패');
                     }
                 );
             }
 
-            createDefaultMap() {
-                const canvas = document.createElement('canvas');
-                canvas.width = 256;
-                canvas.height = 256;
-                const ctx = canvas.getContext('2d');
-                
-                const gradient = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
-                gradient.addColorStop(0, '#404040');
-                gradient.addColorStop(1, '#202020');
-                ctx.fillStyle = gradient;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                const mapTexture = new THREE.CanvasTexture(canvas);
-                const mapGeometry = new THREE.PlaneGeometry(500, 500);
-                const mapMaterial = new THREE.MeshBasicMaterial({ map: mapTexture });
-                const mapPlane = new THREE.Mesh(mapGeometry, mapMaterial);
-                mapPlane.position.z = -0.1;
-                this.scene.add(mapPlane);
-            }
+            async connect() {
+            	return new Promise((resolve, reject) => {
+            		 console.log('웹소켓 연결 시작');
+                     this.socket = new WebSocket('ws://localhost:8081/game');
 
-            connect() {
-                this.socket = new WebSocket('ws://localhost:8081/game');
+                     this.socket.onopen = async () => {
+                         console.log('웹소켓 연결 완료, readyState:', this.socket.readyState);
+                         // 웹소켓이 완전히 열릴 때까지 잠시 대기
+                         setTimeout(async () => {
+                             await this.joinMap();
+                             resolve();
+                         }, 100);
+                     };
 
-                this.socket.onopen = () => {
-                    console.log('웹소켓 연결됨');
-                    this.joinMap();
-                };
+                     this.socket.onmessage = async (event) => {
+                    	 console.log('=== 웹소켓 메시지 수신 ===');
+                    	 console.log('Raw message:', event.data);
+                         const message = JSON.parse(event.data);
+                         await this.handleMessage(message);
+                     };
 
-                this.socket.onmessage = (event) => {
-                    const message = JSON.parse(event.data);
-                    this.handleMessage(message);
-                };
-            }
+                     this.socket.onerror = (error) => {
+                         console.error('웹소켓 오류:', error);
+                         reject(error);
+                     };
 
+                     this.socket.onclose = () => {
+                         console.log('웹소켓 연결 종료');
+                     };
+                 });
+             }
+            
             joinMap() {
                 const joinMessage = {
                     type: 'join-map',
                     memberId: this.player.memberId,
                     nickName: this.player.nickName,
-                    character: this.player.avatarInfo // 서버에서 준비된 완전한 아바타 데이터
+                    avatarInfo: this.player.avatarInfo // 서버에서 준비된 완전한 아바타 데이터
                 };
-
-                this.socket.send(JSON.stringify(joinMessage));
-                console.log('맵 입장 요청:', joinMessage);
-            }
-
-            handleMessage(message) {
-                switch (message.type) {
-                    case 'player-joined':
-                        console.log('새 플레이어 입장:', message.player);
-                        this.renderPlayer(message.player);
-                        break;
-
-                    case 'existing-players':
-                        console.log('기존 플레이어들:', message.players);
-                        message.players.forEach(player => {
-                            this.renderPlayer(player);
-                        });
-                        break;
-
-                    case 'player-moved':
-                        this.updatePlayerPosition(message.memberId, message.position);
-                        break;
-
-                    case 'player-left':
-                        this.removePlayer(message.memberId);
-                        break;
+                console.log('=== 맵 입장 요청 전송 ===');
+                console.log('메시지 내용:', joinMessage);
+                console.log('JSON 문자열:', JSON.stringify(joinMessage));
+                
+                try {
+                    this.socket.send(JSON.stringify(joinMessage));
+                    console.log('✓ 맵 입장 요청 전송 완료');
+                    
+              
+                } catch (sendError) {
+                    console.error('메시지 전송 실패:', sendError);
                 }
             }
+            
+            
+            async handleMessage(message) {
+                console.log('메시지 수신:', message.type, message);
+                try {
+                    switch (message.type) {
+                        case 'player-joined':
+                            console.log('새 플레이어 입장:', message.player);
+                            // 플레이어 데이터에서 캐릭터 정보 추출
+                            const avatarInfo = typeof player.avatarInfo === 'string' 
+                                ? JSON.parse(player.avatarInfo) 
+                                : player.avatarInfo;
+                            const defaultPosition = { x: 0, y: 0.5, z: 0 };
+                            
+                              await this.loadCharacter(avatarInfo, defaultPosition, this.player.memberId, this.player.nickName, true );  
+                              console.log('✓ 내 캐릭터 로드 완료');
+                            break;
 
-            renderPlayer(player) {
-                // 플레이어 데이터에서 캐릭터 정보 추출
-                const avatarInfo = typeof player.avatarInfo === 'string' 
-                    ? JSON.parse(player.avatarInfo) 
-                    : player.avatarInfo;
+                        case 'existing-players':
+                            console.log('기존 플레이어들:', message.players);
+                            // 다른 플레이어들 순차적으로 로드
+                            for (const player of message.players) {
+                                if (player.memberId !== this.player.memberId) {
+                                	 const avatarInfo = typeof player.avatarInfo === 'string' 
+                                           ? JSON.parse(player.avatarInfo) 
+                                           : player.avatarInfo;
+                                    await this.loadCharacter(avatarInfo, player.position, player.memberId, player.nickName, false);
+                                }
+                            }
+                            break;
 
-                console.log('플레이어 렌더링:', player.nickName, avatarInfo);
+                        case 'player-moved':
+                            this.updatePlayerPosition(message.memberId, message.position);
+                            break;
 
-                // Three.js로 캐릭터 로딩
-                this.loadCharacter(avatarInfo, player.position, player.memberId, player.nickName);
-            }
-
-            // 실제 캐릭터 로딩 로직 (테스트 데이터 구조에 맞춤)
-            loadCharacter(avatarInfo, position, memberId, nickName) {
-                console.log('캐릭터 로딩 시작:', nickName, avatarInfo);
-
-                // 베이스 모델 경로
-                const baseModelPath = avatarInfo.baseModel || '/resource/images/default.glb';
-                
-                if (this.loader) {
-                    // 1. 베이스 모델 먼저 로드
-                    this.loader.load(
-                        baseModelPath,
+                        case 'player-left':
+                            this.removePlayer(message.memberId);
+                            break;
+                    }
+                } catch (error) {
+                    console.error('메시지 처리 중 오류:', error);
+                }
+            }   
+            
+         
+     loadCharacter(avatarInfo, position, memberId, nickName, isMe = false) {
+        return new Promise((resolve) => {
+            console.log('=== 캐릭터 로딩 시작 ===');
+            console.log('닉네임:', nickName, 'isMe:', isMe);
+            console.log('멤버ID:', memberId);
+            console.log('위치:', position);
+            console.log('아바타 정보:', avatarInfo);
+            
+           this.loader.load(
+                        avatarInfo.baseModel,
                         (gltf) => {
-                            console.log('베이스 모델 로드 성공:', nickName);
+                            console.log('✓ GLTF 모델 로드 성공:', nickName);
                             const character = gltf.scene;
-                            
-                            // 스케일 적용 (테스트 데이터의 transform.scale 사용)
-                            const scale = avatarInfo.transform?.scale || 0.3;
-                            character.scale.set(scale, scale, scale);
-                            
+                            // 먼저 스케일 설정 (원하는 크기로 조정)
+                            const characterScale = 0.8; 
+                            character.scale.set(characterScale, characterScale, characterScale);
                             // 위치 설정
-                            if (position) {
-                                character.position.set(position.x || 0, position.y || 0, (position.z || 0) + 1);
-                            } else {
-                                character.position.set(0, 0, 1);
-                            }
+            if (position) {
+                character.position.set(position.x || 0, 1, position.z || 0);
+            } else {
+                character.position.set(0, 1, 0);
+            }
+           character.rotation.y = Math.PI / 4;
+           character.rotation.x = -Math.PI / 6;
+         
+            // 내 캐릭터인 경우 설정
+            if (isMe || memberId === this.player.memberId) {
+                this.myCharacter = character;
+                this.setupCameraFollow();
+                console.log('✓ 내 캐릭터 설정 완료');
+            }
 
-                            // 기본 회전 설정
-                            character.rotation.y = Math.PI / 4;
-                            character.rotation.x = Math.PI / 6;
 
-                            // 기본 재질 설정
-                            this.applyBaseMaterialSettings(character);
-
-                            // 씬에 추가
-                            this.scene.add(character);
-                            
-                            // 캐릭터 저장
-                            this.playerCharacters.set(memberId, character);
-                            
-                            // 내 캐릭터인 경우 별도 저장
-                            if (memberId === this.player.memberId) {
-                                this.myCharacter = character;
-                                this.setupCameraFollow();
-                            }
-
-                            // 2. 파츠 로딩 (hair 등)
-                            if (avatarInfo.parts) {
-                                this.loadCharacterParts(character, avatarInfo.parts, nickName);
-                            }
-
-                            console.log('베이스 캐릭터 렌더링 완료:', nickName);
-                        },
-                        undefined,
-                        (error) => {
-                            console.log('베이스 모델 로드 실패, 기본 캐릭터 사용:', nickName, error);
-                            const character = this.createDefaultCharacter();
-                            
-                            if (position) {
-                                character.position.set(position.x || 0, position.y || 0, (position.z || 0) + 1);
-                            }
-                            
-                            this.scene.add(character);
-                            this.playerCharacters.set(memberId, character);
-                            
-                            if (memberId === this.socket?.id || memberId === 'me') {
-                                this.myCharacter = character;
-                                this.setupCameraFollow();
-                            }
-                        }
-                    );
-                } else {
-                    console.log('GLTFLoader 사용 불가, 기본 캐릭터 사용:', nickName);
-                    const character = this.createDefaultCharacter();
-                    
-                    if (position) {
-                        character.position.set(position.x || 0, position.y || 0, (position.z || 0) + 1);
+            this.scene.add(character);
+            this.playerCharacters.set(memberId, character);
+            
+     		// 파츠 로딩
+            if (avatarInfo.parts) {
+            this.loadCharacterParts(character, avatarInfo.parts, nickName);
+             } 
+     		resolve(character);
+             },
+                    (error) => {
+                        console.log('GLTF 모델 로드 실패', nickName, error);
                     }
-                    
-                    this.scene.add(character);
-                    this.playerCharacters.set(memberId, character);
-                    
-                    if (memberId === this.socket?.id || memberId === 'me') {
-                        this.myCharacter = character;
-                        this.setupCameraFollow();
+                );
+            });
+        }
+   
+
+     // 캐릭터 파츠 로딩 
+        loadCharacterParts(character, parts, nickName) {
+            console.log('캐릭터 파츠 로딩 시작:', nickName, parts);
+
+            // hair 파츠 로딩
+            if (parts.hair) {
+                console.log('머리 파츠 로딩:', parts.hair);
+                this.loader.load(
+                    parts.hair,
+                    (gltf) => {
+                        console.log('머리 파츠 로드 성공:', parts.hair);
+                        const hairModel = gltf.scene;
+                        // 바운딩 박스 계산
+                        const box = new THREE.Box3().setFromObject(hairModel);
+                        const center = box.getCenter(new THREE.Vector3());
+                     // 파츠 스케일을 베이스 캐릭터와 맞춤
+                        const baseScale = character.scale.x;
+                        const hairScale = baseScale * 1.2;
+                        hairModel.scale.set(hairScale, hairScale, hairScale);
+                        // 머리 파츠 위치 조정
+                         // 동적 위치 계산
+               			 hairModel.position.set(
+                   			 -center.x * hairScale-.3,
+                   			 1.5 * baseScale-.1 - center.y * hairScale + 3.2,
+                 			   -center.z * hairScale-.1
+               			 );
+                        
+                        character.add(hairModel);
+                        console.log('머리 파츠 부착 완료:', nickName);
+                    },
+                    undefined,
+                    (error) => {
+                        console.log('머리 파츠 로드 실패:', parts.hair, error);
                     }
-                }
+                );
             }
 
-            // 캐릭터 파츠 로딩 (테스트 데이터: hair3.glb)
-            loadCharacterParts(baseCharacter, parts, nickName) {
-                console.log('캐릭터 파츠 로딩 시작:', nickName, parts);
-
-                // hair 파츠 로딩
-                if (parts.hair) {
-                    console.log('머리 파츠 로딩:', parts.hair);
-                    this.loader.load(
-                        parts.hair, // '/resource/model/hair3.glb'
-                        (gltf) => {
-                            console.log('머리 파츠 로드 성공:', parts.hair);
-                            const hairModel = gltf.scene;
-                            
-                            // 머리 파츠를 베이스 캐릭터에 추가
-                            this.attachPartToCharacter(baseCharacter, hairModel, 'hair');
-                            
-                            console.log('머리 파츠 부착 완료:', nickName);
-                        },
-                        undefined,
-                        (error) => {
-                            console.log('머리 파츠 로드 실패:', parts.hair, error);
-                        }
-                    );
-                }
-
-                // 추후 추가될 다른 파츠들 (clothing, accessories 등)
-                if (parts.clothing) {
-                    this.loadClothingPart(baseCharacter, parts.clothing, nickName);
-                }
-                
-                if (parts.accessories) {
-                    this.loadAccessoryParts(baseCharacter, parts.accessories, nickName);
-                }
+            // 추후 추가될 다른 파츠들 (clothing, accessories 등)
+            if (parts.clothing) {
+                this.loadClothingPart(baseCharacter, parts.clothing, nickName);
             }
-
-            // 파츠를 캐릭터에 부착
-            attachPartToCharacter(baseCharacter, partModel, partType) {
-                // 파츠 스케일을 베이스 캐릭터와 맞춤
-                const baseScale = baseCharacter.scale.x;
-                partModel.scale.set(baseScale, baseScale, baseScale);
-                
-                // 파츠 타입에 따른 위치 조정
-                switch (partType) {
-                    case 'hair':
-                        // 머리는 베이스 캐릭터의 머리 위치에 맞춤
-                        partModel.position.set(0, 0, 0); // 상대 위치
-                        break;
-                    case 'clothing':
-                        partModel.position.set(0, 0, 0);
-                        break;
-                    default:
-                        partModel.position.set(0, 0, 0);
-                }
-
-                // 베이스 캐릭터에 파츠 추가
-                baseCharacter.add(partModel);
-                
-                // 파츠에도 기본 재질 설정 적용
-                this.applyBaseMaterialSettings(partModel);
+            
+            if (parts.accessories) {
+                this.loadAccessoryParts(baseCharacter, parts.accessories, nickName);
             }
-
-            // 기본 재질 설정 (기존 코드 기반)
-            applyBaseMaterialSettings(model) {
-                model.traverse((child) => {
-                    if (child.isMesh && child.material) {
-                        child.material = child.material.clone();
-
-                        // 밝기 조정
-                        if (child.material.color) {
-                            child.material.color.multiplyScalar(1.5);
-                        }
-
-                        // 재질 속성 조정
-                        if (child.material.metalness !== undefined) {
-                            child.material.metalness = 0.1;
-                        }
-                        if (child.material.roughness !== undefined) {
-                            child.material.roughness = 0.8;
-                        }
-                    }
-                });
-            }
-
-
-            // 기본 캐릭터 생성 (기존 코드 기반)
-            createDefaultCharacter() {
-                const geometry = new THREE.BoxGeometry(1, 2, 0.5);
-                const material = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
-                const character = new THREE.Mesh(geometry, material);
-                
-                character.scale.set(2, 2, 2);
-                character.rotation.y = Math.PI / 4;
-                character.rotation.x = Math.PI / 6;
-                
-                return character;
-            }
-
+        }
+            
             // 플레이어 위치 업데이트
             updatePlayerPosition(memberId, position) {
                 const character = this.playerCharacters.get(memberId);
                 if (character) {
-                    character.position.set(position.x, position.y, (position.z || 0) + 1);
+                    // y축을 1.0으로 고정해서 맵 위에 유지
+                    character.position.set(position.x, 1.0, position.z || 0);
                 }
             }
 
@@ -435,11 +361,11 @@
                     let moved = false;
                     
                     if (this.keys['ArrowUp'] || this.keys['w'] || this.keys['W']) {
-                        this.myCharacter.position.y += this.speed;
+                        this.myCharacter.position.z -= this.speed;
                         moved = true;
                     }
                     if (this.keys['ArrowDown'] || this.keys['s'] || this.keys['S']) {
-                        this.myCharacter.position.y -= this.speed;
+                        this.myCharacter.position.z += this.speed;
                         moved = true;
                     }
                     if (this.keys['ArrowLeft'] || this.keys['a'] || this.keys['A']) {
@@ -450,7 +376,8 @@
                         this.myCharacter.position.x += this.speed;
                         moved = true;
                     }
-
+                    // y축은 항상 0.5로 고정 (맵 위)
+                    this.myCharacter.position.y = 1;
                     // 이동했으면 서버에 위치 전송
                     if (moved) {
                         this.sendPositionUpdate();
@@ -459,12 +386,11 @@
                     // 카메라가 내 캐릭터를 따라다니기 (기존 코드 기반)
                     this.camera.position.set(
                         this.myCharacter.position.x,
-                        this.myCharacter.position.y,
-                        this.myCharacter.position.z + 30
+                        this.myCharacter.position.y + 25,
+                        this.myCharacter.position.z 
                     );
                     this.camera.lookAt(this.myCharacter.position.x, this.myCharacter.position.y, this.myCharacter.position.z);
                 }
-
                 this.renderer.render(this.scene, this.camera);
             }
 
@@ -476,25 +402,40 @@
                         position: {
                             x: this.myCharacter.position.x,
                             y: this.myCharacter.position.y,
-                            z: this.myCharacter.position.z - 1 // z축 보정
+                            z: this.myCharacter.position.z // z축 보정
                         }
                     };
                     this.socket.send(JSON.stringify(moveMessage));
                 }
             }
         }
-
-        // 페이지 로드 시 게임 시작
-        $(document).ready(() => {
-            const gameClient = new GameClient();
-            gameClient.connect();
-            
-            // 로딩 숨기기
-            setTimeout(() => {
-                $('#loading').fadeOut(500);
-            }, 2000);
-            
-            console.log('멀티플레이어 게임 클라이언트 초기화 완료!');
+        $(document).ready(async () => {
+            try {
+                console.log('게임 초기화 시작');
+                console.log('플레이어 정보 확인:', player);
+                
+                // 게임 클라이언트 생성 및 시작
+                const gameClient = new GameClient();
+                
+                // 1. Three.js 초기화
+                gameClient.initThreeJS();
+                console.log('1. Three.js 초기화완료');
+                
+                // 2. 맵 로드
+                gameClient.loadMap();
+                console.log('2. 맵 로드 완료');
+                
+                // 3. 웹소켓 연결 후 캐릭터 로드
+                gameClient.connect();
+                console.log('3. 웹소켓 연결 및 캐릭터 로드 완료');
+                
+                console.log('카메라 위치:', gameClient.camera.position);
+                
+            } catch (error) {
+                console.error('게임 초기화 중 오류 발생:', error);
+                alert('게임을 시작할 수 없습니다: ' + error.message);
+            }
         });
+ 
     </script>
 <%@ include file="/WEB-INF/jsp/common/footer.jsp"%>

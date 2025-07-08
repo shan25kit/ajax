@@ -58,10 +58,18 @@ INSERT INTO player (memberId, avatarInfo) VALUES (
     '{
         "baseModel": "/resource/images/body.glb",
         "parts": {
-            "hair": "/resource/model/hair3.glb"
-        },
-        "transform": {
-            "scale": 0.3
+            "hair": "/resource/images/hair2.glb"
         }
     }'
 );
+
+INSERT INTO player (memberId, avatarInfo) VALUES (
+    2,
+    '{
+        "baseModel": "/resource/images/body.glb",
+        "parts": {
+            "hair": "/resource/images/hair1.glb"
+        }
+    }'
+);
+

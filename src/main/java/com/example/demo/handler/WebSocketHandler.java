@@ -39,7 +39,9 @@ public class WebSocketHandler extends TextWebSocketHandler {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode messageNode = mapper.readTree(payload);
         String type = messageNode.get("type").asText();
-        
+        System.out.println(session);
+       System.out.println(messageNode);
+       
         switch (type) {
             case "join-map":
                 handleJoinMap(session, messageNode);
@@ -54,15 +56,15 @@ public class WebSocketHandler extends TextWebSocketHandler {
     private void handleJoinMap(WebSocketSession session, JsonNode messageNode) throws Exception {
         String sessionId = session.getId();
         int memberId = messageNode.get("memberId").asInt();
-        String nickName = messageNode.get("username").asText();
+        String nickName = messageNode.get("nickName").asText();
         JsonNode avatarInfo = messageNode.get("avatarInfo"); 
-      
         // 플레이어 정보 저장
         Player player = new Player();
         player.setId(sessionId);
         player.setMemberId(memberId);
         player.setNickName(nickName);
         player.setAvatarInfo(avatarInfo);
+		 System.out.println(player);
 		 
 		Map<String, Double> initialPosition = new HashMap<>();
 		initialPosition.put("x", 0.0);
@@ -74,8 +76,13 @@ public class WebSocketHandler extends TextWebSocketHandler {
         playerInfos.put(sessionId, player);
         System.out.println("플레이어 저장 완료: " + nickName);
         
-        // 다른 플레이어들에게 새 플레이어 알림
+      // 1. 본인에게 player-joined 메시지 전송
+        session.sendMessage(new TextMessage(createPlayerJoinedMessage(player)));
+
+        // 2. 다른 플레이어들에게 새 플레이어 알림
         broadcastToOthers(sessionId, createPlayerJoinedMessage(player));
+
+        // 3. 기존 플레이어들 정보 전송
         sendExistingPlayers(session);
         System.out.println("브로드캐스팅 완료");
     }
