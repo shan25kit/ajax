@@ -155,8 +155,6 @@ public class WebSocketHandler extends TextWebSocketHandler {
         broadcastToOthers(sessionId, createPlayerLeftMessage(sessionId));
         
         System.out.println("플레이어 연결 해제: " + sessionId);
-        String nickName = player != null ? player.getNickName() : "Unknown";
-        System.out.println("플레이어 연결 해제: " + nickName + " (" + sessionId + ")");
     }
     
     // 메시지 생성 메서드들
@@ -185,11 +183,11 @@ public class WebSocketHandler extends TextWebSocketHandler {
         return mapper.writeValueAsString(message);
     }
     
-    private String createPlayerLeftMessage(String memberId) throws Exception {
+    private String createPlayerLeftMessage(String sessionId) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Object> message = new HashMap<>();
         message.put("type", "player-left");
-        message.put("memberId", memberId);
+        message.put("sessionId", sessionId);
         return mapper.writeValueAsString(message);
     }
     

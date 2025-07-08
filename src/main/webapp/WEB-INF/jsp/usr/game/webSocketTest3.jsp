@@ -217,7 +217,7 @@
                             break;
 
                         case 'player-left':
-                            this.removePlayer(message.memberId);
+                            this.removePlayer(message.sessionId);
                             break;
                     }
                 } catch (error) {
@@ -341,7 +341,7 @@
             }
 
             // 플레이어 제거
-            removePlayer(memberId) {
+            removePlayer(sessionId) {
                 const character = this.playerCharacters.get(sessionId);
                 if (character) {
                     this.scene.remove(character);
@@ -413,7 +413,7 @@
                         position: {
                             x: this.myCharacter.position.x,
                             y: this.myCharacter.position.y,
-                            z: this.myCharacter.position.z // z축 보정
+                            z: this.myCharacter.position.z 
                         }
                     };
                     this.socket.send(JSON.stringify(moveMessage));

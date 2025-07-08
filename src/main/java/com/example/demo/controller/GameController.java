@@ -35,7 +35,7 @@ public class GameController {
 		Player player = this.gameService.selectPlayerByMemberId(memberId);
 		System.out.println(player);
 		model.addAttribute("player", player);
-        return "usr/game/webSocketTest2";
+        return "usr/game/webSocketTest3";
     }
 
 	// 테스트용 엔드포인트
