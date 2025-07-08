@@ -168,11 +168,11 @@ public class WebSocketHandler extends TextWebSocketHandler {
         return mapper.writeValueAsString(message);
     }
     
-    private String createPlayerMovedMessage(String memberId, Player player) throws Exception {
+    private String createPlayerMovedMessage(String sessionId, Player player) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Object> message = new HashMap<>();
         message.put("type", "player-moved");
-        message.put("memberId", memberId);
+        message.put("sessionId", sessionId);
         message.put("position", player.getPositionForBroadcast());
         return mapper.writeValueAsString(message);
     }

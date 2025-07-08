@@ -34,7 +34,7 @@
                 this.camera = null;
                 this.renderer = null;
                 this.loader = null;
-         		this.playerCharacters = new Map(); // sessionId -> character 매핑
+         		this.playerCharacters = new Map();
                 this.myCharacter = null;
                 this.keys = {};
                 this.speed = 0.2;
@@ -191,8 +191,7 @@
                                 ? JSON.parse(message.player.avatarInfo) 
                                 : message.player.avatarInfo;
                             const defaultPosition = message.player.position;
-                            
-                              await this.loadCharacter(avatarInfo, defaultPosition, message.player.memberId, message.player.nickName);  
+                              await this.loadCharacter(avatarInfo, defaultPosition, message.player.memberId, message.player.sessionId, message.player.nickName);  
                               console.log('✓ 내 캐릭터 로드 완료');
                             break;
 
@@ -204,13 +203,17 @@
                                 	 const avatarInfo = typeof player.avatarInfo === 'string' 
                                            ? JSON.parse(player.avatarInfo) 
                                            : player.avatarInfo;
-                                    await this.loadCharacter(avatarInfo, player.position, player.memberId, player.nickName);
+                                    await this.loadCharacter(avatarInfo, player.position, player.memberId, player.sessionId, player.nickName);
                                 }
                             }
                             break;
 
                         case 'player-moved':
-                            this.updatePlayerPosition(message.memberId, message.position);
+                        	 console.log('=== 플레이어 이동 메시지 수신 ===');
+                        	    console.log('받은 메시지:', message);
+                        	    console.log('sessionId:', message.sessionId);
+                        	    console.log('position:', message.position);
+                            this.updatePlayerPosition(message.sessionId, message.position);
                             break;
 
                         case 'player-left':
@@ -223,11 +226,12 @@
             }   
             
          
-     loadCharacter(avatarInfo, position, memberId, nickName) {
+     loadCharacter(avatarInfo, position, memberId, sessionId, nickName) {
         return new Promise((resolve) => {
             console.log('=== 캐릭터 로딩 시작 ===');
             console.log('닉네임:', nickName);
             console.log('멤버ID:', memberId);
+            console.log('세션ID:', sessionId);
             console.log('위치:', position);
             console.log('아바타 정보:', avatarInfo);
             
@@ -254,7 +258,7 @@
 
 
             this.scene.add(character);
-            this.playerCharacters.set(memberId, character);
+            this.playerCharacters.set(sessionId, character);
             
      		// 파츠 로딩
             if (avatarInfo.parts) {
@@ -318,20 +322,30 @@
         }
             
             // 플레이어 위치 업데이트
-            updatePlayerPosition(memberId, position) {
-                const character = this.playerCharacters.get(memberId);
+            updatePlayerPosition(sessionId, position) {
+            	console.log('=== 위치 업데이트 시도 ===');
+                console.log('새 위치:', position);
+                console.log('찾는 sessionId:', sessionId);
+                console.log('sessionId 타입:', typeof sessionId);
+                console.log('playerCharacters에 저장된 키들:', [...this.playerCharacters.keys()]);
+            	
+                const character = this.playerCharacters.get(sessionId);
+                console.log('찾은 캐릭터:', character);
                 if (character) {
-                    // y축을 1.0으로 고정해서 맵 위에 유지
-                    character.position.set(position.x, 1.0, position.z || 0);
+                    character.position.set(position.x, position.y, position.z);
+                    console.log('위치 업데이트 완료');
+                }else {
+                    console.log('캐릭터를 찾을 수 없음!');
+                    console.log('playerCharacters 목록:', this.playerCharacters);
                 }
             }
 
             // 플레이어 제거
             removePlayer(memberId) {
-                const character = this.playerCharacters.get(memberId);
+                const character = this.playerCharacters.get(sessionId);
                 if (character) {
                     this.scene.remove(character);
-                    this.playerCharacters.delete(memberId);
+                    this.playerCharacters.delete(sessionId);
                 }
             }
 
