@@ -69,7 +69,7 @@ const nickNameFormChk = function(form) {
 	
 	<div class="login-box glossy">
 	
-		<h3 class="login_header">EMOVERSE</h3>
+		<h3 class="login_header">ON-GI</h3>
 		
 		<div class="nickname_inner_box">
 
