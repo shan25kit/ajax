@@ -187,12 +187,12 @@
                         case 'player-joined':
                             console.log('새 플레이어 입장:', message.player);
                             // 플레이어 데이터에서 캐릭터 정보 추출
-                            const avatarInfo = typeof player.avatarInfo === 'string' 
-                                ? JSON.parse(player.avatarInfo) 
-                                : player.avatarInfo;
-                            const defaultPosition = { x: 0, y: 0.5, z: 0 };
+                            const avatarInfo = typeof message.player.avatarInfo === 'string' 
+                                ? JSON.parse(message.player.avatarInfo) 
+                                : message.player.avatarInfo;
+                            const defaultPosition = message.player.position;
                             
-                              await this.loadCharacter(avatarInfo, defaultPosition, this.player.memberId, this.player.nickName, true );  
+                              await this.loadCharacter(avatarInfo, defaultPosition, message.player.memberId, message.player.nickName);  
                               console.log('✓ 내 캐릭터 로드 완료');
                             break;
 
@@ -204,7 +204,7 @@
                                 	 const avatarInfo = typeof player.avatarInfo === 'string' 
                                            ? JSON.parse(player.avatarInfo) 
                                            : player.avatarInfo;
-                                    await this.loadCharacter(avatarInfo, player.position, player.memberId, player.nickName, false);
+                                    await this.loadCharacter(avatarInfo, player.position, player.memberId, player.nickName);
                                 }
                             }
                             break;
@@ -223,10 +223,10 @@
             }   
             
          
-     loadCharacter(avatarInfo, position, memberId, nickName, isMe = false) {
+     loadCharacter(avatarInfo, position, memberId, nickName) {
         return new Promise((resolve) => {
             console.log('=== 캐릭터 로딩 시작 ===');
-            console.log('닉네임:', nickName, 'isMe:', isMe);
+            console.log('닉네임:', nickName);
             console.log('멤버ID:', memberId);
             console.log('위치:', position);
             console.log('아바타 정보:', avatarInfo);
@@ -239,17 +239,14 @@
                             // 먼저 스케일 설정 (원하는 크기로 조정)
                             const characterScale = 0.8; 
                             character.scale.set(characterScale, characterScale, characterScale);
+                          
                             // 위치 설정
-            if (position) {
-                character.position.set(position.x || 0, 1, position.z || 0);
-            } else {
-                character.position.set(0, 1, 0);
-            }
-           character.rotation.y = Math.PI / 4;
-           character.rotation.x = -Math.PI / 6;
+          					character.position.set(position.x, position.y, position.z);
+          					character.rotation.y = Math.PI / 4;
+          					character.rotation.x = -Math.PI / 6;
          
             // 내 캐릭터인 경우 설정
-            if (isMe || memberId === this.player.memberId) {
+            if (memberId === this.player.memberId) {
                 this.myCharacter = character;
                 this.setupCameraFollow();
                 console.log('✓ 내 캐릭터 설정 완료');
@@ -295,7 +292,7 @@
                         // 머리 파츠 위치 조정
                          // 동적 위치 계산
                			 hairModel.position.set(
-                   			 -center.x * hairScale-.3,
+                   			 -center.x * hairScale-.2,
                    			 1.5 * baseScale-.1 - center.y * hairScale + 3.2,
                  			   -center.z * hairScale-.1
                			 );

@@ -20,13 +20,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class WebSocketHandler extends TextWebSocketHandler {
     
     // 연결된 플레이어들 저장
-    private final Map<String, WebSocketSession> players = new ConcurrentHashMap<>();
-    private final Map<String, Player> playerInfos = new ConcurrentHashMap<>();
+    private final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
+    private final Map<String, Player> playerSessions = new ConcurrentHashMap<>();
     
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         String sessionId = session.getId();
-        players.put(sessionId, session);
+        sessions.put(sessionId, session);
         System.out.println("플레이어 연결: " + sessionId);
     }
     
@@ -40,7 +40,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
         JsonNode messageNode = mapper.readTree(payload);
         String type = messageNode.get("type").asText();
         System.out.println(session);
-       System.out.println(messageNode);
+        System.out.println(messageNode);
        
         switch (type) {
             case "join-map":
@@ -54,29 +54,44 @@ public class WebSocketHandler extends TextWebSocketHandler {
     
     // 맵 입장 처리
     private void handleJoinMap(WebSocketSession session, JsonNode messageNode) throws Exception {
-        String sessionId = session.getId();
-        int memberId = messageNode.get("memberId").asInt();
+    	int memberId = messageNode.get("memberId").asInt();
+    	String sessionId = session.getId();
+    	// ✅ 올바른 기존 세션 확인: 같은 memberId를 가진 다른 세션 찾기
+        String existingSessionId = playerSessions.entrySet().stream()
+            .filter(entry -> entry.getValue().getMemberId() == memberId)
+            .filter(entry -> !entry.getKey().equals(sessionId))  // 현재 세션 제외
+            .map(Map.Entry::getKey)
+            .findFirst()
+            .orElse(null);
+        
+        if (existingSessionId != null) {
+            WebSocketSession existingSession = sessions.get(existingSessionId);
+            if (existingSession != null) {
+                System.out.println("기존 세션 발견, 강제 종료: " + existingSessionId);
+                existingSession.sendMessage(new TextMessage(createForceLogoutMessage()));
+                existingSession.close();  // afterConnectionClosed 자동 호출됨
+            }
+        }
         String nickName = messageNode.get("nickName").asText();
         JsonNode avatarInfo = messageNode.get("avatarInfo"); 
         // 플레이어 정보 저장
         Player player = new Player();
-        player.setId(sessionId);
+        player.setSessionId(sessionId);
         player.setMemberId(memberId);
         player.setNickName(nickName);
         player.setAvatarInfo(avatarInfo);
-		 System.out.println(player);
 		 
 		Map<String, Double> initialPosition = new HashMap<>();
 		initialPosition.put("x", 0.0);
-		initialPosition.put("y", 0.0);
+		initialPosition.put("y", 1.0);
 		initialPosition.put("z", 0.0);
+		
 		player.setPosition(initialPosition);
 		
+		playerSessions.put(sessionId, player);
+        System.out.println("플레이어 저장 완료: " + player);
         
-        playerInfos.put(sessionId, player);
-        System.out.println("플레이어 저장 완료: " + nickName);
-        
-      // 1. 본인에게 player-joined 메시지 전송
+       // 1. 본인에게 player-joined 메시지 전송
         session.sendMessage(new TextMessage(createPlayerJoinedMessage(player)));
 
         // 2. 다른 플레이어들에게 새 플레이어 알림
@@ -89,7 +104,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
     
     // 플레이어 움직임 처리
     private void handlePlayerMove(String sessionId, JsonNode messageNode) throws Exception {
-        Player player = playerInfos.get(sessionId);
+        Player player = playerSessions.get(sessionId);
         if (player != null) {
             JsonNode position = messageNode.get("position");
             
@@ -108,7 +123,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
     
     // 다른 플레이어들에게 메시지 브로드캐스트
     private void broadcastToOthers(String excludeSessionId, String message) {
-        players.entrySet().parallelStream()
+        sessions.entrySet().parallelStream()
             .filter(entry -> !entry.getKey().equals(excludeSessionId))
             .forEach(entry -> {
                 try {
@@ -121,8 +136,8 @@ public class WebSocketHandler extends TextWebSocketHandler {
     
 	 // 기존 플레이어들 정보 전송 
      private void sendExistingPlayers(WebSocketSession session) throws Exception { 
-     List<Player> existingPlayers = playerInfos.values().stream().filter(player ->
-	 !player.getId().equals(session.getId())).toList();
+     List<Player> existingPlayers = playerSessions.values().stream().filter(player ->
+	 !player.getSessionId().equals(session.getId())).toList();
 	  
 	  if (!existingPlayers.isEmpty()) { 
 		  String message = createExistingPlayersMessage(existingPlayers); 
@@ -132,9 +147,9 @@ public class WebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         String sessionId = session.getId();
-        Player player = playerInfos.get(sessionId);
-        players.remove(sessionId);
-        playerInfos.remove(sessionId);
+        Player player = playerSessions.get(sessionId);
+        sessions.remove(sessionId);
+        playerSessions.remove(sessionId);
         
         // 다른 플레이어들에게 퇴장 알림
         broadcastToOthers(sessionId, createPlayerLeftMessage(sessionId));
@@ -177,5 +192,13 @@ public class WebSocketHandler extends TextWebSocketHandler {
         message.put("memberId", memberId);
         return mapper.writeValueAsString(message);
     }
-
+    
+    private String createForceLogoutMessage() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> message = new HashMap<>();
+        message.put("type", "force-logout");
+        message.put("reason", "다른 기기에서 로그인하여 연결이 해제되었습니다.");
+        message.put("timestamp", System.currentTimeMillis());
+        return mapper.writeValueAsString(message);
+    }
 }

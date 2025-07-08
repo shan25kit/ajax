@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Player {
-	private String id; // WebSocket 세션 ID
+	private String sessionId; // WebSocket 세션 ID
 	private int memberId; // 실제 회원 ID
 	private String nickName;
 	private JsonNode avatarInfo; // 캐릭터 커스텀 정보
