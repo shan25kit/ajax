@@ -9,7 +9,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
-<button type="submit" onclick="location.href='/usr/home/testMap'">맵으로 입장</button>
+<a href="/usr/game">맵으로 입장</a>
 
 <script>
   // ✅ 공통 객체 선언 (중복 제거)

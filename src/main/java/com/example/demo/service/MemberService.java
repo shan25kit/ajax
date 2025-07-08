@@ -52,6 +52,8 @@ public class MemberService {
 	}
 
 	public void sendEmail(String to, String subject, String text) {
+
+
 		MimeMessage message = this.javaMailSender.createMimeMessage();
 
 		try {
@@ -73,6 +75,7 @@ public class MemberService {
 				+ "</body>" + "</html>";
 		sendEmail(member.getEmail(), subject, text);
 	}
+
 
 	public void emailSignUp(String email, String loginId, String loginPw) {
 		this.memberDao.emailSignUp(email, loginId, loginPw);

@@ -17,8 +17,14 @@ CREATE TABLE memberInfo (
     , nickName VARCHAR(50) NOT NULL UNIQUE
 );
 
+CREATE TABLE player (
+    memberId INT UNSIGNED NOT NULL,
+    avatarInfo JSON
+);
+
 SELECT * FROM `member`;
 SELECT * FROM `memberInfo`;
+SELECT * FROM player;
 
 INSERT INTO memberInfo
     SET memberId = 1
@@ -32,9 +38,38 @@ SELECT mi.*, m.*
    
 TRUNCATE TABLE `member`;
 TRUNCATE TABLE memberInfo;
+TRUNCATE TABLE player;
 
 SELECT mi.*, m.*
 			 FROM memberInfo mi
 			 RIGHT JOIN `member` m
 			 ON mi.memberId = m.id
 			 WHERE loginId = 'asd'
+			 
+SELECT *
+		    FROM player p
+		    LEFT JOIN  memberInfo mi
+		    ON p.memberId = mi.memberId
+		    WHERE memberId = 1
+
+
+INSERT INTO player (memberId, avatarInfo) VALUES (
+    1,
+    '{
+        "baseModel": "/resource/images/body.glb",
+        "parts": {
+            "hair": "/resource/images/hair2.glb"
+        }
+    }'
+);
+
+INSERT INTO player (memberId, avatarInfo) VALUES (
+    2,
+    '{
+        "baseModel": "/resource/images/body.glb",
+        "parts": {
+            "hair": "/resource/images/hair1.glb"
+        }
+    }'
+);
+
