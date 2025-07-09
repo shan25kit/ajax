@@ -6,12 +6,17 @@
 
 <%@ include file="/WEB-INF/jsp/common/header.jsp"%>
 
+
 <script
 	src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script
 	src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <script
 	src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+
+<a href="/usr/game">맵으로 입장</a>
+
 
 <script>
 let scene, camera, renderer, controls, directionalLight;
