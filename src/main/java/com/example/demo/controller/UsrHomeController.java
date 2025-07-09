@@ -16,19 +16,24 @@ public class UsrHomeController {
 		return "redirect:/usr/home/main";
 	}
 
-	@GetMapping("/usr/home/chatBot")
+	@GetMapping("/usr/game/chatBot")
 	public String chatBot() {
-		return "usr/home/chatBot";
+		return "usr/game/chatBot";
 	}
 	
-	@GetMapping("/usr/home/testMap")
+	@GetMapping("/usr/game/testMap")
 	public String testMap() {
-		return "usr/home/testMap";
+		return "usr/game/testMap";
 	}
 	
-	@GetMapping("/usr/home/webSocketTest")
+	@GetMapping("/usr/game/webSocketTest")
 	public String webSocketTest() {
-		return "usr/home/webSocketTest";
+		return "usr/game/webSocketTest";
 	}
 	
+	@GetMapping("/usr/member/customPageTest")
+	public String customPageTest() {
+		return "usr/member/customPageTest";
+	}
+
 }
