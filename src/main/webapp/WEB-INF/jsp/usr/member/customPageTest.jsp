@@ -368,8 +368,8 @@ function updateSelectBox(option) {
 			<div class="custom-select-box" id="select-box"></div>
 
 			<div class=btn_box>
-				<button type="submit" onclick="location.href='/usr/home/testMap'">RESET</button>
-				<button type="submit" onclick="location.href='/usr/home/testMap'">SAVE</button>
+				<button type="submit" onclick="location.href='/usr/game'">RESET</button>
+				<button type="submit" onclick="location.href='/usr/game'">SAVE</button>
 			</div>
 
 		</div>
