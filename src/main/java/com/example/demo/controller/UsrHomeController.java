@@ -31,14 +31,9 @@ public class UsrHomeController {
 		return "usr/game/webSocketTest";
 	}
 	
-	@GetMapping("/usr/game/webSocketTest2")
-	public String webSocketTest2() {
-		return "usr/game/webSocketTest2";
-	}
-	
-	
 	@GetMapping("/usr/member/customPageTest")
 	public String customPageTest() {
 		return "usr/member/customPageTest";
 	}
+
 }
