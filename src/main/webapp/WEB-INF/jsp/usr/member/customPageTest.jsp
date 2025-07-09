@@ -14,6 +14,7 @@
 	src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
 <script>
+let scene, camera, renderer, controls, directionalLight;
 let character = null;
 let currentParts = {}; // ✅ 각 파트 그룹(hair, top 등)별로 현재 모델 저장
 const loader = new THREE.GLTFLoader();
@@ -48,17 +49,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const containerWidth = container.clientWidth;
   const containerHeight = container.clientHeight;
 
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, containerWidth / containerHeight, 0.1, 950);
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(75, containerWidth / containerHeight, 0.1, 950);
   camera.position.set(0, 0, 30);
   camera.lookAt(0, 0, 0);
 
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setSize(containerWidth, containerHeight);
   renderer.setClearColor(0x000000, 0); // 투명 배경
   container.appendChild(renderer.domElement);
 
-  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.05;
   controls.enableZoom = false;
@@ -69,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
   scene.add(ambientLight);
 
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+  directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
   directionalLight.position.set(0, 0, 1);
   scene.add(directionalLight);
 
@@ -105,51 +106,84 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ✅ 파츠 모델 로드 함수
   window.loadModel = function (path, partStyleKey) {
-    const partGroupKey = partStyleKey.replace(/[0-9]/g, ''); // 예: hair1 → hair
+  const partGroupKey = partStyleKey.replace(/[0-9]/g, '');
+  console.log('🚀 loadModel 실행됨:', path, partStyleKey);
 
-    // 기존 파트 제거
-    if (currentParts[partGroupKey]) {
-      scene.remove(currentParts[partGroupKey]);
-    }
+  // 기존 파트 제거
+  if (currentParts[partGroupKey]) {
+    scene.remove(currentParts[partGroupKey]);
+  }
 
-    loader.load(path, (gltf) => {
-      const model = gltf.scene;
+  // 🎯 파트별 설정
+  const partSettings = {
+    // 💇 헤어
+    'face1': { scale: [4, 4, 4], position: [0, 9, 6], rotation: [20.4, 0, 0] },
+    'hair1': { scale: [7.3, 7.4, 7.5], position: [-28.1, -22.7, 37.5], rotation: [0, 0, 0] },
+    'hair2': { scale: [7.6, 7.6, 7.5], position: [-31.5, -13, 1], rotation: [0, 0, 0] },
+    'hair3': { scale: [7.3, 7, 7.3], position: [-30.2, -10.5, 1], rotation: [0, 0, 0] },
 
-      // 🎯 파트별 설정
-      const partSettings = {
-        // 💇 헤어
-        'face1': { scale: [9, 9, 9], position: [0, 0, 40], rotation: [0, 0, 0] },
-        'hair1': { scale: [7.6, 7.5, 7.5], position: [-29.2, -22.7, 37.2], rotation: [0, 0, 0] },
-        'hair2': { scale: [7.5, 7.5, 7.5], position: [0, 13, 1], rotation: [0, 0, 0] },
-        'hair3': { scale: [8, 8, 8], position: [0, 14.5, 0.5], rotation: [0, 0, 0] },
+    // 👕 상의
+    'top1': { scale: [4, 4, 4], position: [0, -2, 0], rotation: [0, 0, 0] },
+    'top2': { scale: [4.2, 4.2, 4.2], position: [0, -1.5, 0], rotation: [0, 0.1, 0] },
 
-        // 👕 상의
-        'top1': { scale: [4, 4, 4], position: [0, -2, 0], rotation: [0, 0, 0] },
-        'top2': { scale: [4.2, 4.2, 4.2], position: [0, -1.5, 0], rotation: [0, 0.1, 0] },
+    // 👖 하의
+    'bottom1': { scale: [4, 4, 4], position: [0, -8, 0], rotation: [0, 0, 0] },
+    'bottom2': { scale: [4, 4, 4], position: [0, -7.5, 0], rotation: [0, 0.2, 0] },
 
-        // 👖 하의
-        'bottom1': { scale: [4, 4, 4], position: [0, -8, 0], rotation: [0, 0, 0] },
-        'bottom2': { scale: [4, 4, 4], position: [0, -7.5, 0], rotation: [0, 0.2, 0] },
+    // 🧢 액세서리
+    'accessory1': { scale: [2.5, 2.5, 2.5], position: [0, 12, 1], rotation: [0, 0, 0] },
+    'accessory2': { scale: [3, 3, 3], position: [0, 11, 1], rotation: [0.1, 0, 0] }
+  };
 
-        // 🧢 액세서리
-        'accessory1': { scale: [2.5, 2.5, 2.5], position: [0, 12, 1], rotation: [0, 0, 0] },
-        'accessory2': { scale: [3, 3, 3], position: [0, 11, 1], rotation: [0.1, 0, 0] }
-      };
+  const setting = partSettings[partStyleKey] || {
+    scale: [4, 4, 4],
+    position: [0, 0, 0],
+    rotation: [0, 0, 0]
+  };
 
-      const setting = partSettings[partStyleKey] || {
-        scale: [4, 4, 4],
-        position: [0, 0, 0],
-        rotation: [0, 0, 0]
-      };
+  loader.load(path, (gltf) => {
+    const model = gltf.scene;
 
+    if (partStyleKey === 'face1') {
+      let meshFound = false;
+
+      model.traverse((child) => {
+        if (child.isMesh) {
+          meshFound = true;
+
+          // ✅ 설정값 적용
+          child.scale.set(...setting.scale);
+          child.position.set(...setting.position);
+          child.rotation.set(...setting.rotation);
+          child.visible = true;
+
+          // 💡 디버깅용
+          child.material.needsUpdate = true;
+
+          console.log('✅ face1 메쉬 찾음:', child.name);
+          console.log('🧪 위치:', child.position);
+          console.log('🧪 크기:', child.scale);
+
+          scene.add(child);
+          currentParts[partGroupKey] = child;
+        }
+      });
+
+      if (!meshFound) {
+        console.warn('⚠️ face1에서 메쉬를 찾을 수 없습니다!');
+      }
+
+    } else {
+      // 일반 파츠
       model.scale.set(...setting.scale);
       model.position.set(...setting.position);
       model.rotation.set(...setting.rotation);
 
       scene.add(model);
       currentParts[partGroupKey] = model;
-    });
-  };
+    }
+  });
+};
 
   // ✅ 렌더링 루프
   function animate() {
@@ -216,11 +250,19 @@ function updateSelectBox(option) {
 
 	          <div class="line"></div>
 	        
-	          <button class="style1" onclick="loadModel('/resource/model/hair1.glb', 'hair1')"></button>
-	          <button class="style2" onclick="loadModel('/resource/model/hair2.glb', 'hair2')"></button>
-	          <button class="style3" onclick="loadModel('/resource/model/hair3.glb', 'hair3')"></button>
+	          <button class="style1" onclick="loadModel('/resource/model/hair1.glb', 'hair1')">
+	          	<img src="/resource/img/hair1.png" alt="hair1" />
+	          </button>
+	          <button class="style2" onclick="loadModel('/resource/model/hair2.glb', 'hair2')">
+	          	<img src="/resource/img/hair2.png" alt="hair2" />
+	          </button>
+	          <button class="style3" onclick="loadModel('/resource/model/hair3.glb', 'hair3')">
+	          	<img src="/resource/img/hair3.png" alt="hair3" />
+	          </button>
 	          <br/>
-	          <button class="style4"></button>
+	          <button class="style4" onclick="loadModel('/resource/model/hair4.glb', 'hair4')">
+	          	<img src="/resource/img/hair4.png" alt="hair4" />
+	          </button>
 	          <button class="style5"></button>
 	          <button class="style6"></button>
           </div>`;
@@ -321,6 +363,25 @@ function updateSelectBox(option) {
   setSkinColor('#FFE0BD');
   });
   
+//✅ 리셋 함수 추가
+  function resetAvatar() {
+    // 씬에서 각 파츠 제거
+    for (let key in currentParts) {
+      if (currentParts[key]) {
+        scene.remove(currentParts[key]);
+        currentParts[key] = null;
+      }
+    }
+
+    // 피부색 초기화
+    setSkinColor('#FFE0BD');
+
+    // 선택 박스도 초기화
+    updateSelectBox('skin-face');
+
+    console.log('🔄 아바타 초기화 완료!');
+  }
+  
 </script>
 
 <div class="background">
@@ -347,10 +408,12 @@ function updateSelectBox(option) {
 
 			<!-- ✅ 버튼 수정부 -->
 			<div class="custom-options">
-				<button class="skin-face"
-					onclick="loadModel('/resource/model/face1.glb', 'skin-face')"></button>
-				<button class="hair"
-					onclick="loadModel('/resource/model/hair1.glb', 'hair1')"></button>
+				<button class="skin-face" onclick="loadModel('/resource/model/face1.glb', 'face1')">
+					<img src="/resource/img/face1.png" alt="skin-face"/>
+				</button>
+				<button class="hair" onclick="loadModel('/resource/model/hair1.glb', 'hair1')">
+					<img src="/resource/img/hair1.png" alt="hair"/>
+				</button>
 				<button class="top"
 					onclick="loadModel('/resource/model/top.glb', 'top')"></button>
 				<button class="bottom"
@@ -363,7 +426,7 @@ function updateSelectBox(option) {
 			<div class="custom-select-box" id="select-box"></div>
 
 			<div class=btn_box>
-				<button type="submit" onclick="location.href='/usr/home/testMap'">RESET</button>
+				<button onclick="resetAvatar()">RESET</button>
 				<button type="submit" onclick="location.href='/usr/home/testMap'">SAVE</button>
 			</div>
 
