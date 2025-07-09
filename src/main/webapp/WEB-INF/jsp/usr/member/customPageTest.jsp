@@ -2,7 +2,7 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 
-<c:set var="pageTitle" value="customPageTest" />
+<c:set var="pageTitle" value="캐릭터" />
 
 <%@ include file="/WEB-INF/jsp/common/header.jsp"%>
 
@@ -14,8 +14,6 @@
 <script
 	src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
-
-<a href="/usr/game">맵으로 입장</a>
 
 
 <script>

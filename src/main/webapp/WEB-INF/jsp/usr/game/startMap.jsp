@@ -2,7 +2,7 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 
-<c:set var="pageTitle" value="testMap" />
+<c:set var="pageTitle" value="startMap" />
 
 <%@ include file="/WEB-INF/jsp/common/header.jsp"%>
 
@@ -38,6 +38,7 @@
                 this.myCharacter = null;
                 this.keys = {};
                 this.speed = 0.2;
+                this.isChangingMap = false;
             }
 
             // Three.js 초기화 (기존 코드 기반)
@@ -118,6 +119,9 @@
                         mapPlane.position.set(0, -0.5, 0);
                         this.scene.add(mapPlane);
                         
+                        // 포털 생성
+                        this.createPortals();
+                        
                     },
                     undefined,
                     (error) => {
@@ -125,7 +129,62 @@
                     }
                 );
             }
+            // 포털 생성
+            createPortals() {
+                // 포털 1: 테스트 맵으로 이동
+                const portal1 = this.createPortal(15, 0, 15, 0x00ff00, '/testMap');
+                this.scene.add(portal1);
+                
+                // 포털 2: 테스트 맵으로 이동  
+                const portal2 = this.createPortal(-15, 0, -15, 0xff0000, '/testMap');
+                this.scene.add(portal2);
+                
+                console.log('포털 생성 완료');
+            }
 
+            // 개별 포털 생성
+            createPortal(x, y, z, color, targetMap) {
+                // 포털 베이스 (원형 플랫폼)
+                const portalGeometry = new THREE.CylinderGeometry(2, 2, 0.2, 16);
+                const portalMaterial = new THREE.MeshLambertMaterial({ 
+                    color: color,
+                    transparent: true,
+                    opacity: 0.7
+                });
+                const portalBase = new THREE.Mesh(portalGeometry, portalMaterial);
+                portalBase.position.set(x, y, z);
+                
+                // 포털 이펙트 (회전하는 링)
+                const ringGeometry = new THREE.TorusGeometry(1.5, 0.2, 8, 16);
+                const ringMaterial = new THREE.MeshLambertMaterial({ 
+                    color: color,
+                    transparent: true,
+                    opacity: 0.5
+                });
+                const portalRing = new THREE.Mesh(ringGeometry, ringMaterial);
+                portalRing.position.set(x, y + 1, z);
+                portalRing.rotation.x = Math.PI / 2;
+                
+                // 포털 그룹 생성
+                const portalGroup = new THREE.Group();
+                portalGroup.add(portalBase);
+                portalGroup.add(portalRing);
+                
+                // 포털 정보 저장
+                portalGroup.userData = {
+                    type: 'portal',
+                    targetMap: targetMap,
+                    position: { x, y, z },
+                    ring: portalRing  // 회전 애니메이션용
+                };
+                
+                // 포털 목록에 추가
+                if (!this.portals) this.portals = [];
+                this.portals.push(portalGroup);
+                
+                return portalGroup;
+            }
+            
             async connect() {
             	return new Promise((resolve, reject) => {
             		 console.log('웹소켓 연결 시작');
@@ -163,7 +222,8 @@
                     type: 'join-map',
                     memberId: this.player.memberId,
                     nickName: this.player.nickName,
-                    avatarInfo: this.player.avatarInfo // 서버에서 준비된 완전한 아바타 데이터
+                    avatarInfo: this.player.avatarInfo, // 서버에서 준비된 완전한 아바타 데이터
+                    currentMap: 'startMap'
                 };
                 console.log('=== 맵 입장 요청 전송 ===');
                 console.log('메시지 내용:', joinMessage);
@@ -217,6 +277,16 @@
                             break;
 
                         case 'player-left':
+                            this.removePlayer(message.sessionId);
+                            break;
+                            
+                        case 'map-change-success':  
+                            console.log('맵 변경 성공:', message.targetMap);
+                            this.handleMapTransition(message.targetMap);
+                            break;
+                            
+                        case 'player-left-map':
+                            console.log('플레이어가 다른 맵으로 이동:', message);
                             this.removePlayer(message.sessionId);
                             break;
                     }
@@ -389,6 +459,10 @@
                     }
                     // y축은 항상 0.5로 고정 (맵 위)
                     this.myCharacter.position.y = 1;
+                    
+                    // 포털 충돌 검사
+                    this.checkPortalCollision();
+                    
                     // 이동했으면 서버에 위치 전송
                     if (moved) {
                         this.sendPositionUpdate();
@@ -402,7 +476,121 @@
                     );
                     this.camera.lookAt(this.myCharacter.position.x, this.myCharacter.position.y, this.myCharacter.position.z);
                 }
+             // 포털 애니메이션
+                this.animatePortals();
                 this.renderer.render(this.scene, this.camera);
+            }
+            
+            // 포털 충돌 검사
+            checkPortalCollision() {
+                if (!this.portals || !this.myCharacter) return;
+                
+                const characterPos = this.myCharacter.position;
+                
+                this.portals.forEach(portal => {
+                    const portalPos = portal.userData.position;
+                    const distance = Math.sqrt(
+                        Math.pow(characterPos.x - portalPos.x, 2) + 
+                        Math.pow(characterPos.z - portalPos.z, 2)
+                    );
+                    
+                    // 포털 반경 2 이내에 들어오면 이동
+                    if (distance < 2) {
+                        this.enterPortal(portal.userData.targetMap);
+                    }
+                });
+            }
+
+            // 포털 진입 처리
+            enterPortal(targetMap) {
+                // 중복 진입 방지
+                if (this.isChangingMap) return;
+                this.isChangingMap = true;
+                
+                console.log('포털 진입:', targetMap);
+                
+                // 서버에 맵 변경 요청
+                const mapChangeMessage = {
+                    type: 'change-map',
+                    targetMap: targetMap
+                };
+                
+                this.socket.send(JSON.stringify(mapChangeMessage));
+                
+                // 화면에 전환 효과 표시
+                this.showMapTransition(targetMap);
+                
+                // 3초 후 플래그 해제 (중복 진입 방지)
+                setTimeout(() => {
+                    this.isChangingMap = false;
+                }, 3000);
+            }
+
+            // 맵 전환 효과
+            showMapTransition(targetMap) {
+                // 간단한 알림 (나중에 더 멋진 효과로 변경 가능)
+                const overlay = document.createElement('div');
+                overlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0,0,0,0.8);
+                    color: white;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    font-size: 24px;
+                    z-index: 1000;
+                `;
+                overlay.textContent = `감정을 찾아 이동 중...`;
+                
+                document.body.appendChild(overlay);
+                
+                // 2초 후 제거
+                setTimeout(() => {
+                    document.body.removeChild(overlay);
+                }, 2000);
+            }
+            
+            // 맵 전환 처리
+            handleMapTransition(targetMap) {
+                console.log('맵 전환 시작:', targetMap);
+                
+                this.showMapTransition(targetMap);
+                
+             // JSP 경로 결정
+                let redirectPath;
+                
+                switch (targetMap) {
+                    case '/testMap':
+                        redirectPath = 'game/testMap';
+                        break;
+                    case '/testMap':
+                        redirectPath = 'game/testMap';
+                        break;
+                    case '/testMap':
+                        redirectPath = 'game/testMap';
+                        break;
+                }
+                setTimeout(() => {
+                    window.location.href = redirectPath;
+                }, 2000);
+                console.log('리다이렉트 경로:', redirectPath);
+            }
+            
+
+            // 포털 애니메이션
+            animatePortals() {
+                if (!this.portals) return;
+                
+                this.portals.forEach(portal => {
+                    const ring = portal.userData.ring;
+                    if (ring) {
+                        ring.rotation.z += 0.02; // 링 회전
+                    }
+                });
             }
 
             // 위치 업데이트 전송
