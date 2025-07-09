@@ -19,10 +19,11 @@ public class Player {
 	private int memberId; // 실제 회원 ID
 	private String nickName;
 	private JsonNode avatarInfo; // 캐릭터 커스텀 정보
-	
+	private String currentMap = "default-map"; // 현재 맵 정보
+
 
 	// Jackson 직렬화용 - character를 문자열로 변환
-	
+
 	@JsonProperty("avatarInfo")
 	public String getCharacterString() {
 		return avatarInfo != null ? avatarInfo.toString() : null;
