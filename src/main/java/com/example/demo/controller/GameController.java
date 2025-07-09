@@ -25,7 +25,8 @@ public class GameController {
 		this.req = req;
 		this.gameService = gameService;
 	}
-
+	
+	
 	// 유저 정보 로딩
 	@GetMapping("/usr/game")
     public String test(Model model) {
@@ -35,9 +36,19 @@ public class GameController {
 		Player player = this.gameService.selectPlayerByMemberId(memberId);
 		System.out.println(player);
 		model.addAttribute("player", player);
-        return "usr/game/webSocketTest3";
+        return "usr/game/startMap";
     }
 
+	@GetMapping("/usr/game/chatBot")
+	public String chatBot() {
+		return "usr/game/chatBot";
+	}
+	
+	@GetMapping("/usr/game/testMap")
+	public String testMap() {
+		return "usr/game/testMap";
+	}
+	
 	// 테스트용 엔드포인트
 	@GetMapping("/test")
 	public ResponseEntity<Map<String, String>> test() {

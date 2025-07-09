@@ -431,8 +431,10 @@ function updateSelectBox(option) {
 			<div class="custom-select-box" id="select-box"></div>
 
 			<div class=btn_box>
+
 				<button onclick="resetAvatar()">RESET</button>
-				<button type="submit" onclick="location.href='/usr/home/testMap'">SAVE</button>
+				<button type="submit" onclick="location.href='/usr/game'">SAVE</button>
+
 			</div>
 
 		</div>

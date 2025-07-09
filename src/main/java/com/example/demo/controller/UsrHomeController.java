@@ -15,21 +15,6 @@ public class UsrHomeController {
 	public String showRoot() {
 		return "redirect:/usr/home/main";
 	}
-
-	@GetMapping("/usr/game/chatBot")
-	public String chatBot() {
-		return "usr/game/chatBot";
-	}
-	
-	@GetMapping("/usr/game/testMap")
-	public String testMap() {
-		return "usr/game/testMap";
-	}
-	
-	@GetMapping("/usr/game/webSocketTest")
-	public String webSocketTest() {
-		return "usr/game/webSocketTest";
-	}
 	
 
 }
