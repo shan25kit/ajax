@@ -33,7 +33,9 @@ public class WebSocketHandler extends TextWebSocketHandler {
 	@Override
 	protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 		String sessionId = session.getId();
+		System.out.println(sessionId);
 		String payload = message.getPayload();
+		
 
 		// JSON 메시지 파싱
 		ObjectMapper mapper = new ObjectMapper();
@@ -49,9 +51,16 @@ public class WebSocketHandler extends TextWebSocketHandler {
 		case "player-move":
 			handlePlayerMove(sessionId, messageNode);
 			break;
-		case "change-map": // ← 새로운 케이스 추가
+		case "change-map": 
 			handleMapChange(session, messageNode);
 			break;
+		case "chat-inMap": 
+			handleChatInMap(session, messageNode);
+			break;
+		case "chat-global": 
+			handleChatGlobal(session, messageNode);
+			break;
+			
 		}
 	}
 
@@ -150,7 +159,54 @@ public class WebSocketHandler extends TextWebSocketHandler {
 			System.out.println("targetMap을 찾을 수 없음!");
 		}
 	}
+	// 1. 맵별 채팅 처리
+	private void handleChatInMap(WebSocketSession session, JsonNode messageNode) throws Exception {
+		String sessionId = session.getId();
+	    Player player = playerSessions.get(sessionId);
+	    String CurrentMap = player.getCurrentMap();
+	    System.out.println("현재 플레이어 맵: " + CurrentMap);
+	    
+	    if (player != null) {
+	        String message = messageNode.get("message").asText();
+	        String chatMessage = createChatMessage(player, message, "chat-inMap");
+	        System.out.println(chatMessage);
+	     // 나에게 브로드캐스트
+	        session.sendMessage(new TextMessage(chatMessage));
+	        // 같은 맵의 다른 플레이어들에게 브로드캐스트
+	        broadcastToPlayersInMap(CurrentMap, sessionId, chatMessage);
+	        
+	        System.out.println("맵 채팅 [" + CurrentMap + "] " + player.getNickName() + ": " + message);
+	    }
+	}
 
+	// 2. 전체 공지 처리
+	private void handleChatGlobal(WebSocketSession session, JsonNode messageNode) throws Exception {
+	    Player player = playerSessions.get(session.getId());
+	    
+	    if (player != null) {
+	        String message = messageNode.get("message").asText();
+	        String chatMessage = createChatMessage(player, message, "GLOBAL");
+	        
+	        // 모든 플레이어에게 브로드캐스트
+	        broadcastChatToAll(chatMessage);
+	        
+	        System.out.println("전체 공지 " + player.getNickName() + ": " + message);
+	    }
+	}
+
+	// 3. 같은 맵 채팅 브로드캐스트 (기존 broadcastToSameMap 활용)
+	// 이미 있는 broadcastToSameMap 메서드를 그대로 사용하면 됩니다!
+
+	// 4. 전체 채팅 브로드캐스트
+	private void broadcastChatToAll(String message) {
+	    sessions.values().parallelStream().forEach(session -> {
+	        try {
+	            session.sendMessage(new TextMessage(message));
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	    });
+	}
 	// 다른 플레이어들에게 메시지 브로드캐스트
 	private void broadcastToOthers(String excludeSessionId, String message) {
 		sessions.entrySet().parallelStream().filter(entry -> !entry.getKey().equals(excludeSessionId))
@@ -165,6 +221,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
 	// 맵별 브로드캐스팅 메서드 추가
 	private void broadcastToPlayersInMap(String targetMap, String excludeSessionId, String message) {
+		System.out.println(message);
 		sessions.entrySet().parallelStream().filter(entry -> !entry.getKey().equals(excludeSessionId)) // 본인 제외
 				.filter(entry -> {
 					Player player = playerSessions.get(entry.getKey());
@@ -212,7 +269,6 @@ public class WebSocketHandler extends TextWebSocketHandler {
 	@Override
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
 		String sessionId = session.getId();
-		Player player = playerSessions.get(sessionId);
 		sessions.remove(sessionId);
 		playerSessions.remove(sessionId);
 
@@ -294,5 +350,25 @@ public class WebSocketHandler extends TextWebSocketHandler {
 		message.put("timestamp", System.currentTimeMillis());
 		return mapper.writeValueAsString(message);
 	}
-
+	private String createChatMessage(Player sender, String message, String type) {
+	    try {
+	        ObjectMapper mapper = new ObjectMapper();
+	        Map<String, Object> chatMessage = new HashMap<>();
+	        chatMessage.put("type", type);
+	        chatMessage.put("nickName", sender.getNickName());
+	        chatMessage.put("message", message);
+	        chatMessage.put("memberId", sender.getMemberId());
+	        chatMessage.put("timestamp", System.currentTimeMillis());
+	        
+	        // global일 때는 mapName 없이, map일 때만 추가
+	        if ("chat-inMap".equals(type)) {
+	            chatMessage.put("mapName", sender.getCurrentMap());
+	        }
+	        
+	        return mapper.writeValueAsString(chatMessage);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return "{}";
+	    }
+	}
 }
