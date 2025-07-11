@@ -15,13 +15,15 @@
 
 		<div class="map_field">
 
+			<div class="portal_1">
+				<img src="/resource/img/portal_cneter.png" alt="중앙포탈" />
+				<img src="/resource/img/portal_inside.gif" alt="포탈" />
+			</div>
+
 			<div class="object1">
 				<img src="/resource/img/fountain.png" alt="분수대" />
 			</div>
 
-			<div class="portal">
-				<img src="/resource/img/portal.gif" alt="portal" />
-			</div>
 
 		</div>
 		<div class="clouds">
