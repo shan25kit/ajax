@@ -284,6 +284,7 @@ input {
 	display: block;
 	width: 70%;
 	margin: 0 auto;
+	margin-top:20px;
 }
 
 .nickname_inner_box h2 {
@@ -293,7 +294,7 @@ input {
 }
 
 .nickname_inner_box h2 > span {
-	font-size: 0.8rem;
+	font-size: 0.9rem;
 	font-weight: 300;
 }
 
@@ -340,7 +341,7 @@ input {
 	width:67% !important;
 }
 
-.email_check button{
+.email_check_button{
 	width:30% !important; 
 	margin-top:10px !important;
 	letter-spacing: 0px !important;
