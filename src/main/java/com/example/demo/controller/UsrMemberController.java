@@ -42,6 +42,13 @@ public class UsrMemberController {
 
 	}
 	
+	
+	@GetMapping("/usr/map/map")
+	public String showMapPage() {
+	    return "usr/map/map";
+	}
+	
+	
 	@GetMapping("/usr/member/signup")
 	public String signup() {
 		return "usr/member/signup";
@@ -98,10 +105,11 @@ public class UsrMemberController {
 		Member member = this.memberService.getMemberByEmail(email);
 
 		if (member != null) {
-			return ResultData.from("F-1", String.format("이미 가입된 이메일입니다", email));
+			return ResultData.from("S-1", String.format("이미 가입된 이메일입니다", email));
 		}
 
-		return ResultData.from("S-1", String.format("사용가능한 이메일입니다", email));
+		return ResultData.from("F-1", String.format("사용가능한 이메일입니다", email));
+		
 	}
 	
 	// 카카오 로그인 콜백 처리

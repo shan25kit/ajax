@@ -9,7 +9,9 @@
 <div class="background">
 
 	<div class="logo-top">
-		<img src="/resource/img/logo-w.png" alt="온기로고" />
+		<a href="/usr/home/main">
+			<img src="/resource/img/logo-w.png" alt="온기로고" />
+		</a>
 	</div>
 
 	
