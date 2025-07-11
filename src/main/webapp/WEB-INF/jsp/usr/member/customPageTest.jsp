@@ -7,16 +7,9 @@
 <%@ include file="/WEB-INF/jsp/common/header.jsp"%>
 
 
-<script
-	src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script
-	src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-<script
-	src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-
-
-<a href="/usr/game">맵으로 입장</a>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
 <script>
 let scene, camera, renderer, controls, directionalLight;
@@ -36,18 +29,36 @@ window.setSkinColor = function (hexColor) {
   });
 };
 
-// ✅ 머리색 변경 함수 (현재 선택된 hair만 적용)
+//✅ 머리색 변경 함수 (현재 선택된 hair 파트 전체에 적용)
 window.setHairColor = function (hexColor) {
   const model = currentParts['hair'];
+  console.log('🎨 현재 선택된 헤어:', model);
+
   if (!model) return;
 
   model.traverse((child) => {
     if (child.isMesh && child.material && child.material.color) {
+      console.log('🎯 색상 적용 대상:', child.name);
+
+      // 텍스처가 있으면 제거
+      if (child.material.map) {
+        child.material.map = null;
+      }
+
+   // ✅ 색상 및 불투명도 적용
       child.material.color.set(hexColor);
+      child.material.transparent = false;
+      child.material.opacity = 1.0;
+   // ✅ 깊이 관련 문제 해결
+      child.material.depthWrite = true;
+      child.material.depthTest = true;
       child.material.needsUpdate = true;
+      child.material.side = THREE.FrontSide;
     }
   });
 };
+
+
 
 document.addEventListener('DOMContentLoaded', () => {
   const container = document.getElementById('three-container');
@@ -123,9 +134,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const partSettings = {
     // 💇 헤어
     'face1': { scale: [4, 4, 4], position: [0, 9, 6], rotation: [20.4, 0, 0] },
-    'hair1': { scale: [7.3, 7.4, 7.5], position: [-28.1, -22.7, 37.5], rotation: [0, 0, 0] },
-    'hair2': { scale: [7.6, 7.6, 7.5], position: [-31.5, -13, 1], rotation: [0, 0, 0] },
-    'hair3': { scale: [7.3, 7, 7.3], position: [-30.2, -10.5, 1], rotation: [0, 0, 0] },
+    'hair1': { scale: [75, 75, 75], position: [0, -51.2, 0], rotation: [0, 0, 0] },
+    'hair2': { scale: [7, 7, 8], position: [0, -16, -0.29], rotation: [0, 0, 0] },
+    'hair3': { scale: [80.3, 75, 69], position: [0, -51.1, 1], rotation: [0, 0, 0] },
+    'hair4': { scale: [75, 75, 70], position: [0, -51.1, 1], rotation: [0, 0, 0] },
+    'hair5': { scale: [81, 74, 75], position: [0, -50, 0.5], rotation: [0, 0, 0] },
+    'hair6': { scale: [81, 74, 73], position: [0, -50, 0], rotation: [0, 0, 0] },
+    'hair7': { scale: [81, 74, 75], position: [0, -50, 1], rotation: [0, 0, 0] },
+    'hair8': { scale: [81, 74, 75], position: [0, -50, 1], rotation: [0, 0, 0] },
 
     // 👕 상의
     'top1': { scale: [4, 4, 4], position: [0, -2, 0], rotation: [0, 0, 0] },
@@ -134,6 +150,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // 👖 하의
     'bottom1': { scale: [4, 4, 4], position: [0, -8, 0], rotation: [0, 0, 0] },
     'bottom2': { scale: [4, 4, 4], position: [0, -7.5, 0], rotation: [0, 0.2, 0] },
+    
+    // 👗 원피스
+    'dress1': { scale: [53, 53, 59], position: [0, -21.9, 0], rotation: [0, 0, 0] },
+    'dress2': { scale: [4, 4, 4], position: [0, -7.5, 0], rotation: [0, 0.2, 0] },
+    
+    // 👟 신발
+    'shoes1': { scale: [4, 4, 4], position: [0, -8, 0], rotation: [0, 0, 0] },
+    'shoes2': { scale: [4, 4, 4], position: [0, -7.5, 0], rotation: [0, 0.2, 0] },
 
     // 🧢 액세서리
     'accessory1': { scale: [2.5, 2.5, 2.5], position: [0, 12, 1], rotation: [0, 0, 0] },
@@ -225,17 +249,36 @@ function updateSelectBox(option) {
 	        <button class="color6" style="background-color: #30E3CA;" onclick="setSkinColor('#30E3CA')" ></button>
       	</div>
         
+        <div class="line"></div>
         <div class="style-select">
-        
-          <div class="line"></div>
-        
-          <button class="style1" onclick="loadModel('/resource/model/face1.glb', 'face1')"></button>
-          <button class="style2"></button>
-          <button class="style3"></button>
-          <br/>
-          <button class="style4"></button>
-          <button class="style5"></button>
-          <button class="style6"></button>
+        	<div class="style-Wrap">
+        		<button class="style1" onclick="loadModel('/resource/model/face1.glb', 'face1')">
+        			<img src="/resource/img/face1.png" alt="face1" />
+        		</button>
+        		<button class="style2" onclick="loadModel('/resource/model/face2.glb', 'face2')">
+        			<img src="/resource/img/face2.png" alt="face2" />
+        		</button>
+        		<button class="style3" onclick="loadModel('/resource/model/face3.glb', 'face3')">
+        			<img src="/resource/img/face3.png" alt="face3" />
+        		</button>
+        		<button class="style4" onclick="loadModel('/resource/model/face4.glb', 'face4')">
+        			<img src="/resource/img/face4.png" alt="face4" />
+        		</button>
+          	</div>
+          	<div class="style-Wrap">
+          		<button class="style5" onclick="loadModel('/resource/model/face5.glb', 'face5')">
+          			<img src="/resource/img/face4.png" alt="face4" />
+          		</button>
+          		<button class="style6" onclick="loadModel('/resource/model/face6.glb', 'face6')">
+          			<img src="/resource/img/face4.png" alt="face4" />
+          		</button>
+          		<button class="style7" onclick="loadModel('/resource/model/face7.glb', 'face7')">
+          			<img src="/resource/img/face4.png" alt="face4" />
+          		</button>
+          		<button class="style8" onclick="loadModel('/resource/model/face8.glb', 'face8')">
+          			<img src="/resource/img/face4.png" alt="face4" />
+          		</button>
+          	</div>
         </div>`;
         
     } else if (option === 'hair') {
@@ -251,103 +294,262 @@ function updateSelectBox(option) {
             <button class="color6" style="background-color: #FFFFFF;" onclick="setHairColor('#FFFFFF')"></button>
           </div>
           
-          <div class="style-select">
-
-	          <div class="line"></div>
-	        
-	          <button class="style1" onclick="loadModel('/resource/model/hair1.glb', 'hair1')">
-	          	<img src="/resource/img/hair1.png" alt="hair1" />
-	          </button>
-	          <button class="style2" onclick="loadModel('/resource/model/hair2.glb', 'hair2')">
-	          	<img src="/resource/img/hair2.png" alt="hair2" />
-	          </button>
-	          <button class="style3" onclick="loadModel('/resource/model/hair3.glb', 'hair3')">
-	          	<img src="/resource/img/hair3.png" alt="hair3" />
-	          </button>
-	          <br/>
-	          <button class="style4" onclick="loadModel('/resource/model/hair4.glb', 'hair4')">
-	          	<img src="/resource/img/hair4.png" alt="hair4" />
-	          </button>
-	          <button class="style5"></button>
-	          <button class="style6"></button>
-          </div>`;
+          
+        <div class="line"></div>
+        <div class="style-select">
+         	<div class="style-Wrap">
+	        	<button class="style1" onclick="loadModel('/resource/model/hair1.glb', 'hair1')">
+	          		<img src="/resource/img/hair1.png" alt="hair1" />
+		        </button>
+		        <button class="style2" onclick="loadModel('/resource/model/hair2-1.glb', 'hair2')">
+		          	<img src="/resource/img/hair2.png" alt="hair2" />
+		        </button>
+		        <button class="style3" onclick="loadModel('/resource/model/hair3.glb', 'hair3')">
+		          	<img src="/resource/img/hair3.png" alt="hair3" />
+		        </button>
+		        <button class="style4" onclick="loadModel('/resource/model/hair4.glb', 'hair4')">
+		          	<img src="/resource/img/hair4.png" alt="hair4" />
+		        </button>
+         	</div>
+			<div class="style-Wrap">
+		        <button class="style5" onclick="loadModel('/resource/model/hair5.glb', 'hair5')">
+		          	<img src="/resource/img/hair5.png" alt="hair5" />
+		        </button>
+		        <button class="style6" onclick="loadModel('/resource/model/hair6.glb', 'hair6')">
+		          	<img src="/resource/img/hair6.png" alt="hair6" />
+		        </button>
+		        <button class="style7" onclick="loadModel('/resource/model/hair7.glb', 'hair7')">
+		          	<img src="/resource/img/hair7.png" alt="hair7" />
+		        </button>
+		        <button class="style8" onclick="loadModel('/resource/model/hair8.glb', 'hair8')">
+		          	<img src="/resource/img/hair8.png" alt="hair8" />
+		        </button>
+	        </div>
+        </div>`;
           
     } else if (option === 'top') {
     	
         html = `
-          <h3>Color</h3>
-          <div class="color-picker">
-	          <button class="color1"></button>
-	          <button class="color2"></button>
-	          <button class="color3"></button>
-	          <button class="color4"></button>
-	          <button class="color5"></button>
-	          <button class="color6"></button>
-          </div>
+        	<h3>Color</h3>
+        	<div class="color-picker">
+	        	<button class="color1"></button>
+	        	<button class="color2"></button>
+	        	<button class="color3"></button>
+	        	<button class="color4"></button>
+	        	<button class="color5"></button>
+	        	<button class="color6"></button>
+          	</div>
           
-          <div class="style-select">
-
-	          <div class="line"></div>
-	        
-	          <button class="style1"></button>
-	          <button class="style2"></button>
-	          <button class="style3"></button>
-	          <br/>
-	          <button class="style4"></button>
-	          <button class="style5"></button>
-	          <button class="style6"></button>
+	      	<div class="line"></div>
+          	<div class="style-select">
+          		<div class="style-Wrap">
+		        	<button class="style1" onclick="loadModel('/resource/model/top1.glb', 'top1')">
+		          		<img src="/resource/img/top1.png" alt="top1" />
+		        	</button>
+		        	<button class="style2" onclick="loadModel('/resource/model/top2.glb', 'top2')">
+		          		<img src="/resource/img/top2.png" alt="top2" />
+		          	</button>
+		          	<button class="style3" onclick="loadModel('/resource/model/top3.glb', 'top3')">
+		          		<img src="/resource/img/top3.png" alt="top3" />
+		        	</button>
+		        	<button class="style3" onclick="loadModel('/resource/model/top4.glb', 'top4')">
+		          		<img src="/resource/img/top4.png" alt="top4" />
+		        	</button>
+	        	</div>
+	        	<div class="style-Wrap">
+		        	<button class="style4" onclick="loadModel('/resource/model/top5.glb', 'top5')">
+		          		<img src="/resource/img/top5.png" alt="top5" />
+		        	</button>
+		        	<button class="style5" onclick="loadModel('/resource/model/top6.glb', 'top6')">
+		          		<img src="/resource/img/top6.png" alt="top6" />
+		        	</button>
+		        	<button class="style6" onclick="loadModel('/resource/model/top7.glb', 'top7')">
+		          		<img src="/resource/img/top7.png" alt="top7" />
+		        	</button>
+		        	<button class="style6" onclick="loadModel('/resource/model/top8.glb', 'top8')">
+		          		<img src="/resource/img/top8.png" alt="top8" />
+		        	</button>
+		        </div>
           </div>`;
           
       } else if (option === 'bottom') {
     	  
           html = `
-              <h3>Color</h3>
-              <div class="color-picker">
-                <button class="color1"></button>
-                <button class="color2"></button>
-                <button class="color3"></button>
-                <button class="color4"></button>
-                <button class="color5"></button>
-                <button class="color6"></button>
-              </div>
+            <h3>Color</h3>
+            	<div class="color-picker">
+	              	<button class="color1"></button>
+	                <button class="color2"></button>
+	                <button class="color3"></button>
+	                <button class="color4"></button>
+	                <button class="color5"></button>
+	                <button class="color6"></button>
+            	</div>
               
-              <div class="style-select">
-	
-	              <div class="line"></div>
-	            
-	              <button class="style1"></button>
-	              <button class="style2"></button>
-	              <button class="style3"></button>
-	              <br/>
-	              <button class="style4"></button>
-	              <button class="style5"></button>
-	              <button class="style6"></button>
+	            <div class="line"></div>
+            	<div class="style-select">
+            		<div class="style-Wrap">
+		            	<button class="style1" onclick="loadModel('/resource/model/bottom1.glb', 'bottom1')">
+			          		<img src="/resource/img/bottom1.png" alt="bottom1" />
+			        	</button>
+			        	<button class="style2" onclick="loadModel('/resource/model/bottom2.glb', 'bottom2')">
+			          		<img src="/resource/img/bottom2.png" alt="bottom2" />
+			        	</button>
+			        	<button class="style3" onclick="loadModel('/resource/model/bottom3.glb', 'bottom3')">
+			          		<img src="/resource/img/bottom3.png" alt="bottom3" />
+			        	</button>
+			        	<button class="style3" onclick="loadModel('/resource/model/bottom4.glb', 'bottom4')">
+			          		<img src="/resource/img/bottom4.png" alt="bottom4" />
+			        	</button>
+		        	</div>
+		        	<div class="style-Wrap">
+			        	<button class="style4" onclick="loadModel('/resource/model/bottom5.glb', 'bottom5')">
+			          		<img src="/resource/img/bottom5.png" alt="bottom5" />
+			        	</button>
+			        	<button class="style5" onclick="loadModel('/resource/model/bottom6.glb', 'bottom6')">
+			          		<img src="/resource/img/bottom6.png" alt="bottom6" />
+			        	</button>
+			          	<button class="style6" onclick="loadModel('/resource/model/bottom7.glb', 'bottom7')">
+			          		<img src="/resource/img/bottom7.png" alt="bottom7" />
+			          	</button>
+			          	<button class="style6" onclick="loadModel('/resource/model/bottom8.glb', 'bottom8')">
+			          		<img src="/resource/img/bottom8.png" alt="bottom8" />
+			          	</button>
+		          	</div>
               </div>`;
+              
+      } else if (option === 'dress') {
+    	  
+	          html = `
+	              <h3>Color</h3>
+	              <div class="color-picker">
+		              <button class="color1"></button>
+		              <button class="color2"></button>
+		              <button class="color3"></button>
+		              <button class="color4"></button>
+		              <button class="color5"></button>
+		              <button class="color6"></button>
+	              </div>
+	              
+		          <div class="line"></div>
+	              <div class="style-select">
+					<div class="style-Wrap">
+		            	<button class="style1" onclick="loadModel('/resource/model/dress1.glb', 'dress1')">
+			          		<img src="/resource/img/dress1.png" alt="dress1" />
+			        	</button>
+			        	<button class="style2" onclick="loadModel('/resource/model/dress2.glb', 'dress2')">
+			          		<img src="/resource/img/dress2.png" alt="dress2" />
+			        	</button>
+			        	<button class="style3" onclick="loadModel('/resource/model/dress3.glb', 'dress3')">
+			          		<img src="/resource/img/dress3.png" alt="dress3" />
+			          	</button>
+			          	<button class="style3" onclick="loadModel('/resource/model/dress4.glb', 'dress4')">
+			          		<img src="/resource/img/dress4.png" alt="dress4" />
+			          	</button>
+					</div>
+					<div class="style-Wrap">
+			          	<button class="style4" onclick="loadModel('/resource/model/dress5.glb', 'dress5')">
+			          		<img src="/resource/img/dress5.png" alt="dress5" />
+			          	</button>
+			          	<button class="style5" onclick="loadModel('/resource/model/dress6.glb', 'dress6')">
+			          		<img src="/resource/img/dress6.png" alt="dress6" />
+			          	</button>
+			          	<button class="style6" onclick="loadModel('/resource/model/dress7.glb', 'dress7')">
+			          		<img src="/resource/img/dress7.png" alt="dress7" />
+			          	</button>
+			          	<button class="style6" onclick="loadModel('/resource/model/dress8.glb', 'dress8')">
+			          		<img src="/resource/img/dress8.png" alt="dress8" />
+			          	</button>
+					</div>
+	              </div>`;
+              
+      } else if (option === 'shoes') {
+    	  
+				html = `
+					<h3>Color</h3>
+					<div class="color-picker">
+		                <button class="color1"></button>
+		                <button class="color2"></button>
+		                <button class="color3"></button>
+		                <button class="color4"></button>
+		                <button class="color5"></button>
+		                <button class="color6"></button>
+	              	</div>
+	              
+		          	<div class="line"></div>
+	              	<div class="style-select">
+	              		<div class="style-Wrap">
+			            	<button class="style1" onclick="loadModel('/resource/model/shoes1.glb', 'shoes1')">
+				          		<img src="/resource/img/shoes1.png" alt="shoes1" />
+				        	</button>
+				        	<button class="style2" onclick="loadModel('/resource/model/shoes2.glb', 'shoes2')">
+				          		<img src="/resource/img/shoes2.png" alt="shoes2" />
+				        	</button>
+				          	<button class="style3" onclick="loadModel('/resource/model/shoes3.glb', 'shoes3')">
+				          		<img src="/resource/img/shoes3.png" alt="shoes3" />
+				          	</button>
+				          	<button class="style3" onclick="loadModel('/resource/model/shoes4.glb', 'shoes4')">
+				          		<img src="/resource/img/shoes4.png" alt="shoes4" />
+				          	</button>
+						</div>
+						<div class="style-Wrap">
+				          	<button class="style4" onclick="loadModel('/resource/model/shoes5.glb', 'shoes5')">
+				          		<img src="/resource/img/shoes5.png" alt="shoes5" />
+				          	</button>
+				          	<button class="style5" onclick="loadModel('/resource/model/shoes6.glb', 'shoes6')">
+				          		<img src="/resource/img/shoes6.png" alt="shoes6" />
+				          	</button>
+				          	<button class="style6" onclick="loadModel('/resource/model/shoes7.glb', 'shoes7')">
+				          		<img src="/resource/img/shoes7.png" alt="shoes7" />
+				          	</button>
+				          	<button class="style6" onclick="loadModel('/resource/model/shoes8.glb', 'shoes8')">
+				          		<img src="/resource/img/shoes8.png" alt="shoes8" />
+				          	</button>
+						</div>
+	              </div>`;
               
       } else if (option === 'accessory') {
     	  
-              html = `
-                  <h3>Color</h3>
-                  <div class="color-picker">
-                    <button class="color1"></button>
-                    <button class="color2"></button>
-                    <button class="color3"></button>
-                    <button class="color4"></button>
-                    <button class="color5"></button>
-                    <button class="color6"></button>
-                  </div>
+				html = `
+					<h3>Color</h3>
+						<div class="color-picker">
+	                    <button class="color1"></button>
+	                    <button class="color2"></button>
+	                    <button class="color3"></button>
+	                    <button class="color4"></button>
+	                    <button class="color5"></button>
+	                    <button class="color6"></button>
+					</div>
                   
-                  <div class="style-select">
-	
-	                  <div class="line"></div>
-	                
-	                  <button class="style1"></button>
-	                  <button class="style2"></button>
-	                  <button class="style3"></button>
-	                  <br/>
-	                  <button class="style4"></button>
-	                  <button class="style5"></button>
-	                  <button class="style6"></button>
+					<div class="line"></div>
+					<div class="style-select">
+						<div class="style-Wrap">
+							<button class="style1" onclick="loadModel('/resource/model/accessory1.glb', 'accessory1')">
+				          		<img src="/resource/img/accessory1.png" alt="accessory1" />
+				          	</button>
+				          	<button class="style2" onclick="loadModel('/resource/model/accessory2.glb', 'accessory2')">
+				          		<img src="/resource/img/accessory2.png" alt="accessory2" />
+				          	</button>
+				          	<button class="style3" onclick="loadModel('/resource/model/accessory3.glb', 'accessory3')">
+				          		<img src="/resource/img/accessory3.png" alt="accessory3" />
+				          	</button>
+				          	<button class="style3" onclick="loadModel('/resource/model/accessory4.glb', 'accessory4')">
+				          		<img src="/resource/img/accessory4.png" alt="accessory4" />
+				          	</button>
+						</div>
+						<div class="style-Wrap">
+				          	<button class="style4" onclick="loadModel('/resource/model/accessory5.glb', 'accessory5')">
+				          		<img src="/resource/img/accessory5.png" alt="accessory5" />
+				          	</button>
+				          	<button class="style5" onclick="loadModel('/resource/model/accessory6.glb', 'accessory6')">
+				          		<img src="/resource/img/accessory6.png" alt="accessory6" />
+				          	</button>
+				          	<button class="style6" onclick="loadModel('/resource/model/accessory7.glb', 'accessory7')">
+				          		<img src="/resource/img/accessory7.png" alt="accessory7" />
+				          	</button>
+				          	<button class="style6" onclick="loadModel('/resource/model/accessory8.glb', 'accessory8')">
+				          		<img src="/resource/img/accessory8.png" alt="accessory8" />
+				          	</button>
+						</div>
                   </div>`;
                   
           } else {
@@ -362,6 +564,8 @@ function updateSelectBox(option) {
     document.querySelector('.hair').addEventListener('click', () => updateSelectBox('hair'));
     document.querySelector('.top').addEventListener('click', () => updateSelectBox('top'));
     document.querySelector('.bottom').addEventListener('click', () => updateSelectBox('bottom'));
+    document.querySelector('.dress').addEventListener('click', () => updateSelectBox('dress'));
+    document.querySelector('.shoes').addEventListener('click', () => updateSelectBox('shoes'));
     document.querySelector('.accessory').addEventListener('click', () => updateSelectBox('accessory'));
     
   updateSelectBox('skin-face');
@@ -413,18 +617,34 @@ function updateSelectBox(option) {
 
 			<!-- ✅ 버튼 수정부 -->
 			<div class="custom-options">
-				<button class="skin-face" onclick="loadModel('/resource/model/face1.glb', 'face1')">
-					<img src="/resource/img/face1.png" alt="skin-face"/>
+				<button class="skin-face"
+					onclick="loadModel('/resource/model/face1.glb', 'face1')">
+					<img src="/resource/img/face1.png" alt="skin-face" />
 				</button>
-				<button class="hair" onclick="loadModel('/resource/model/hair1.glb', 'hair1')">
-					<img src="/resource/img/hair1.png" alt="hair"/>
+				<button class="hair"
+					onclick="loadModel('/resource/model/hair1.glb', 'hair1')">
+					<img src="/resource/img/hair1.png" alt="hair" />
 				</button>
 				<button class="top"
-					onclick="loadModel('/resource/model/top.glb', 'top')"></button>
+					onclick="loadModel('/resource/model/top1.glb', 'top1')">
+					<img src="/resource/img/top1.png" alt="top" />
+				</button>
 				<button class="bottom"
-					onclick="loadModel('/resource/model/bottom.glb', 'bottom')"></button>
+					onclick="loadModel('/resource/model/bottom1.glb', 'bottom1')">
+					<img src="/resource/img/bottom1.png" alt="bottom" />
+				</button>
+				<button class="dress"
+					onclick="loadModel('/resource/model/dress1.glb', 'dress1')">
+					<img src="/resource/img/dress1.png" alt="dress" />
+				</button>
+				<button class="shoes"
+					onclick="loadModel('/resource/model/shoes1.glb', 'shoes1')">
+					<img src="/resource/img/shoes1.png" alt="shoes" />
+				</button>
 				<button class="accessory"
-					onclick="loadModel('/resource/model/accessory.glb', 'accessory')"></button>
+					onclick="loadModel('/resource/model/accessory1.glb', 'accessory1')">
+					<img src="/resource/img/accessory1.png" alt="accessory" />
+				</button>
 			</div>
 
 
@@ -438,10 +658,6 @@ function updateSelectBox(option) {
 			</div>
 
 		</div>
-
-
-
-
 	</div>
 </div>
 
