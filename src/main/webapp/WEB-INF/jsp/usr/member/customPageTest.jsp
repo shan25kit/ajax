@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ✅ 캐릭터 본체 로딩
-  loader.load('/resource/images/body.glb', (gltf) => {
+  loader.load('/resource/model/body.glb', (gltf) => {
     character = gltf.scene;
     character.scale.set(7.5, 7.5, 7.5);
     character.position.set(0, -18, 0);

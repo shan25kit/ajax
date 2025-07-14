@@ -25,12 +25,10 @@ public class GameController {
 	}
 	// 유저 정보 로딩
 	@GetMapping("")
-    public String websocket(Model model) {
+    public String userInfoload(Model model) {
 		System.out.println("=== websocket() 메서드 호출됨 ===");
 		int memberId = this.req.getLoginedMember().getId();
-		System.out.println(memberId);
 		Player player = this.gameService.selectPlayerByMemberId(memberId);
-		System.out.println(player);
 		model.addAttribute("player", player);
         return "usr/game/startMap";
     }
