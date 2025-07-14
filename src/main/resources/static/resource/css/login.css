@@ -481,6 +481,9 @@ input {
 	text-align: right;
 }
 
+
+/* 커스텀 페이지 */
+
 .custom-box {
 	width:1000px;
 	height:470px;
@@ -545,32 +548,59 @@ input {
 }
  
 .custom-options button {
-   width: 60px;
-   height: 60px;
+   width: 40px;
+   height: 40px;
    border-radius: 50%;
    background: white;
    border: none;
    cursor: pointer;
 }
 
-.custom-options button img {
-	width: 50px;
-	height: 50px;
-	margin-top: 5px;
+.custom-options button:first-child img {
+	width: 40px;
+	height: 40px;
 }
 
-.custom-options .hair {
-	margin-left: 45px;
+.custom-options button:not(:first-child) img {
+	width: 60px;
+	height: 60px;
+	display: block;
+	margin-top: -10px;
+	margin-left: -10px;
 }
 
-.custom-options .top {
-	margin-left: 60px;
-	margin-top:12px;
-	margin-bottom:12px;
+
+.custom-options button{
+	margin-top:5px; 
+	margin-bottom:5px;
 }
 
-.custom-options .bottom {
-	margin-left: 45px;
+.bottom{
+	margin-top:5px;
+	margin-bottom:5px;
+	margin-left:80px;
+}
+
+.top , .dress{
+	margin-left:70px;	
+}
+
+.hair, .shoes{
+	margin-left:50px;	
+}
+
+.hair{
+	margin-top:0px !important;
+}
+
+.shoes{
+	margin-bottom:0px !important;
+}
+
+.skin-face, .accessory{
+	margin-left:20px;
+	margin-top:0px !important;
+	margin-bottom:0px !important;
 }
 
 .custom-select-box {
@@ -609,20 +639,29 @@ input {
 }
 
 .line{
-	width:100%;
+	width:340px;
+	margin:0 auto;
 	height:1px;
 	background-color:#fff;
+	margin-top:15px;
+	margin-bottom:15px;
 }
 .style-select {
+	width:340px;
 	margin-top: 10px;
 	margin-left:50px;
 	margin-right:50px;
 }
 
+.style-Wrap{
+	width:100%;
+	display: flex;
+	justify-content: space-between;
+}
+
 .style-select button {
 	width: 75px;
 	height: 75px;
-	margin-right:5px;
 	margin-bottom:8px;
 	border-radius: 20px;
 	border: 2px solid #fff;
@@ -643,7 +682,7 @@ input {
 	justify-content: space-between;
 	position: absolute;
 	bottom:45px;
-	right:210px;
+	right:160px;
 }
 
 .btn_box button{
