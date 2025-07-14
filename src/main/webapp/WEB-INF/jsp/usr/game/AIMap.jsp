@@ -151,7 +151,7 @@
                 if (!this.loader) return;
                 
                 this.loader.load(
-                    '/resource/images/body.glb',
+                    '/resource/model/body.glb',
                     (gltf) => {
                         console.log('NPC aiChatbot 로드 성공');
                         this.aiChatbot = gltf.scene;
