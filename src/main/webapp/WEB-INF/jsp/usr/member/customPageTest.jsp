@@ -27,6 +27,10 @@ window.setSkinColor = function (hexColor) {
       child.material.needsUpdate = true;
     }
   });
+  
+//🔸 선택된 피부색 input에 저장
+  const skinInput = document.getElementById("input-skin_face");
+  if (skinInput) skinInput.value = hexColor;
 };
 
 //✅ 머리색 변경 함수 (현재 선택된 hair 파트 전체에 적용)
@@ -37,28 +41,18 @@ window.setHairColor = function (hexColor) {
   if (!model) return;
 
   model.traverse((child) => {
-    if (child.isMesh && child.material && child.material.color) {
-      console.log('🎯 색상 적용 대상:', child.name);
-
-      // 텍스처가 있으면 제거
-      if (child.material.map) {
-        child.material.map = null;
-      }
-
-   // ✅ 색상 및 불투명도 적용
-      child.material.color.set(hexColor);
-      child.material.transparent = false;
-      child.material.opacity = 1.0;
-   // ✅ 깊이 관련 문제 해결
-      child.material.depthWrite = true;
-      child.material.depthTest = true;
-      child.material.needsUpdate = true;
-      child.material.side = THREE.FrontSide;
-    }
-  });
-};
-
-
+	    if (child.isMesh && child.material && child.material.color) {
+	      if (child.material.map) child.material.map = null;
+	      child.material.color.set(hexColor);
+	      child.material.transparent = false;
+	      child.material.opacity = 1.0;
+	      child.material.depthWrite = true;
+	      child.material.depthTest = true;
+	      child.material.needsUpdate = true;
+	      child.material.side = THREE.FrontSide;
+	    }
+	  });
+	};
 
 document.addEventListener('DOMContentLoaded', () => {
   const container = document.getElementById('three-container');
@@ -67,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(75, containerWidth / containerHeight, 0.1, 950);
-  camera.position.set(0, 0, 30);
+  camera.position.set(0, 10, 25);
   camera.lookAt(0, 0, 0);
 
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -75,13 +69,25 @@ document.addEventListener('DOMContentLoaded', () => {
   renderer.setClearColor(0x000000, 0); // 투명 배경
   container.appendChild(renderer.domElement);
 
-  controls = new THREE.OrbitControls(camera, renderer.domElement);
+  /* controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.05;
   controls.enableZoom = false;
   controls.enablePan = false;
   controls.minPolarAngle = Math.PI / 2;
   controls.maxPolarAngle = Math.PI / 2;
+ */
+ 
+ const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+ controls.enableRotate = true;
+ controls.enablePan = true;
+ controls.enableZoom = true;
+
+ controls.minPolarAngle = 0;
+ controls.maxPolarAngle = Math.PI;
+
+ controls.autoRotate = false; // 필요 시 true로
 
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
   scene.add(ambientLight);
@@ -99,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ✅ 캐릭터 본체 로딩
   loader.load('/resource/images/body.glb', (gltf) => {
     character = gltf.scene;
-    character.scale.set(7.5, 7.5, 7.5);
+    character.scale.set(1.7, 1.7, 1.7);
     character.position.set(0, -18, 0);
 
     character.traverse((child) => {
@@ -119,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     scene.add(character);
   });
-
+  
   // ✅ 파츠 모델 로드 함수
   window.loadModel = function (path, partStyleKey) {
   const partGroupKey = partStyleKey.replace(/[0-9]/g, '');
@@ -134,8 +140,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const partSettings = {
     // 💇 헤어
     'face1': { scale: [4, 4, 4], position: [0, 9, 6], rotation: [20.4, 0, 0] },
-    'hair1': { scale: [75, 75, 75], position: [0, -51.2, 0], rotation: [0, 0, 0] },
-    'hair2': { scale: [7, 7, 8], position: [0, -16, -0.29], rotation: [0, 0, 0] },
+    'hair1': { scale: [10, 10, 10], position: [0, 0, 10], rotation: [0, 0, 0] },
+    'hair2': { scale: [7, 7, 8], position: [0, 0, 0], rotation: [0, 0, 0] },
     'hair3': { scale: [80.3, 75, 69], position: [0, -51.1, 1], rotation: [0, 0, 0] },
     'hair4': { scale: [75, 75, 70], position: [0, -51.1, 1], rotation: [0, 0, 0] },
     'hair5': { scale: [81, 74, 75], position: [0, -50, 0.5], rotation: [0, 0, 0] },
@@ -152,8 +158,9 @@ document.addEventListener('DOMContentLoaded', () => {
     'bottom2': { scale: [4, 4, 4], position: [0, -7.5, 0], rotation: [0, 0.2, 0] },
     
     // 👗 원피스
-    'dress1': { scale: [53, 53, 59], position: [0, -21.9, 0], rotation: [0, 0, 0] },
-    'dress2': { scale: [4, 4, 4], position: [0, -7.5, 0], rotation: [0, 0.2, 0] },
+    'dress1': { scale: [45.2, 45.2, 45.2], position: [0, -19.8, 0.45], rotation: [0, 0, 0] },
+    'dress2': { scale: [45.2, 45.2, 45.2], position: [0, -30, 0.45], rotation: [0, 0, 0] },
+    'dress3': { scale: [38, 38, 38], position: [0, -24, 0.45], rotation: [0, 0, 0] },
     
     // 👟 신발
     'shoes1': { scale: [4, 4, 4], position: [0, -8, 0], rotation: [0, 0, 0] },
@@ -165,54 +172,67 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const setting = partSettings[partStyleKey] || {
-    scale: [4, 4, 4],
-    position: [0, 0, 0],
-    rotation: [0, 0, 0]
-  };
+	    scale: [4, 4, 4],
+	    position: [0, 0, 0],
+	    rotation: [0, 0, 0]
+	  };
 
-  loader.load(path, (gltf) => {
-    const model = gltf.scene;
+	  loader.load(path, (gltf) => {
+	    const model = gltf.scene;
 
-    if (partStyleKey === 'face1') {
-      let meshFound = false;
+	    if (partStyleKey === 'face1') {
+	      let meshFound = false;
 
-      model.traverse((child) => {
-        if (child.isMesh) {
-          meshFound = true;
+	      model.traverse((child) => {
+	        if (child.isMesh) {
+	          meshFound = true;
 
-          // ✅ 설정값 적용
-          child.scale.set(...setting.scale);
-          child.position.set(...setting.position);
-          child.rotation.set(...setting.rotation);
-          child.visible = true;
+	          // ✅ 설정값 적용
+	          child.scale.set(...setting.scale);
+	          child.position.set(...setting.position);
+	          child.rotation.set(...setting.rotation);
+	          child.visible = true;
 
-          // 💡 디버깅용
-          child.material.needsUpdate = true;
+	          // 💡 디버깅용
+	          child.material.needsUpdate = true;
 
-          console.log('✅ face1 메쉬 찾음:', child.name);
-          console.log('🧪 위치:', child.position);
-          console.log('🧪 크기:', child.scale);
+	          console.log('✅ face1 메쉬 찾음:', child.name);
+	          console.log('🧪 위치:', child.position);
+	          console.log('🧪 크기:', child.scale);
 
-          scene.add(child);
-          currentParts[partGroupKey] = child;
-        }
-      });
+	          scene.add(child);
+	          currentParts[partGroupKey] = child;
+	        }
+	      });
 
-      if (!meshFound) {
-        console.warn('⚠️ face1에서 메쉬를 찾을 수 없습니다!');
-      }
+	      if (!meshFound) {
+	        console.warn('⚠️ face1에서 메쉬를 찾을 수 없습니다!');
+	      }
 
-    } else {
-      // 일반 파츠
-      model.scale.set(...setting.scale);
-      model.position.set(...setting.position);
-      model.rotation.set(...setting.rotation);
+	    } else {
+	      // 일반 파츠
+	      model.scale.set(...setting.scale);
+	      model.position.set(...setting.position);
+	      model.rotation.set(...setting.rotation);
+	      
+	   // ✅ 여기서 투명도/렌더링 속성 보정
+	      model.traverse((child) => {
+	        if (child.isMesh && child.material) {
+	          child.material.transparent = false;
+	          child.material.opacity = 1;
+	          child.material.needsUpdate = true;
+	          child.material.depthWrite = true;
+	          child.material.depthTest = true;
+	          child.material.side = THREE.FrontSide;
+	        }
+	      });
 
-      scene.add(model);
-      currentParts[partGroupKey] = model;
-    }
-  });
-};
+	      console.log('✅ 모델 추가됨:', partStyleKey);
+	      scene.add(model);
+	      currentParts[partGroupKey] = model;
+	    }
+	  });
+	};
 
   // ✅ 렌더링 루프
   function animate() {
@@ -231,6 +251,10 @@ document.addEventListener('DOMContentLoaded', () => {
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
   });
+  
+  // ✅ 초기값 세팅
+  updateSelectBox('skin-face');
+  setSkinColor('#FFE0BD');
 });
 	
 function updateSelectBox(option) {
@@ -571,25 +595,26 @@ function updateSelectBox(option) {
   updateSelectBox('skin-face');
   setSkinColor('#FFE0BD');
   });
-  
-//✅ 리셋 함수 추가
-  function resetAvatar() {
-    // 씬에서 각 파츠 제거
-    for (let key in currentParts) {
-      if (currentParts[key]) {
-        scene.remove(currentParts[key]);
-        currentParts[key] = null;
-      }
+
+function resetAvatar() {
+  for (let key in currentParts) {
+    if (currentParts[key]) {
+      scene.remove(currentParts[key]);
+      currentParts[key] = null;
     }
-
-    // 피부색 초기화
-    setSkinColor('#FFE0BD');
-
-    // 선택 박스도 초기화
-    updateSelectBox('skin-face');
-
-    console.log('🔄 아바타 초기화 완료!');
   }
+  setSkinColor('#FFE0BD');
+  updateSelectBox('skin-face');
+
+//hidden input 초기화
+  const inputs = ['skin_face', 'hair', 'top', 'bottom', 'dress', 'shoes', 'accessory'];
+  inputs.forEach(id => {
+    const input = document.getElementById(`input-${id}`);
+    if (input) input.value = "";
+  });
+
+  console.log('🔄 아바타 초기화 완료!');
+}
   
 </script>
 
@@ -650,12 +675,61 @@ function updateSelectBox(option) {
 
 			<div class="custom-select-box" id="select-box"></div>
 
-			<div class=btn_box>
-
-				<button onclick="resetAvatar()">RESET</button>
-				<button type="submit" onclick="location.href='/usr/game'">SAVE</button>
-
-			</div>
+			<form action="/usr/custom/save" method="post" id="customForm">
+				<input type="hidden" name="skin_face" id="input-skin_face"/>
+				<input type="hidden" name="hair" id="input-hair"/>
+				<input type="hidden" name="top" id="input-top"/>
+				<input type="hidden" name="bottom" id="input-bottom"/>
+				<input type="hidden" name="dress" id="input-dress"/>
+				<input type="hidden" name="shoes" id="input-shoes"/>
+				<input type="hidden" name="accessory" id="input-accessory"/>
+				
+				<div class="btn_box">
+					<button type="button" onclick="resetAvatar()">RESET</button>
+					<button type="submit">SAVE</button>
+				</div>
+			</form>
+			
+			<!-- ✅ script는 form 아래에 위치시켜야 함 -->
+			<script>
+			  function loadModel(path, partStyleKey) {
+			    console.log('✅ loadModel 실행됨: ', path, partStyleKey);
+			
+			    // 숫자 제거
+			    let partGroupKey = partStyleKey.replace(/[0-9]/g, '');
+			
+			    // face는 예외 처리
+			    if (partGroupKey === 'face') {
+			      partGroupKey = 'skin_face';
+			    }
+			
+			    const inputId = 'input-' + partGroupKey;
+			    const hiddenInput = document.getElementById(inputId);
+			
+			    console.log('🔍 hidden input: ', hiddenInput);
+			
+			    if (hiddenInput) {
+			      hiddenInput.value = path;
+			      console.log('✅ 저장됨! →', path);
+			    } else {
+			      console.warn('❌ hidden input 못 찾음: ', inputId);
+			    }
+			
+			    // glb 파일 로딩 (예시)
+			    const loader = new THREE.GLTFLoader();
+			    loader.load(
+			      path,
+			      function (gltf) {
+			        console.log('GLTF 로드 완료:', gltf);
+			        // ...모델 처리 로직...
+			      },
+			      undefined,
+			      function (error) {
+			        console.error('GLTF 로드 실패:', error);
+			      }
+			    );
+			  }
+			</script>
 
 		</div>
 	</div>

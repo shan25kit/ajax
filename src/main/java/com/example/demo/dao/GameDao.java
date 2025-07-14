@@ -11,10 +11,10 @@ public interface GameDao {
 
 	@Select("""
 		    SELECT *
-		    FROM player p
+		    FROM custom_character cc
 		    LEFT JOIN  memberInfo mi
-		    ON p.memberId = mi.memberId
-		    WHERE p.memberId = #{memberId}
+		    ON cc.memberId = mi.memberId
+		    WHERE cc.memberId = #{memberId}
 		    """)
 	Player selectPlayerByMemberId(int memberId);
 
