@@ -2,7 +2,7 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 
-<c:set var="pageTitle" value="Login" />
+<c:set var="pageTitle" value="chatBot" />
 
 <%@ include file="/WEB-INF/jsp/common/header.jsp"%>
 <link rel="stylesheet" href="/resource/css/chatBot.css" />
