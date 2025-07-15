@@ -17,6 +17,18 @@ CREATE TABLE memberInfo (
     , nickName VARCHAR(50) NOT NULL UNIQUE
 );
 
+CREATE TABLE custom_character (
+  memberId INT UNSIGNED NOT NULL
+  , skinColor CHAR(10)
+  , hair TINYINT
+  , hairColor CHAR(10)
+  , top TINYINT
+  , bottom TINYINT
+  , dress TINYINT
+  , shoes TINYINT
+  , accessory TINYINT
+);
+
 #이메일 인증코드 발송용
 CREATE TABLE email_auth (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -25,18 +37,6 @@ CREATE TABLE email_auth (
     created_at DATETIME NOT NULL,
     expired_at DATETIME NOT NULL
 );
-
-CREATE TABLE custom_character (
-  memberId INT UNSIGNED NOT NULL
-  , skin_face VARCHAR(100)
-  , hair VARCHAR(100)
-  , top VARCHAR(100)
-  , bottom VARCHAR(100)
-  , dress VARCHAR(100)
-  , shoes VARCHAR(100)
-  , accessory VARCHAR(100)
-);
-
 
 SELECT * FROM `member`;
 SELECT * FROM `memberInfo`;
@@ -67,5 +67,3 @@ SELECT *
 		    LEFT JOIN  memberInfo mi
 		    ON p.memberId = mi.memberId
 		    WHERE memberId = 1
-
-
