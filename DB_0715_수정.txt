@@ -1,3 +1,4 @@
+
 DROP DATABASE IF EXISTS ajaxDB;
 CREATE DATABASE ajaxDB;
 USE ajaxDB;
@@ -15,6 +16,15 @@ CREATE TABLE `member` (
 CREATE TABLE memberInfo (
     memberId INT UNSIGNED NOT NULL
     , nickName VARCHAR(50) NOT NULL UNIQUE
+);
+
+#이메일 인증코드 발송용
+CREATE TABLE email_auth (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL,
+    auth_code VARCHAR(20) NOT NULL,
+    created_at DATETIME NOT NULL,
+    expired_at DATETIME NOT NULL
 );
 
 CREATE TABLE custom_character (
@@ -58,5 +68,3 @@ SELECT *
 		    LEFT JOIN  memberInfo mi
 		    ON p.memberId = mi.memberId
 		    WHERE memberId = 1
-
-
