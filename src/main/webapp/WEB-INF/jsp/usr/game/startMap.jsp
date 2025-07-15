@@ -6,11 +6,210 @@
 
 <%@ include file="/WEB-INF/jsp/common/header.jsp"%>
 
-<script
-	src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script
-	src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+
+<div class="map-container" id="mapContainer">
+
+	<div class="map-inner" id="mapInner">
+		<img id="zoomMap" src="/resource/img/background-1.png" alt="map" />
+
+		<div class="map_field">
+
+			<div class="object1">
+				<img src="/resource/img/fountain.png" alt="분수대" />
+			</div>
+
+			<div class="portal">
+				<img src="/resource/img/portal.gif" alt="portal" />
+			</div>
+
+		</div>
+		<div class="clouds">
+			<img class="first_cloud" src="/resource/img/cloud1.png" alt="구름1" />
+			<img class="second_cloud" src="/resource/img/cloud2.png" alt="구름2" />
+			<img class="third_cloud" src="/resource/img/cloud3.png" alt="구름3" />
+		</div>
+	</div>
+	<div class="clean-chat-container" id="chatContainer">
+		<div class="chat-header">
+			<div class="chat-title-wrapper">
+				<div class="chat-icon">💬</div>
+				<span class="chat-title">대화</span>
+			</div>
+			<button class="chat-toggle" id="chatToggle">−</button>
+		</div>
+		<div class="chat-messages" id="chatMessages">
+			<!-- 채팅 메시지들이 여기에 추가됩니다 -->
+		</div>
+		<div class="chat-input-area">
+			<div class="input-wrapper">
+				<input type="text" id="chatInput" class="clean-input"
+					placeholder="메시지를 입력하세요..." maxlength="200">
+				<button id="chatSend" class="send-button">
+					<span class="send-icon">↗</span>
+				</button>
+			</div>
+			<!-- 메시지 종류 선택 버튼 숨김 -->
+			<input type="hidden" id="chatType" value="MAP">
+		</div>
+	</div>
+</div>
+
+
+
+
 <script>
+//전역 변수
+let gameClient = null;
+let mapDragEnabled = true;
+
+//맵 드래그 시스템
+const container = document.getElementById('mapContainer');
+const mapInner = document.getElementById('mapInner');
+
+let scale = 0.5;
+let posX = -200;
+let posY = -150;
+const minScale = 0.5;
+const maxScale = 2.0;
+const step = 0.1;
+
+let isDragging = false;
+let startX = 0;
+let startY = 0;
+
+const imageWidth = 4000;  // 실제 이미지 너비
+const imageHeight = 2754; // 실제 이미지 높이
+
+function applyTransform() {
+  const containerWidth = container.clientWidth;
+  const containerHeight = container.clientHeight;
+  const scaledWidth = imageWidth * scale;
+  const scaledHeight = imageHeight * scale;
+
+  // ❗ 드래그 한계 계산
+  const maxPosX = 0;
+  const minPosX = containerWidth - scaledWidth;
+  const maxPosY = 0;
+  const minPosY = containerHeight - scaledHeight;
+
+  // ❗ 범위 제한
+  posX = Math.min(maxPosX, Math.max(minPosX, posX));
+  posY = Math.min(maxPosY, Math.max(minPosY, posY));
+
+  mapInner.style.transform = `translate(\${posX}px, \${posY}px) scale(\${scale})`;
+  
+//CSS 변환 적용
+  mapInner.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+  
+  // Three.js 씬과 좌표계 동기화
+  if (gameClient && gameClient.scene) {
+    gameClient.updateSceneTransform(posX, posY, scale);
+  }
+}
+
+//줌 
+container.addEventListener('wheel', function (e) {
+	  if (!mapDragEnabled) return;
+	    e.preventDefault();
+
+  const rect = container.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+
+  const prevScale = scale;
+  scale = e.deltaY < 0
+    ? Math.min(maxScale, scale + step)
+    : Math.max(minScale, scale - step);
+
+  const scaleChange = scale / prevScale;
+  posX = mouseX - (mouseX - posX) * scaleChange;
+  posY = mouseY - (mouseY - posY) * scaleChange;
+  
+
+  applyTransform();
+}, { passive: false });
+
+// 드래그
+container.addEventListener('pointerdown', (e) => {
+	 if (!mapDragEnabled) return;
+	  // 채팅 영역 클릭 시 드래그 비활성화
+	    if (e.target.closest('.clean-chat-container')) return;
+  isDragging = true;
+  startX = e.clientX;
+  startY = e.clientY;
+  container.setPointerCapture(e.pointerId);
+  container.style.cursor = 'grabbing';
+});
+
+container.addEventListener('pointermove', (e) => {
+	  if (!isDragging || !mapDragEnabled) return;
+  const dx = e.clientX - startX;
+  const dy = e.clientY - startY;
+  startX = e.clientX;
+  startY = e.clientY;
+  posX += dx;
+  posY += dy;
+  applyTransform();
+});
+
+container.addEventListener('pointerup', (e) => {
+  isDragging = false;
+  container.releasePointerCapture(e.pointerId);
+  container.style.cursor = 'grab';
+});
+
+applyTransform(); // 최초 적용
+
+function animateCloud($cloud, speed, delay, verticalShift = 20) {
+    const screenWidth = $(window).width();
+    const cloudWidth = $cloud.width();
+    const initialTop = parseInt($cloud.css('top')) || 0;
+
+    const farRight = screenWidth + cloudWidth + 1000;
+
+    // ⭐ top 위치 살짝 위아래 랜덤
+    function getRandomTop() {
+      const offset = Math.floor(Math.random() * verticalShift * 2) - verticalShift; // -20 ~ +20
+      return initialTop + offset;
+    }
+
+    // ⭐ 처음 이동
+    function startFromInitial() {
+      $cloud.animate(
+        {
+          left: farRight + 'px',
+          top: getRandomTop() + 'px'
+        },
+        speed,
+        'linear',
+        moveLoop
+      );
+    }
+
+    // ⭐ 이후 반복
+    function moveLoop() {
+      $cloud.css({
+        left: -cloudWidth + 'px'
+      }).animate(
+        {
+          left: farRight + 'px',
+          top: getRandomTop() + 'px'
+        },
+        speed,
+        'linear',
+        moveLoop
+      );
+    }
+
+    setTimeout(startFromInitial, delay);
+  }
+
+  // ⚠️ 반드시 구름 클래스에 position:absolute 있어야 top이 적용됨!
+  // 예시: .first_cloud, .second_cloud, .third_cloud { position: absolute; }
+
+
+
  console.log('=== 서버 데이터 원본 ===');
  console.log('Member ID Raw:', '${player.memberId}');
  console.log('Nick Name Raw:', '${player.nickName}');
@@ -23,7 +222,219 @@
             nickName: "${player.nickName}",
             avatarInfo: typeof '${player.avatarInfo}' === 'string' ? JSON.parse('${player.avatarInfo}') : '${player.avatarInfo}' // 문자열 체크 후 파싱
         };
-
+		
+     // 채팅 시스템 클래스 추가
+        class ChatSystem {
+    	 
+            constructor(gameClient) {
+                this.gameClient = gameClient;
+                this.currentMap = 'startMap';
+                this.isMinimized = false;
+                this.unreadCount = 0;
+                this.currentChatType = 'chat-inMap';
+                
+                this.initializeUI();
+            }
+            
+            
+            initializeUI() {
+                $('.chat-header').on('click', () => this.toggleChat());
+                $('#chatToggle').on('click', (e) => {
+                    e.stopPropagation();
+                    this.toggleChat();
+                });
+                
+                $('#chatSend').on('click', () => this.sendMessage());
+                $('#chatInput').on('keypress', (e) => {
+                    if (e.which === 13 || e.keyCode === 13) { // Enter key
+                        e.preventDefault(); // 기본 동작 방지
+                        this.sendMessage();
+                    }
+                });
+                
+                // 추가 보장: keydown 이벤트도 처리
+                $('#chatInput').on('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) { // Shift+Enter는 제외
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+                
+                $(document).on('keydown', (e) => {
+                    if (e.ctrlKey && e.key === 't' && !this.isMinimized) {
+                        e.preventDefault();
+                        this.toggleChatType();
+                    }
+                });
+                
+                console.log('채팅 UI 초기화 완료 (Ctrl+T: 채팅 타입 변경)');
+            }
+            
+            toggleChatType() {
+                this.currentChatType = this.currentChatType === 'MAP' ? 'GLOBAL' : 'MAP';
+                $('#chatType').val(this.currentChatType);
+                this.updateInputPlaceholder();
+                console.log('채팅 타입 변경:', this.currentChatType);
+            }
+            
+            updateInputPlaceholder() {
+                const placeholder = this.currentChatType === 'GLOBAL' 
+                    ? '전체 공지를 입력하세요... (Ctrl+T: 맵 채팅)'
+                    : '메시지를 입력하세요... (Ctrl+T: 전체 공지)';
+                $('#chatInput').attr('placeholder', placeholder);
+            }
+            
+            sendMessage() {
+                const input = $('#chatInput');
+                const message = input.val().trim();
+                
+                if (!message) return;
+                
+                const sendBtn = $('#chatSend');
+                sendBtn.prop('disabled', true);
+                
+                if (message.length > 200) {
+                    this.showSystemMessage('메시지가 너무 깁니다. (최대 200자)');
+                    sendBtn.prop('disabled', false);
+                    return;
+                }
+                
+                if (!this.gameClient.socket || this.gameClient.socket.readyState !== WebSocket.OPEN) {
+                    this.showSystemMessage('서버와 연결이 끊어졌습니다.');
+                    sendBtn.prop('disabled', false);
+                    return;
+                }
+                
+                const chatData = {
+                    type: this.currentChatType === 'GLOBAL' ? 'chat-global' : 'chat-inMap',
+                    message: message
+                };
+                
+                try {
+                    this.gameClient.socket.send(JSON.stringify(chatData));
+                    input.val('');
+                    console.log(`\${this.currentChatType} 채팅 전송:`, message);
+                    
+                    setTimeout(() => {
+                        input.focus();
+                    }, 200);
+                    
+                } catch (error) {
+                    console.error('메시지 전송 실패:', error);
+                    this.showSystemMessage('메시지 전송에 실패했습니다.');
+                } finally {
+                    setTimeout(() => sendBtn.prop('disabled', false), 500);
+                }
+            }
+            
+            displayMessage(messageData, messageType = 'map') {
+                const messagesContainer = $('#chatMessages');
+                
+                let nickName, message, timestamp;
+                
+                if (typeof messageData === 'string') {
+                    try {
+                        const parsed = JSON.parse(messageData);
+                        nickName = parsed.nickName || '알 수 없음';
+                        message = parsed.message || '';
+                        timestamp = parsed.timestamp || Date.now();
+                    } catch (e) {
+                        console.error('메시지 파싱 실패:', e);
+                        return;
+                    }
+                } else {
+                    nickName = messageData.nickName || '알 수 없음';
+                    message = messageData.message || '';
+                    timestamp = messageData.timestamp || Date.now();
+                }
+                
+                const timeStr = new Date(timestamp).toLocaleTimeString('ko-KR', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                const typeIcon = {
+                    'map': '🗺️',
+                    'global': '📢',
+                    'system': '⚙️'
+                };
+                
+                const messageElement = $('<div class="chat-message ' + messageType + '">' +
+                	    '<span class="chat-nickname">' +
+                	        (typeIcon[messageType] || '') + ' ' + this.escapeHtml(nickName) +
+                	    '</span>' +
+                	    '<div class="chat-content">' + this.escapeHtml(message) + '</div>' +
+                	    '<span class="chat-timestamp">' + timeStr + '</span>' +
+                	'</div>');
+                
+                messagesContainer.append(messageElement);
+                messagesContainer.animate({
+                    scrollTop: messagesContainer[0].scrollHeight
+                }, 200);
+                
+                if (this.isMinimized) {
+                    this.showNotification();
+                }
+                
+                const messages = messagesContainer.children();
+                if (messages.length > 100) {
+                    messages.first().fadeOut(200, function() {
+                        $(this).remove();
+                    });
+                }
+            }
+            
+            showSystemMessage(message) {
+                const systemData = {
+                    nickName: '시스템',
+                    message: message,
+                    timestamp: Date.now()
+                };
+                this.displayMessage(systemData, 'system');
+            }
+            
+            toggleChat() {
+                this.isMinimized = !this.isMinimized;
+                $('#chatContainer').toggleClass('minimized');
+                $('#chatToggle').text(this.isMinimized ? '+' : '−');
+                
+                if (!this.isMinimized) {
+                    this.unreadCount = 0;
+                    this.updateTitle();
+                    setTimeout(() => {
+                        $('#chatInput').focus();
+                        this.updateInputPlaceholder();
+                    }, 300);
+                }
+            }
+            
+            showNotification() {
+                this.unreadCount++;
+                this.updateTitle();
+                
+                $('#chatContainer').addClass('notification');
+                setTimeout(() => {
+                    $('#chatContainer').removeClass('notification');
+                }, 500);
+            }
+            
+            updateTitle() {
+                const title = this.unreadCount > 0 ? '대화 (' + this.unreadCount + ')' : '대화';
+                $('.chat-title').text(title);
+            }
+            
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            changeMap(newMap) {
+                this.currentMap = newMap;
+                this.showSystemMessage(`${newMap}로 이동했습니다.`);
+            }
+        }
+        
 
         // 웹소켓 연결 및 게임 시작
         class GameClient {
@@ -39,6 +450,7 @@
                 this.keys = {};
                 this.speed = 0.2;
                 this.isChangingMap = false;
+                this.chatSystem = null;
             }
 
             // Three.js 초기화 (기존 코드 기반)
@@ -66,8 +478,19 @@
                     this.renderer.outputEncoding = THREE.sRGBEncoding;
                 }
                 
-                $('body').append(this.renderer.domElement);
-
+                const canvas = this.renderer.domElement;
+                canvas.style.position = 'fixed';
+                canvas.style.top = '0';
+                canvas.style.left = '0';
+                canvas.style.zIndex = '10';
+                canvas.style.pointerEvents = 'auto'; // 키보드 포커스를 위해 활성화
+                canvas.tabIndex = 0; // 포커스 가능하게 설정
+                document.body.appendChild(canvas);
+          
+                // 씬 그룹 생성 (모든 게임 오브젝트를 이 그룹에 추가)
+                this.sceneGroup = new THREE.Group();
+                this.scene.add(this.sceneGroup);
+                
                 // 조명 설정
                 this.setupLighting();
                 
@@ -75,10 +498,71 @@
                 if (typeof THREE.GLTFLoader !== 'undefined') {
                     this.loader = new THREE.GLTFLoader();
                 }
+          	   // 키보드 이벤트 설정 - 캔버스에 포커스가 있을 때만
+                this.setupKeyboardControls();
                 // 애니메이션 시작
                 this.animate();
             }
+       
+            // 맵 변환과 3D 씬 동기화 (수정된 버전)
+            updateSceneTransform(mapPosX, mapPosY, mapScale) {
+                if (!this.sceneGroup) return;
+                
+                this.currentMapTransform = { posX: mapPosX, posY: mapPosY, scale: mapScale };
+                
+                // 화면 중심점
+                const screenCenterX = window.innerWidth / 2;
+                const screenCenterY = window.innerHeight / 2;
+                
+                // CSS 변환된 맵에서 화면 중심에 해당하는 원본 이미지 좌표
+                const imageX = (screenCenterX - mapPosX) / mapScale;
+                const imageY = (screenCenterY - mapPosY) / mapScale;
+                
+                // 이미지 좌표를 3D 월드 좌표로 변환
+                // 이미지 중심을 (0,0)으로, 이미지 전체를 100x70 정도의 3D 공간으로 매핑
+                const worldScale = 100 / imageWidth; // 4000px → 100 units
+                const worldX = (imageX - imageWidth / 2) * worldScale;
+                const worldZ = (imageY - imageHeight / 2) * worldScale;
+                
+                // 카메라 위치를 화면 중심에 맞춤 (캐릭터 추적 시가 아닐 때)
+                if (!this.myCharacter || !this.isCharacterMoving) {
+                    this.camera.position.set(worldX, 30, worldZ + 10);
+                    this.camera.lookAt(worldX, 0, worldZ);
+                }
+                
+                // 씬 그룹은 원점에 고정 (카메라만 움직임)
+                this.sceneGroup.position.set(0, 0, 0);
+                this.sceneGroup.scale.set(1, 1, 1);
+                
+                console.log('좌표 동기화:', { 
+                    imageCoord: { x: imageX, y: imageY },
+                    worldCoord: { x: worldX, z: worldZ },
+                    mapTransform: { posX: mapPosX, posY: mapPosY, scale: mapScale }
+                });
+            }
+            // 3D 좌표를 배경 이미지 좌표로 변환
+            worldToImageCoordinates(worldX, worldZ) {
+                const scaleRatio = imageWidth / 100; // 3D 100 단위를 이미지 4000px로 매핑
+                const imageCenterX = imageWidth / 2;
+                const imageCenterY = imageHeight / 2;
+                
+                return {
+                    x: worldX * scaleRatio + imageCenterX,
+                    y: worldZ * scaleRatio + imageCenterY
+                };
+            }
 
+            // 배경 이미지 좌표를 3D 좌표로 변환
+            imageToWorldCoordinates(imageX, imageY) {
+                const scaleRatio = 100 / imageWidth; // 이미지 4000px을 3D 100 단위로 매핑
+                const imageCenterX = imageWidth / 2;
+                const imageCenterY = imageHeight / 2;
+                
+                return {
+                    x: (imageX - imageCenterX) * scaleRatio,
+                    z: (imageY - imageCenterY) * scaleRatio
+                };
+            }
             setupLighting() {
                 const ambient = new THREE.AmbientLight(0xffffff, .5);
                 this.scene.add(ambient);
@@ -95,51 +579,297 @@
                 pointLight.position.set(0, 15, 0);
                 this.scene.add(pointLight);
             }
-
-            loadMap() {
-                const mapTexture = new THREE.TextureLoader().load(
-                    '/resource/images/map.png',
-                    (texture) => {
-                        console.log('맵 이미지 로드 성공');
-                        texture.minFilter = THREE.LinearFilter;
-                        texture.magFilter = THREE.LinearFilter;
-                        texture.wrapS = THREE.ClampToEdgeWrapping;
-                        texture.wrapT = THREE.ClampToEdgeWrapping;
-                        
-                        const mapGeometry = new THREE.PlaneGeometry(50, 50);
-                        const mapMaterial = new THREE.MeshBasicMaterial({
-                            map: texture,
-                            transparent: false,
-                            side: THREE.DoubleSide
-                        });
-                        
-                        const mapPlane = new THREE.Mesh(mapGeometry, mapMaterial);
-                        // 맵을 수평으로 눕혀서 위에서 내려다볼 수 있게 설정
-                        mapPlane.rotation.x = -Math.PI / 2; // 90도 회전
-                        mapPlane.position.set(0, -0.5, 0);
-                        this.scene.add(mapPlane);
-                        
-                        // 포털 생성
-                        this.createPortals();
-                        
-                    },
-                    undefined,
-                    (error) => {
-                        console.log('맵 이미지 로드 실패');
+			
+            setupKeyboardControls() {
+                const canvas = this.renderer.domElement;
+                
+                // 캐릭터 모드 표시 함수
+                const showCharacterMode = () => {
+                    canvas.focus();
+                    mapDragEnabled = false;
+                };
+                
+                // 맵 모드로 전환
+                const showMapMode = () => {
+                    canvas.blur();
+                    mapDragEnabled = true;
+                };
+                
+                // 캔버스 클릭 시 포커스
+                canvas.addEventListener('click', () => {
+                    showCharacterMode();
+                });
+                
+                // 캔버스 밖 클릭 시 포커스 해제 (채팅 제외)
+                document.addEventListener('click', (e) => {
+                    if (!canvas.contains(e.target) && !e.target.closest('.clean-chat-container')) {
+                        showMapMode();
                     }
-                );
+                });
+                
+                // 전역 키보드 이벤트 - 방향키나 WASD 입력 시 자동으로 캐릭터 모드 활성화
+                document.addEventListener('keydown', (e) => {
+                    const movementKeys = ['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'];
+                    const key = e.key.toLowerCase();
+                    
+                    // 채팅 입력 중이면 무시
+                    if (document.activeElement.id === 'chatInput') {
+                        return;
+                    }
+                    
+                    // 이동 키가 눌렸을 때 자동으로 캐릭터 모드 활성화
+                    if (movementKeys.includes(key)) {
+                        showCharacterMode();
+                        this.keys[key] = true;
+                        e.preventDefault();
+                    }
+                });
+                
+                document.addEventListener('keyup', (e) => {
+                    const movementKeys = ['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'];
+                    const key = e.key.toLowerCase();
+                    
+                    if (movementKeys.includes(key)) {
+                        this.keys[key] = false;
+                        e.preventDefault();
+                    }
+                });
+                
+                // 캔버스별 키보드 이벤트 (추가 제어를 위해 유지)
+                canvas.addEventListener('keydown', (e) => {
+                    this.keys[e.key.toLowerCase()] = true;
+                    e.preventDefault();
+                });
+                
+                canvas.addEventListener('keyup', (e) => {
+                    this.keys[e.key.toLowerCase()] = false;
+                    e.preventDefault();
+                });
+                
+                // 초기 포커스
+                setTimeout(() => canvas.focus(), 1000);
             }
+            
+            
+            // 애니메이션 루프 (기존 코드 기반)
+            animate() {
+                requestAnimationFrame(() => this.animate());
+
+                // 내 캐릭터 이동 처리
+                if (this.myCharacter && this.keys) {
+                    let moved = false;
+                    
+                    if (this.keys['arrowup'] || this.keys['w'] || this.keys['W']) {
+                        this.myCharacter.position.z -= this.speed;
+                        moved = true;
+                    }
+                    if (this.keys['arrowdown'] || this.keys['s'] || this.keys['S']) {
+                        this.myCharacter.position.z += this.speed;
+                        moved = true;
+                    }
+                    if (this.keys['arrowleft'] || this.keys['a'] || this.keys['A']) {
+                        this.myCharacter.position.x -= this.speed;
+                        moved = true;
+                    }
+                    if (this.keys['arrowright'] || this.keys['d'] || this.keys['D']) {
+                        this.myCharacter.position.x += this.speed;
+                        moved = true;
+                    }
+                    
+                    if (moved) {
+                    // 카메라가 내 캐릭터를 따라다니기 
+                    this.camera.position.set(
+                        this.myCharacter.position.x,
+                        this.myCharacter.position.y + 25,
+                        this.myCharacter.position.z 
+                    );
+                    this.camera.lookAt(this.myCharacter.position);
+                    // 이동했으면 서버에 위치 전송
+                    this.sendPositionUpdate();
+                    // 캐릭터 이동에 따라 맵도 함께 이동 (옵션)
+                    this.updateMapToFollowCharacter();
+                    }
+                    // 포털 충돌 검사
+                    this.checkPortalCollision();
+                    
+                }
+             // 포털 애니메이션
+                this.animatePortals();
+                this.renderer.render(this.scene, this.camera);
+            }
+            // 캐릭터를 따라 맵 중심 이동 (선택사항)
+            updateMapToFollowCharacter() {
+                if (!this.myCharacter) return;
+                
+                // 캐릭터 3D 좌표를 이미지 좌표로 변환
+                const imageCoord = this.worldToImageCoordinates(
+                    this.myCharacter.position.x, 
+                    this.myCharacter.position.z
+                );
+                
+                // 화면 중심에 캐릭터가 오도록 맵 위치 조정
+                const screenCenterX = window.innerWidth / 2;
+                const screenCenterY = window.innerHeight / 2;
+                
+                const newPosX = screenCenterX - (imageCoord.x * scale);
+                const newPosY = screenCenterY - (imageCoord.y * scale);
+                
+                // 부드러운 카메라 이동을 위한 lerp 적용
+                const lerpFactor = 0.05;
+                posX += (newPosX - posX) * lerpFactor;
+                posY += (newPosY - posY) * lerpFactor;
+                
+                // 맵 변환 적용
+                applyTransform();
+            }
+			 // 위치 업데이트 전송
+ 			sendPositionUpdate() {
+   			  if (this.socket && this.myCharacter) {
+     		   const moveMessage = {
+           		  type: 'player-move',
+           		  position: {
+              		   x: this.myCharacter.position.x,
+               		   y: this.myCharacter.position.y,
+             		   z: this.myCharacter.position.z 
+           		  }
+        		 };
+        		 this.socket.send(JSON.stringify(moveMessage));
+   			  	}
+			 }
+			 // 포털 애니메이션
+				 animatePortals() {
+    			 if (!this.portals) return;
+     
+     			this.portals.forEach(portal => {
+       			  const ring = portal.userData.ring;
+     		    if (ring) {
+           			  ring.rotation.z += 0.02; // 링 회전
+      				   }
+    			 });
+			}
+
+            // 포털 충돌 검사
+            checkPortalCollision() {
+                if (!this.portals || !this.myCharacter) return;
+                
+                const characterPos = this.myCharacter.position;
+                
+                this.portals.forEach(portal => {
+                    const portalPos = portal.userData.position;
+                    const distance = Math.sqrt(
+                        Math.pow(characterPos.x - portalPos.x, 2) + 
+                        Math.pow(characterPos.z - portalPos.z, 2)
+                    );
+                    
+                    // 포털 반경 2 이내에 들어오면 이동
+                    if (distance < 2) {
+                        this.enterPortal(portal.userData.targetMap);
+                    }
+                });
+            }
+
+            // 포털 진입 처리
+            enterPortal(targetMap) {
+                // 중복 진입 방지
+                if (this.isChangingMap) return;
+                this.isChangingMap = true;
+                
+                console.log('포털 진입:', targetMap);
+                
+                // 서버에 맵 변경 요청
+                const mapChangeMessage = {
+                    type: 'change-map',
+                    targetMap: targetMap
+                };
+                
+                this.socket.send(JSON.stringify(mapChangeMessage));
+                
+                // 화면에 전환 효과 표시
+                this.showMapTransition(targetMap);
+                
+                // 3초 후 플래그 해제 (중복 진입 방지)
+                setTimeout(() => {
+                    this.isChangingMap = false;
+                }, 3000);
+            }
+
+            // 맵 전환 효과
+            showMapTransition(targetMap) {
+                // 간단한 알림 (나중에 더 멋진 효과로 변경 가능)
+                const overlay = document.createElement('div');
+                overlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0,0,0,0.8);
+                    color: white;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    font-size: 24px;
+                    z-index: 1000;
+                `;
+                overlay.textContent = `감정을 찾아 이동 중...`;
+                
+                document.body.appendChild(overlay);
+                
+                // 2초 후 제거
+                setTimeout(() => {
+                    document.body.removeChild(overlay);
+                }, 2000);
+            }
+            
+            // 맵 전환 처리
+            handleMapTransition(targetMap) {
+                console.log('맵 전환 시작:', targetMap);
+                
+                this.showMapTransition(targetMap);
+                
+             // JSP 경로 결정
+                let redirectPath;
+                
+                switch (targetMap) {
+                    case '/testMap':
+                        redirectPath = 'game/testMap';
+                        break;
+                    case '/testMap':
+                        redirectPath = 'game/testMap';
+                        break;
+                    case '/testMap':
+                        redirectPath = 'game/testMap';
+                        break;
+                }
+                setTimeout(() => {
+                    window.location.href = redirectPath;
+                }, 2000);
+                console.log('리다이렉트 경로:', redirectPath);
+            }
+            
+
+         
+         
             // 포털 생성
             createPortals() {
-                // 포털 1: 테스트 맵으로 이동
-                const portal1 = this.createPortal(15, 0, 15, 0x00ff00, '/testMap');
-                this.scene.add(portal1);
+            	 // 배경 이미지 좌표계 기준으로 포털 위치 설정 (분수대 근처와 다른 위치)
+                const portal1ImagePos = { x: 1200, y: 1377 }; // 분수대 근처 (배경 이미지 픽셀 좌표)
+                const portal2ImagePos = { x: 3200, y: 1100 }; // 오른쪽 상단
                 
-                // 포털 2: 테스트 맵으로 이동  
-                const portal2 = this.createPortal(-15, 0, -15, 0xff0000, '/testMap');
-                this.scene.add(portal2);
+                // 3D 좌표로 변환
+                const portal1WorldPos = this.imageToWorldCoordinates(portal1ImagePos.x, portal1ImagePos.y);
+                const portal2WorldPos = this.imageToWorldCoordinates(portal2ImagePos.x, portal2ImagePos.y);
                 
-                console.log('포털 생성 완료');
+                const portal1 = this.createPortal(portal1WorldPos.x, 0, portal1WorldPos.z, 0x00ff00, '/testMap');
+                const portal2 = this.createPortal(portal2WorldPos.x, 0, portal2WorldPos.z, 0xff0000, '/testMap');
+                
+                // sceneGroup에 추가
+                this.sceneGroup.add(portal1);
+                this.sceneGroup.add(portal2);
+                
+                console.log('포털 생성 완료 - 분수대 근처와 우상단');
+                console.log('Portal 1 (분수대 근처):', portal1WorldPos);
+                console.log('Portal 2 (우상단):', portal2WorldPos);
             }
 
             // 개별 포털 생성
@@ -289,12 +1019,26 @@
                             console.log('플레이어가 다른 맵으로 이동:', message);
                             this.removePlayer(message.sessionId);
                             break;
+                            
+                        case 'chat-inMap':
+                            this.handleChatMessage(message, 'inMap');
+                            break;
+                            
+                        case 'chat-global':
+                            this.handleChatMessage(message, 'global');
+                            break;
+                       
                     }
                 } catch (error) {
                     console.error('메시지 처리 중 오류:', error);
                 }
             }   
             
+       handleChatMessage(messageData, messageType) {
+    	   console.log('채팅 메시지 처리:', messageData, messageType);  // 이 로그가 나오는지
+                if (this.chatSystem) {
+                    this.chatSystem.displayMessage(messageData, messageType);
+                }  }  
          
      loadCharacter(avatarInfo, position, memberId, sessionId, nickName) {
         return new Promise((resolve) => {
@@ -322,7 +1066,6 @@
             // 내 캐릭터인 경우 설정
             if (memberId === this.player.memberId) {
                 this.myCharacter = character;
-                this.setupCameraFollow();
                 console.log('✓ 내 캐릭터 설정 완료');
             }
 
@@ -419,199 +1162,16 @@
                 }
             }
 
-            // 카메라 따라다니기 설정
-            setupCameraFollow() {
-                // 키보드 이벤트 설정 (기존 코드 기반)
-                const keys = {};
-                $(document).on('keydown', (e) => { keys[e.key] = true; });
-                $(document).on('keyup', (e) => { keys[e.key] = false; });
-
-                const speed = 0.2;
-
-                // 이동 처리를 animate 루프에서 할 수 있도록 저장
-                this.keys = keys;
-                this.speed = speed;
-            }
-
-            // 애니메이션 루프 (기존 코드 기반)
-            animate() {
-                requestAnimationFrame(() => this.animate());
-
-                // 내 캐릭터 이동 처리
-                if (this.myCharacter && this.keys) {
-                    let moved = false;
-                    
-                    if (this.keys['ArrowUp'] || this.keys['w'] || this.keys['W']) {
-                        this.myCharacter.position.z -= this.speed;
-                        moved = true;
-                    }
-                    if (this.keys['ArrowDown'] || this.keys['s'] || this.keys['S']) {
-                        this.myCharacter.position.z += this.speed;
-                        moved = true;
-                    }
-                    if (this.keys['ArrowLeft'] || this.keys['a'] || this.keys['A']) {
-                        this.myCharacter.position.x -= this.speed;
-                        moved = true;
-                    }
-                    if (this.keys['ArrowRight'] || this.keys['d'] || this.keys['D']) {
-                        this.myCharacter.position.x += this.speed;
-                        moved = true;
-                    }
-                    // y축은 항상 0.5로 고정 (맵 위)
-                    this.myCharacter.position.y = 1;
-                    
-                    // 포털 충돌 검사
-                    this.checkPortalCollision();
-                    
-                    // 이동했으면 서버에 위치 전송
-                    if (moved) {
-                        this.sendPositionUpdate();
-                    }
-
-                    // 카메라가 내 캐릭터를 따라다니기 (기존 코드 기반)
-                    this.camera.position.set(
-                        this.myCharacter.position.x,
-                        this.myCharacter.position.y + 25,
-                        this.myCharacter.position.z 
-                    );
-                    this.camera.lookAt(this.myCharacter.position.x, this.myCharacter.position.y, this.myCharacter.position.z);
-                }
-             // 포털 애니메이션
-                this.animatePortals();
-                this.renderer.render(this.scene, this.camera);
-            }
-            
-            // 포털 충돌 검사
-            checkPortalCollision() {
-                if (!this.portals || !this.myCharacter) return;
-                
-                const characterPos = this.myCharacter.position;
-                
-                this.portals.forEach(portal => {
-                    const portalPos = portal.userData.position;
-                    const distance = Math.sqrt(
-                        Math.pow(characterPos.x - portalPos.x, 2) + 
-                        Math.pow(characterPos.z - portalPos.z, 2)
-                    );
-                    
-                    // 포털 반경 2 이내에 들어오면 이동
-                    if (distance < 2) {
-                        this.enterPortal(portal.userData.targetMap);
-                    }
-                });
-            }
-
-            // 포털 진입 처리
-            enterPortal(targetMap) {
-                // 중복 진입 방지
-                if (this.isChangingMap) return;
-                this.isChangingMap = true;
-                
-                console.log('포털 진입:', targetMap);
-                
-                // 서버에 맵 변경 요청
-                const mapChangeMessage = {
-                    type: 'change-map',
-                    targetMap: targetMap
-                };
-                
-                this.socket.send(JSON.stringify(mapChangeMessage));
-                
-                // 화면에 전환 효과 표시
-                this.showMapTransition(targetMap);
-                
-                // 3초 후 플래그 해제 (중복 진입 방지)
-                setTimeout(() => {
-                    this.isChangingMap = false;
-                }, 3000);
-            }
-
-            // 맵 전환 효과
-            showMapTransition(targetMap) {
-                // 간단한 알림 (나중에 더 멋진 효과로 변경 가능)
-                const overlay = document.createElement('div');
-                overlay.style.cssText = `
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(0,0,0,0.8);
-                    color: white;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    font-size: 24px;
-                    z-index: 1000;
-                `;
-                overlay.textContent = `감정을 찾아 이동 중...`;
-                
-                document.body.appendChild(overlay);
-                
-                // 2초 후 제거
-                setTimeout(() => {
-                    document.body.removeChild(overlay);
-                }, 2000);
-            }
-            
-            // 맵 전환 처리
-            handleMapTransition(targetMap) {
-                console.log('맵 전환 시작:', targetMap);
-                
-                this.showMapTransition(targetMap);
-                
-             // JSP 경로 결정
-                let redirectPath;
-                
-                switch (targetMap) {
-                    case '/testMap':
-                        redirectPath = 'game/testMap';
-                        break;
-                    case '/testMap':
-                        redirectPath = 'game/testMap';
-                        break;
-                    case '/testMap':
-                        redirectPath = 'game/testMap';
-                        break;
-                }
-                setTimeout(() => {
-                    window.location.href = redirectPath;
-                }, 2000);
-                console.log('리다이렉트 경로:', redirectPath);
-            }
-            
-
-            // 포털 애니메이션
-            animatePortals() {
-                if (!this.portals) return;
-                
-                this.portals.forEach(portal => {
-                    const ring = portal.userData.ring;
-                    if (ring) {
-                        ring.rotation.z += 0.02; // 링 회전
-                    }
-                });
-            }
-
-            // 위치 업데이트 전송
-            sendPositionUpdate() {
-                if (this.socket && this.myCharacter) {
-                    const moveMessage = {
-                        type: 'player-move',
-                        position: {
-                            x: this.myCharacter.position.x,
-                            y: this.myCharacter.position.y,
-                            z: this.myCharacter.position.z 
-                        }
-                    };
-                    this.socket.send(JSON.stringify(moveMessage));
-                }
-            }
+      
         }
         $(document).ready(async () => {
             try {
                 console.log('게임 초기화 시작');
                 console.log('플레이어 정보 확인:', player);
+                // 구름 애니메이션 시작
+                animateCloud($('.first_cloud'), 70000, 0);
+                animateCloud($('.second_cloud'), 50000, 0);
+                animateCloud($('.third_cloud'), 70000, 0);
                 
                 // 게임 클라이언트 생성 및 시작
                 const gameClient = new GameClient();
@@ -619,17 +1179,17 @@
                 // 1. Three.js 초기화
                 gameClient.initThreeJS();
                 console.log('1. Three.js 초기화완료');
-                
-                // 2. 맵 로드
-                gameClient.loadMap();
-                console.log('2. 맵 로드 완료');
+                gameClient.createPortals();
                 
                 // 3. 웹소켓 연결 후 캐릭터 로드
                 gameClient.connect();
                 console.log('3. 웹소켓 연결 및 캐릭터 로드 완료');
                 
-                console.log('카메라 위치:', gameClient.camera.position);
+              //  4. 채팅 시스템 초기화 추가!
+                gameClient.chatSystem = new ChatSystem(gameClient);
+                console.log('4. 채팅 시스템 초기화 완료');
                 
+                console.log('카메라 위치:', gameClient.camera.position);
             } catch (error) {
                 console.error('게임 초기화 중 오류 발생:', error);
                 alert('게임을 시작할 수 없습니다: ' + error.message);

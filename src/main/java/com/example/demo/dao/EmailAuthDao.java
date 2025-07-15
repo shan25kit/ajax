@@ -11,7 +11,7 @@ public interface EmailAuthDao {
         SET email = #{email},
             auth_code = #{authCode},
             created_at = NOW(),
-            expired_at = DATE_ADD(NOW(), INTERVAL 3 MINUTE)
+            expired_at = DATE_ADD(NOW(), INTERVAL 5 MINUTE)
         """)
     void insertEmailAuth(@Param("email") String email, @Param("authCode") String authCode);
 

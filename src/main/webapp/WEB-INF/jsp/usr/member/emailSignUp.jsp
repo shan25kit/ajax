@@ -9,7 +9,7 @@
 <script>
 $(document).ready(function() {
     // 인증코드 발송 버튼 클릭
-    $('.email_check_buttom').click(function() {
+    $('.email_check_button').click(function() {
         let email = $('input[name="email"]').val().trim();
         
         if (email.length === 0) {
@@ -48,7 +48,7 @@ $('input[name="email"]').blur(function() {
         success: function(data) {
             console.log('이메일 중복 체크 응답:', data);
 
-            if (data.rsCode.startsWith('S-')) {
+            if (data.rsCode.startsWith('F-')) {
                 $('#emailDupMsg')
                     .text(data.rsMsg)
                     .css('color', 'white')

@@ -151,7 +151,7 @@
                 if (!this.loader) return;
                 
                 this.loader.load(
-                    '/resource/images/body.glb',
+                    '/resource/model/body.glb',
                     (gltf) => {
                         console.log('NPC aiChatbot 로드 성공');
                         this.aiChatbot = gltf.scene;
@@ -521,49 +521,6 @@
                     };
                     this.socket.send(JSON.stringify(moveMessage));
                 }
-            }
-
-            // 애니메이션 루프
-            animate() {
-                requestAnimationFrame(() => this.animate());
-
-                // 내 캐릭터 이동 처리
-              if (this.myCharacter && this.keys) {
-                    let moved = false;
-                    
-                    if (this.keys['ArrowUp'] || this.keys['w'] || this.keys['W']) {
-                        this.myCharacter.position.z -= this.speed;
-                        moved = true;
-                    }
-                    if (this.keys['ArrowDown'] || this.keys['s'] || this.keys['S']) {
-                        this.myCharacter.position.z += this.speed;
-                        moved = true;
-                    }
-                    if (this.keys['ArrowLeft'] || this.keys['a'] || this.keys['A']) {
-                        this.myCharacter.position.x -= this.speed;
-                        moved = true;
-                    }
-                    if (this.keys['ArrowRight'] || this.keys['d'] || this.keys['D']) {
-                        this.myCharacter.position.x += this.speed;
-                        moved = true;
-                    }
-                    // y축은 항상 0.5로 고정 (맵 위)
-                    this.myCharacter.position.y = 1;
-                    // 이동했으면 서버에 위치 전송
-                    if (moved) {
-                        this.sendPositionUpdate();
-                    }
-
-                    // 카메라는 myCharacter를 따라다니되 쿼터뷰 유지
-                    this.camera.position.set(
-                        this.myCharacter.position.x,     
-                        this.myCharacter.position.y+25,   
-                        this.myCharacter.position.z  
-                    );
-                    this.camera.lookAt(this.myCharacter.position.x, this.myCharacter.position.y, this.myCharacter.position.z);
-                }
-
-                this.renderer.render(this.scene, this.camera);
             }
         }
 
