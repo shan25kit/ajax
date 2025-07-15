@@ -141,37 +141,65 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 🎯 파트별 설정
   const partSettings = {
-    // 💇 헤어
+		  
     'face1': { scale: [4, 4, 4], position: [0, 9, 6], rotation: [20.4, 0, 0] },
-    'hair1': { scale: [10, 10, 10], position: [0, 0, 10], rotation: [0, 0, 0] },
-    'hair2': { scale: [7, 7, 8], position: [0, 0, 0], rotation: [0, 0, 0] },
-    'hair3': { scale: [80.3, 75, 69], position: [0, -51.1, 1], rotation: [0, 0, 0] },
-    'hair4': { scale: [75, 75, 70], position: [0, -51.1, 1], rotation: [0, 0, 0] },
-    'hair5': { scale: [81, 74, 75], position: [0, -50, 0.5], rotation: [0, 0, 0] },
-    'hair6': { scale: [81, 74, 73], position: [0, -50, 0], rotation: [0, 0, 0] },
-    'hair7': { scale: [81, 74, 75], position: [0, -50, 1], rotation: [0, 0, 0] },
-    'hair8': { scale: [81, 74, 75], position: [0, -50, 1], rotation: [0, 0, 0] },
+    // 💇 헤어
+    'hair1': { scale: [66, 66, 65], position: [0, -46, 0], rotation: [0, 0, 0] },
+    'hair12': { scale: [65, 64, 63], position: [0, -45, 0.8], rotation: [0, 0, 0] },
+    'hair3': { scale: [66.8, 65, 55.75], position: [0, -45.2, 0.4], rotation: [0, 0, 0] },
+    'hair14': { scale: [62, 61, 60], position: [0, -66, 1], rotation: [0, 0, 0] },
+    'hair10': { scale: [59, 60, 61], position: [0, -64.5, 0.5], rotation: [0, 0, 0] },
+    'hair17': { scale: [65, 60, 58], position: [0, -41.2, 0], rotation: [0, 0, 0] },
+    'hair18': { scale: [65, 58, 65], position: [0, -40, 0], rotation: [0, 0, 0] },
+    'hair19': { scale: [65, 60, 61], position: [0, -41.1, 1], rotation: [0, 0, 0] },
 
     // 👕 상의
-    'top1': { scale: [4, 4, 4], position: [0, -2, 0], rotation: [0, 0, 0] },
-    'top2': { scale: [4.2, 4.2, 4.2], position: [0, -1.5, 0], rotation: [0, 0.1, 0] },
+    'top1': { scale: [46.5, 45, 45], position: [0, -19.5, 0.5], rotation: [0, 0, 0] },
+    'top2': { scale: [45, 45, 45], position: [0, -28, 0], rotation: [0, 0.1, 0] },
+    'top3': { scale: [42, 42, 45], position: [0, -27, 0.5], rotation: [0, 0, 0] },
+    'top4': { scale: [40, 42, 45], position: [0, -28, 0.7], rotation: [0, 0, 0] },
+    'top5': { scale: [40, 42, 45], position: [0, -28, 0.7], rotation: [0, 0, 0] },
+    'top6': { scale: [40, 42, 45], position: [0, -28, 0.7], rotation: [0, 0, 0] },
+    'top7': { scale: [45, 42, 45], position: [0, -28, 0.7], rotation: [0, 0, 0] },
+    'top8': { scale: [46.5, 40, 46], position: [0, -26.5, 0.5], rotation: [0, 0, 0] },
 
     // 👖 하의
-    'bottom1': { scale: [4, 4, 4], position: [0, -8, 0], rotation: [0, 0, 0] },
-    'bottom2': { scale: [4, 4, 4], position: [0, -7.5, 0], rotation: [0, 0.2, 0] },
+    'bottom1': { scale: [47, 40, 36], position: [0.1, -18, 0], rotation: [0, 0, 0] },
+    'bottom2': { scale: [40, 40, 40], position: [0, -7.5, 0], rotation: [0, 0, 0] },
+    'bottom3': { scale: [38, 35, 34], position: [0, -22, 0.2], rotation: [0, 0, 0] },
+    'bottom4': { scale: [39, 35, 34], position: [0, -23, 0.1], rotation: [0, 0, 0] },
+    'bottom5': { scale: [40, 29, 34], position: [0, -21, 0.2], rotation: [0, 0, 0] },
+    'bottom6': { scale: [41, 35, 34], position: [0, -23.5, 0.15], rotation: [0, 0, 0] },
+    'bottom7': { scale: [40, 40, 33], position: [0, -24, 0.3], rotation: [0, 0, 0] },
+    'bottom8': { scale: [40, 40, 34], position: [0, -25, 0], rotation: [0, 0, 0] },
     
     // 👗 원피스
     'dress1': { scale: [45.2, 45.2, 45.2], position: [0, -19.8, 0.45], rotation: [0, 0, 0] },
-    'dress2': { scale: [45.2, 45.2, 45.2], position: [0, -30, 0.45], rotation: [0, 0, 0] },
-    'dress3': { scale: [38, 38, 38], position: [0, -24, 0.45], rotation: [0, 0, 0] },
+    'dress9': { scale: [43, 43, 43], position: [0, -28.5, 0.45], rotation: [0, 0, 0] },
+    'dress3': { scale: [40, 37, 36.8], position: [0, -24.2, 0.45], rotation: [0, 0, 0] },
+    'dress4': { scale: [40, 37, 40], position: [0, -24.3, 0.45], rotation: [0, 0, 0] },
+    'dress5': { scale: [39.5, 37, 36], position: [0, -24.3, 0.45], rotation: [0, 0, 0] },
+    'dress6': { scale: [39.5, 37, 36], position: [0, -24.3, 0.41], rotation: [0, 0, 0] },
+    'dress7': { scale: [39.5, 37, 36], position: [0, -24.1, 0.42], rotation: [0, 0, 0] },
+    'dress8': { scale: [39.5, 37, 36], position: [0, -24.1, 0.42], rotation: [0, 0, 0] },
     
     // 👟 신발
-    'shoes1': { scale: [4, 4, 4], position: [0, -8, 0], rotation: [0, 0, 0] },
-    'shoes2': { scale: [4, 4, 4], position: [0, -7.5, 0], rotation: [0, 0.2, 0] },
+    'shoes1': { scale: [32, 30, 32], position: [0, -22, 0], rotation: [0, 0, 0] },
+    'shoes2': { scale: [33, 40, 37], position: [0, -21.5, -0.5], rotation: [0, 0, 0] },
+    'shoes3': { scale: [40, 40, 45], position: [0, -22, 0], rotation: [0, 0, 0] },
+    'shoes4': { scale: [37, 40, 45], position: [0, -22, -0.2], rotation: [0, 0, 0] },
+    'shoes5': { scale: [40, 40, 45], position: [0, -22, -0.25], rotation: [0, 0, 0] },
+    'shoes6': { scale: [35, 45, 43], position: [0, -21.7, -0.22], rotation: [0, 0, 0] },
 
     // 🧢 액세서리
-    'accessory1': { scale: [2.5, 2.5, 2.5], position: [0, 12, 1], rotation: [0, 0, 0] },
-    'accessory2': { scale: [3, 3, 3], position: [0, 11, 1], rotation: [0.1, 0, 0] }
+    'accessory1': { scale: [50, 50, 50], position: [0, -32, 4], rotation: [0, 0, 0] },
+    'accessory2': { scale: [3, 3, 3], position: [0, 11, 1], rotation: [0.1, 0, 0] },
+    'accessory3': { scale: [3, 3, 3], position: [0, 11, 1], rotation: [0.1, 0, 0] },
+    'accessory4': { scale: [3, 3, 3], position: [0, 11, 1], rotation: [0.1, 0, 0] },
+    'accessory5': { scale: [3, 3, 3], position: [0, 11, 1], rotation: [0.1, 0, 0] },
+    'accessory6': { scale: [3, 3, 3], position: [0, 11, 1], rotation: [0.1, 0, 0] },
+    'accessory7': { scale: [3, 3, 3], position: [0, 11, 1], rotation: [0.1, 0, 0] },
+    'accessory8': { scale: [3, 3, 3], position: [0, 11, 1], rotation: [0.1, 0, 0] }
   };
 
   const setting = partSettings[partStyleKey] || {
@@ -334,28 +362,28 @@ function updateSelectBox(option) {
 	        	<button class="style1" onclick="loadModel('/resource/model/hair1.glb', 'hair1')">
 	          		<img src="/resource/img/hair1.png" alt="hair1" />
 		        </button>
-		        <button class="style2" onclick="loadModel('/resource/model/hair2-1.glb', 'hair2')">
-		          	<img src="/resource/img/hair2.png" alt="hair2" />
+		        <button class="style2" onclick="loadModel('/resource/model/hair12.glb', 'hair12')">
+		          	<img src="/resource/img/hair12.png" alt="hair12" />
 		        </button>
 		        <button class="style3" onclick="loadModel('/resource/model/hair3.glb', 'hair3')">
 		          	<img src="/resource/img/hair3.png" alt="hair3" />
 		        </button>
-		        <button class="style4" onclick="loadModel('/resource/model/hair4.glb', 'hair4')">
-		          	<img src="/resource/img/hair4.png" alt="hair4" />
+		        <button class="style4" onclick="loadModel('/resource/model/hair14.glb', 'hair14')">
+		          	<img src="/resource/img/hair14.png" alt="hair14" />
 		        </button>
          	</div>
 			<div class="style-Wrap">
-		        <button class="style5" onclick="loadModel('/resource/model/hair5.glb', 'hair5')">
-		          	<img src="/resource/img/hair5.png" alt="hair5" />
+		        <button class="style5" onclick="loadModel('/resource/model/hair10.glb', 'hair10')">
+		          	<img src="/resource/img/hair10.png" alt="hair10" />
 		        </button>
-		        <button class="style6" onclick="loadModel('/resource/model/hair6.glb', 'hair6')">
-		          	<img src="/resource/img/hair6.png" alt="hair6" />
+		        <button class="style6" onclick="loadModel('/resource/model/hair17.glb', 'hair17')">
+		          	<img src="/resource/img/hair17.png" alt="hair17" />
 		        </button>
-		        <button class="style7" onclick="loadModel('/resource/model/hair7.glb', 'hair7')">
-		          	<img src="/resource/img/hair7.png" alt="hair7" />
+		        <button class="style7" onclick="loadModel('/resource/model/hair18.glb', 'hair18')">
+		          	<img src="/resource/img/hair18.png" alt="hair18" />
 		        </button>
-		        <button class="style8" onclick="loadModel('/resource/model/hair8.glb', 'hair8')">
-		          	<img src="/resource/img/hair8.png" alt="hair8" />
+		        <button class="style8" onclick="loadModel('/resource/model/hair19.glb', 'hair19')">
+		          	<img src="/resource/img/hair19.png" alt="hair19" />
 		        </button>
 	        </div>
         </div>`;
@@ -469,8 +497,8 @@ function updateSelectBox(option) {
 		            	<button class="style1" onclick="loadModel('/resource/model/dress1.glb', 'dress1')">
 			          		<img src="/resource/img/dress1.png" alt="dress1" />
 			        	</button>
-			        	<button class="style2" onclick="loadModel('/resource/model/dress2.glb', 'dress2')">
-			          		<img src="/resource/img/dress2.png" alt="dress2" />
+			        	<button class="style2" onclick="loadModel('/resource/model/dress9.glb', 'dress9')">
+			          		<img src="/resource/img/dress9.png" alt="dress2" />
 			        	</button>
 			        	<button class="style3" onclick="loadModel('/resource/model/dress3.glb', 'dress3')">
 			          		<img src="/resource/img/dress3.png" alt="dress3" />
