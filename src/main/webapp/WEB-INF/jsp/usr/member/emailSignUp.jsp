@@ -2,7 +2,7 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 
-<c:set var="pageTitle" value="Login" />
+<c:set var="pageTitle" value="회원가입" />
 
 <%@ include file="/WEB-INF/jsp/common/header.jsp"%>
 
@@ -32,33 +32,48 @@ $(document).ready(function() {
     });
     
     // 이메일 중복 체크 (blur 시)
-    $('input[name="email"]').blur(function() {
-        let email = $(this).val().trim();
+$('input[name="email"]').blur(function() {
+    let email = $(this).val().trim();
 
-        if (email.length === 0) {
-            $('#emailDupMsg').text('');
-            return;
-        }
+    if (email.length === 0) {
+        $('#emailDupMsg').text('');
+        $('.email_check_button').prop('disabled', true);
+        return;
+    }
 
-        $.ajax({
-            url: '/usr/member/emailDupChk',
-            type: 'GET',
-            data: { email: email },
-            success: function(data) {
-                console.log('이메일 중복 체크 응답:', data);
-                if (data.rsCode.startsWith('S-')) {
-                    $('#emailDupMsg').text(data.rsMsg).css('color', 'white').css('display', 'block');
-                } else {
-                    $('#emailDupMsg').text(data.rsMsg).css('color', 'rgb(255, 66, 66)');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('이메일 중복 체크 중 에러:', error);
-                alert('이메일 중복 체크 요청에 실패했습니다.');
+    $.ajax({
+        url: '/usr/member/emailDupChk',
+        type: 'GET',
+        data: { email: email },
+        success: function(data) {
+            console.log('이메일 중복 체크 응답:', data);
+
+            if (data.rsCode.startsWith('S-')) {
+                $('#emailDupMsg')
+                    .text(data.rsMsg)
+                    .css('color', 'white')
+                    .css('display', 'block');
+                // 중복 없을 때 버튼 활성화
+                $('.email_check_button')
+                    .prop('disabled', false)
+                    .css('background-color', '#662c77')
+                    .css('cursor', 'pointer');
+            } else {
+                $('#emailDupMsg')
+                    .text(data.rsMsg)
+                    .css('color', 'rgb(255, 66, 66)');
+                // 중복 있을 때 버튼 비활성화
+                $('.email_check_button').prop('disabled', true);
             }
-        });
-    });
-    
+        }, // <-- success 콜백 닫힘
+        error: function(xhr, status, error) {
+            console.error('이메일 중복 체크 중 에러:', error);
+            alert('이메일 중복 체크 요청에 실패했습니다.');
+            $('.email_check_button').prop('disabled', true);
+        } // <-- error 콜백 닫힘
+    }); // <-- $.ajax 옵션 객체 닫힘 및 호출 끝
+}); // <-- blur 콜백 닫힘
+
     // 이메일 인증코드 확인
     $('.email_check_confirm').click(function(event) {
         event.preventDefault(); // form submit 막음
@@ -185,7 +200,9 @@ $(document).ready(function() {
 <div class="background">
 
 	<div class="logo-top">
-		<img src="/resource/img/logo-w.png" alt="온기로고" />
+		<a href="/usr/home/main">
+			<img src="/resource/img/logo-w.png" alt="온기로고" />
+		</a>
 	</div>
 
 
@@ -202,7 +219,7 @@ $(document).ready(function() {
 				<form class="email_input">
 					<div class="email_check">
 						<input type="email" name="email" placeholder="e-mail" required />
-						<button class="email_check_buttom" type="button">인증키 발송</button>
+						<button class="email_check_button" type="button">인증키 발송</button>
 					</div>
 					<p id="emailDupMsg"></p>
 				</form>

@@ -2,6 +2,8 @@
 <section name="Workbench">
 	<section name="MavenProjectImportWizardPage">
 		<list key="rootDirectory">
+			<item value="D:\Ongi"/>
+			<item value="D:\Ongi\Ongi"/>
 			<item value="C:\Users\jeongwoo\Desktop\Ongi"/>
 		</list>
 		<list key="projectNameTemplate">

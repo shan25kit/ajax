@@ -6,17 +6,15 @@ import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.demo.dto.Player;
 import com.example.demo.dto.Req;
 import com.example.demo.service.GameService;
 
 @Controller
-@CrossOrigin(origins = "*")
+@RequestMapping("/usr/game")
 public class GameController {
 	private Req req;
 	private GameService gameService;
@@ -25,12 +23,10 @@ public class GameController {
 		this.req = req;
 		this.gameService = gameService;
 	}
-	
-	
 	// 유저 정보 로딩
-	@GetMapping("/usr/game")
-    public String test(Model model) {
-		System.out.println("=== GameController.test() 메서드 호출됨 ===");
+	@GetMapping("")
+    public String websocket(Model model) {
+		System.out.println("=== websocket() 메서드 호출됨 ===");
 		int memberId = this.req.getLoginedMember().getId();
 		System.out.println(memberId);
 		Player player = this.gameService.selectPlayerByMemberId(memberId);
@@ -39,13 +35,19 @@ public class GameController {
         return "usr/game/startMap";
     }
 
-	@GetMapping("/usr/game/chatBot")
+	@GetMapping("/chatBot")
 	public String chatBot() {
 		return "usr/game/chatBot";
 	}
 	
-	@GetMapping("/usr/game/testMap")
-	public String testMap() {
+	@GetMapping("/testMap")
+	public String testMap(Model model) {
+		System.out.println("=== websocket() 메서드 호출됨 ===");
+		int memberId = this.req.getLoginedMember().getId();
+		System.out.println(memberId);
+		Player player = this.gameService.selectPlayerByMemberId(memberId);
+		System.out.println(player);
+		model.addAttribute("player", player);
 		return "usr/game/testMap";
 	}
 	

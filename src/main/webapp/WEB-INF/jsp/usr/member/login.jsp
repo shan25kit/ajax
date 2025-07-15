@@ -2,14 +2,16 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 
-<c:set var="pageTitle" value="Login" />
+<c:set var="pageTitle" value="로그인" />
 
 <%@ include file="/WEB-INF/jsp/common/header.jsp"%>
 
 <div class="background">
 
 	<div class="logo-top">
-		<img src="/resource/img/logo-w.png" alt="온기로고" />
+		<a href="/usr/home/main">
+			<img src="/resource/img/logo-w.png" alt="온기로고" />
+		</a>
 	</div>
 
 	

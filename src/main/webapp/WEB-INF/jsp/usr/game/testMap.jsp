@@ -13,101 +13,112 @@
 <!-- Three.js 캔버스 컨테이너 -->
 <div id="canvas-container"></div>
 
- <script>
-        $(document).ready(function() {
-            // 씬, 카메라, 렌더러
-            const scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x000000);
+<script>
+ console.log('=== 서버 데이터 원본 ===');
+ console.log('Member ID Raw:', '${player.memberId}');
+ console.log('Nick Name Raw:', '${player.nickName}');
+ console.log('Avatar Info Raw:', '${player.avatarInfo}');
+ console.log('Avatar Info Type:', typeof '${player.avatarInfo}');
+ 
+        // 서버에서 전달받은 플레이어 데이터
+        let player = {
+            memberId: ${player.memberId},
+            nickName: "${player.nickName}",
+            avatarInfo: typeof '${player.avatarInfo}' === 'string' ? JSON.parse('${player.avatarInfo}') : '${player.avatarInfo}' // 문자열 체크 후 파싱
+        };
 
-            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-         // 카메라 위치를 45도씩 회전된 위치로 고정
-            // 45도 = Math.PI / 4 라디안
-            const distance = 30;
-            const angle45 = Math.PI / 4; // 45도
-            
-            camera.position.set(
-                distance * Math.cos(angle45) * Math.cos(angle45), // X: cos(45°) * cos(45°) * distance
-                distance * Math.sin(angle45), // Y: sin(45°) * distance  
-                distance * Math.cos(angle45) * Math.sin(angle45)  // Z: cos(45°) * sin(45°) * distance
-            );
-            camera.lookAt(0, 0, 0);
-
-            const renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            
-            // jQuery로 캔버스를 body에 추가 (기본 방식)
-            $('body').append(renderer.domElement);
-            
-            // 기본 렌더러 크기 업데이트 함수
-            function updateRendererSize() {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-            }
-
-            // Three.js r128에서 사용 가능한 설정
-            if (renderer.outputEncoding !== undefined) {
-                renderer.outputEncoding = THREE.sRGBEncoding;
-            }
-            if (renderer.toneMapping !== undefined) {
-                renderer.toneMapping = THREE.NoToneMapping;
-            }
-
-            // 빛 - 더 강하게 설정
-            const ambient = new THREE.AmbientLight(0xffffff, 2.0);
-            scene.add(ambient);
-
-            const light = new THREE.DirectionalLight(0xffffff, 2.5);
-            light.position.set(5, 10, 5);
-            scene.add(light);
-
-            const light2 = new THREE.DirectionalLight(0xffffff, 2.0);
-            light2.position.set(-5, 5, 10);
-            scene.add(light2);
-
-            const pointLight = new THREE.PointLight(0xffffff, 2.0, 50);
-            pointLight.position.set(0, 5, 5);
-            scene.add(pointLight);
-
-            // 맵 생성 (실제 이미지가 없을 때를 위한 대체)
-            function createMap() {
-                const canvas = document.createElement('canvas');
-                canvas.width = 256;
-                canvas.height = 256;
-                const ctx = canvas.getContext('2d');
+        // 웹소켓 연결 및 게임 시작
+        class GameClient {
+            constructor() {
+                this.socket = null;
+                this.player = player;
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                this.loader = null;
+                this.playerCharacters = new Map();
+                this.myCharacter = null;
+                this.keys = {};
+                this.speed = 0.2;
+                this.isChangingMap = false;
                 
-                // 단순한 그라디언트 배경
-                const gradient = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
-                gradient.addColorStop(0, '#404040');
-                gradient.addColorStop(1, '#202020');
-                ctx.fillStyle = gradient;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                 
-                const mapTexture = new THREE.CanvasTexture(canvas);
-                mapTexture.minFilter = THREE.LinearFilter;
-                mapTexture.magFilter = THREE.LinearFilter;
-                mapTexture.wrapS = THREE.ClampToEdgeWrapping;
-                mapTexture.wrapT = THREE.ClampToEdgeWrapping;
-
-                const mapGeometry = new THREE.PlaneGeometry(500, 500);
-                const mapMaterial = new THREE.MeshBasicMaterial({
-                    map: mapTexture,
-                    transparent: false,
-                    side: THREE.FrontSide
-                });
-
-                const mapPlane = new THREE.Mesh(mapGeometry, mapMaterial);
-                mapPlane.position.z = -0.1;
-                scene.add(mapPlane);
-                
-                return mapPlane;
+                // NPC 캐릭터
+                this.aiChatbot = null;
+                this.loadedCharacters = 0;
             }
 
-            // 실제 맵 이미지 로드 시도, 실패시 패턴 사용
-            function loadMap() {
+            // Three.js 초기화
+            initThreeJS() {
+                // 씬, 카메라, 렌더러 설정
+                this.scene = new THREE.Scene();
+                this.scene.background = new THREE.Color(0x000000);
+
+                this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+
+                const distance = 30;
+                this.camera.position.set(0, distance, 0); // 위에서 내려다보는 시점
+                this.camera.lookAt(0, 0, 0);
+
+                this.renderer = new THREE.WebGLRenderer({ antialias: true });
+                this.renderer.setSize(window.innerWidth, window.innerHeight);
+                
+                // jQuery로 캔버스를 body에 추가 (기본 방식)
+                $('body').append(this.renderer.domElement);
+
+                // Three.js r128에서 사용 가능한 설정
+                if (this.renderer.outputEncoding !== undefined) {
+                    this.renderer.outputEncoding = THREE.sRGBEncoding;
+                }
+                if (this.renderer.toneMapping !== undefined) {
+                    this.renderer.toneMapping = THREE.NoToneMapping;
+                }
+
+                // 조명 설정
+                this.setupLighting();
+                
+                // GLTFLoader 초기화
+                if (typeof THREE.GLTFLoader !== 'undefined') {
+                    this.loader = new THREE.GLTFLoader();
+                }
+                
+                // 키보드 이벤트 설정
+                this.setupKeyboardEvents();
+                
+                // 마우스 클릭 이벤트 설정
+                this.setupMouseEvents();
+                
+                // 윈도우 리사이즈 이벤트
+                this.setupResizeEvents();
+                
+                // 애니메이션 시작
+                this.animate();
+            }
+
+            setupLighting() {
+                // 빛 - 더 강하게 설정
+                const ambient = new THREE.AmbientLight(0xffffff, .5);
+                this.scene.add(ambient);
+
+                const light = new THREE.DirectionalLight(0xffffff, .5);
+                light.position.set(5, 10, 5);
+                this.scene.add(light);
+
+         /*        const light2 = new THREE.DirectionalLight(0xffffff, 2.0);
+                light2.position.set(-5, 5, 10);
+                this.scene.add(light2);
+ */
+                const pointLight = new THREE.PointLight(0xffffff, .5, 50);
+                pointLight.position.set(0, 15, 5);
+                this.scene.add(pointLight);
+            }
+
+
+
+            // 실제 맵 이미지 로드 
+            loadMap() {
                 const mapTexture = new THREE.TextureLoader().load(
                     '/resource/images/map.png',
-                    function(texture) {
+                    (texture) => {
                         console.log('맵 이미지 로드 성공');
                         texture.minFilter = THREE.LinearFilter;
                         texture.magFilter = THREE.LinearFilter;
@@ -119,218 +130,337 @@
                         const mapMaterial = new THREE.MeshBasicMaterial({
                             map: texture,
                             transparent: false,
-                            side: THREE.FrontSide
+                            side: THREE.DoubleSide
                         });
                         
                         const mapPlane = new THREE.Mesh(mapGeometry, mapMaterial);
-                        mapPlane.position.z = -0.1;
-                        mapPlane.userData.isMap = true; // 맵 식별용 추가!
-                        scene.add(mapPlane);
+                        // 맵을 수평으로 눕혀서 위에서 내려다볼 수 있게 설정
+                        mapPlane.rotation.x = -Math.PI / 2; // 90도 회전
+                        mapPlane.position.set(0, -0.5, 0);
+                        this.scene.add(mapPlane);
                     },
                     undefined,
-                    function(error) {
-                        console.log('맵 이미지 로드 실패, 기본 패턴 사용');
-                        createMap();
+                    (error) => {
+                        console.log('맵 이미지 로드 실패');
                     }
                 );
             }
 
-            // 맵 크기 업데이트 함수
-            function updateMapSize() {
-                // 기존 맵 찾기
-                const mapPlane = scene.children.find(child => 
-                    child.userData && child.userData.isMap
+            // NPC 로딩 (고정 GLB 파일)
+            loadNPC() {
+                if (!this.loader) return;
+                
+                this.loader.load(
+                    '/resource/images/body.glb',
+                    (gltf) => {
+                        console.log('NPC aiChatbot 로드 성공');
+                        this.aiChatbot = gltf.scene;
+                        
+                        // 바운딩 박스 계산
+                        const box = new THREE.Box3().setFromObject(this.aiChatbot);
+                        console.log('aiChatbot Bounding Box:', box);
+                        
+                        this.aiChatbot.scale.set(0.8, 0.8, 0.8);
+                        this.aiChatbot.position.set(15, 2, -15);
+
+                        // 모든 메시의 재질 속성을 조정하여 더 밝게
+                        this.aiChatbot.traverse((child) => {
+                            if (child.isMesh && child.material) {
+                                child.material = child.material.clone();
+
+                                if (child.material.color) {
+                                    child.material.color.multiplyScalar(1.5);
+                                }
+
+                                if (child.material.metalness !== undefined) {
+                                    child.material.metalness = 0.1;
+                                }
+                                if (child.material.roughness !== undefined) {
+                                    child.material.roughness = 0.8;
+                                }
+                            }
+                        });
+
+                        this.aiChatbot.rotation.y = Math.PI / 4;
+                        this.aiChatbot.rotation.x = -Math.PI / 6;
+
+                        this.scene.add(this.aiChatbot);
+                        this.hideLoading();
+                    },
+                    undefined,
+                    (error) => {
+                        console.log('NPC 로드 실패');
+                        this.hideLoading();
+                    }
                 );
-                
-                if (mapPlane) {
-                    // 새로운 화면 비율에 맞는 크기 계산
-                    const aspectRatio = window.innerWidth / window.innerHeight;
-                    const mapSize = 1000;
-                    const mapWidth = mapSize * Math.max(aspectRatio, 1);
-                    const mapHeight = mapSize * Math.max(1 / aspectRatio, 1);
-                    
-                    // 기존 지오메트리 정리
-                    mapPlane.geometry.dispose();
-                    
-                    // 새로운 크기로 지오메트리 생성
-                    mapPlane.geometry = new THREE.PlaneGeometry(mapWidth, mapHeight);
-                }
             }
 
-            // 기본 캐릭터 생성 (GLTF 로드 실패시 사용)
-            function createDefaultCharacter() {
-                const geometry = new THREE.BoxGeometry(1, 2, 0.5);
-                const material = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
-                const character = new THREE.Mesh(geometry, material);
-                
-                character.scale.set(2, 2, 2);
-                character.position.set(0, 0, 1);
-                character.rotation.y = Math.PI / 4;
-                character.rotation.x = Math.PI / 6;
-                
-                scene.add(character);
-                return character;
-            }
 
-            // 캐릭터 변수
-            let aiChatbot;
-            let character2;
-            let loadedCharacters = 0; // 로딩 완료 카운터
 
             // jQuery로 로딩 숨기기
-            function hideLoading() {
-                loadedCharacters++;
-                if (loadedCharacters >= 2) { // 두 캐릭터 모두 로딩 완료시
+            hideLoading() {
+                this.loadedCharacters++;
+                if (this.loadedCharacters >= 1) { // NPC만 체크 (플레이어는 웹소켓으로 로드)
                     $('#loading').fadeOut(500);
                 }
             }
 
-            // GLTFLoader 사용 가능 여부 확인
-            if (typeof THREE.GLTFLoader !== 'undefined') {
-                const loader = new THREE.GLTFLoader();
-                
-                // 첫 번째 캐릭터 로드
-                loader.load(
-                    '/resource/images/default.glb',
-                    function(gltf) {
-                        console.log('첫 번째 GLTF 모델 로드 성공');
-                        aiChatbot = gltf.scene;
-                        
-                        // 바운딩 박스 계산
-                        const box = new THREE.Box3().setFromObject(aiChatbot);
-                        console.log('aiChatbot Bounding Box:', box);
-                        
-                        aiChatbot.scale.set(2, 2, 2);
-                        aiChatbot.position.set(0, -2, 1);
+            async connect() {
+                return new Promise((resolve, reject) => {
+                    console.log('웹소켓 연결 시작');
+                    this.socket = new WebSocket('ws://localhost:8081/game');
 
-                        // 모든 메시의 재질 속성을 조정하여 더 밝게
-                        aiChatbot.traverse((child) => {
-                            if (child.isMesh && child.material) {
-                                child.material = child.material.clone();
+                    this.socket.onopen = async () => {
+                        console.log('웹소켓 연결 완료, readyState:', this.socket.readyState);
+                        // 웹소켓이 완전히 열릴 때까지 잠시 대기
+                        setTimeout(async () => {
+                            await this.joinMap();
+                            resolve();
+                        }, 100);
+                    };
 
-                                if (child.material.color) {
-                                    child.material.color.multiplyScalar(1.5);
-                                }
+                    this.socket.onmessage = async (event) => {
+                        console.log('=== 웹소켓 메시지 수신 ===');
+                        console.log('Raw message:', event.data);
+                        const message = JSON.parse(event.data);
+                        await this.handleMessage(message);
+                    };
 
-                                if (child.material.metalness !== undefined) {
-                                    child.material.metalness = 0.1;
-                                }
-                                if (child.material.roughness !== undefined) {
-                                    child.material.roughness = 0.8;
-                                }
-                            }
-                        });
+                    this.socket.onerror = (error) => {
+                        console.error('웹소켓 오류:', error);
+                        reject(error);
+                    };
 
-                        aiChatbot.rotation.y = Math.PI / 4;
-                        aiChatbot.rotation.x = Math.PI / 6;
-
-                        scene.add(aiChatbot);
-                        hideLoading();
-                    },
-                    undefined,
-                    function(error) {
-                        console.log('첫 번째 GLTF 모델 로드 실패, 기본 캐릭터 사용');
-                        aiChatbot = createDefaultCharacter();
-                        aiChatbot.position.set(-2, 0, 1);
-                        hideLoading();
-                    }
-                );
-
-                // 두 번째 캐릭터 로드
-                loader.load(
-                    '/resource/images/default.glb',
-                    function(gltf) {
-                        console.log('두 번째 GLTF 모델 로드 성공');
-                        character2 = gltf.scene;
-                        character2.scale.set(2,2,2);
-                        character2.position.set(-5, -20, 1);
-
-                        // 모든 메시의 재질 속성을 조정하여 더 밝게
-                        character2.traverse((child) => {
-                            if (child.isMesh && child.material) {
-                                child.material = child.material.clone();
-
-                                if (child.material.color) {
-                                    child.material.color.multiplyScalar(1.5);
-                                }
-
-                                if (child.material.metalness !== undefined) {
-                                    child.material.metalness = 0.1;
-                                }
-                                if (child.material.roughness !== undefined) {
-                                    child.material.roughness = 0.8;
-                                }
-                            }
-                        });
-
-                        character2.rotation.y = Math.PI / 4;
-                        character2.rotation.x = Math.PI / 6;
-
-                        scene.add(character2);
-                        hideLoading();
-                    },
-                    undefined,
-                    function(error) {
-                        console.log('두 번째 GLTF 모델 로드 실패, 기본 캐릭터 사용');
-                        character2 = createDefaultCharacter();
-                        character2.position.set(2, 0, 1);
-                        hideLoading();
-                    }
-                );
-            } else {
-                console.log('GLTFLoader 사용 불가, 기본 캐릭터 사용');
-                aiChatbot = createDefaultCharacter();
-                aiChatbot.position.set(-2, 0, 1);
-                character2 = createDefaultCharacter();
-                character2.position.set(2, 0, 1);
-                hideLoading();
-                hideLoading(); // 두 번 호출로 로딩 완료
+                    this.socket.onclose = () => {
+                        console.log('웹소켓 연결 종료');
+                    };
+                });
             }
 
-            // 맵 로드
-            loadMap();
-
-            // jQuery로 키보드 이벤트 처리
-            const keys = {};
-            $(document).on('keydown', function(e) {
-                keys[e.key] = true;
-            });
-
-            $(document).on('keyup', function(e) {
-                keys[e.key] = false;
-            });
-
-            const speed = 0.2;
-
-            // jQuery로 마우스 클릭 이벤트 처리
-            const mouse = new THREE.Vector2();
-            const raycaster = new THREE.Raycaster();
-
-            $(renderer.domElement).on('click', function(event) {
-                // 마우스 좌표를 정규화된 장치 좌표로 변환
-                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-                // 레이캐스터 업데이트
-                raycaster.setFromCamera(mouse, camera);
-
-                if (aiChatbot) {
-                    // 캐릭터와의 교차점 검사
-                    const intersects = raycaster.intersectObject(aiChatbot, true);
-                    
-                    if (intersects.length > 0) {
-                        console.log('캐릭터 클릭됨!');
-                        showClickEffect();
-                        
-                        // 상담페이지로 이동 (0.5초 후)
-                        setTimeout(() => {
-                            goToConsultationPage();
-                        }, 500);
-                    }
+            joinMap() {
+                const joinMessage = {
+                    type: 'join-map',
+                    memberId: this.player.memberId,
+                    nickName: this.player.nickName,
+                    avatarInfo: this.player.avatarInfo,
+                    currentMap: 'testMap'
+                };
+                console.log('=== 맵 입장 요청 전송 ===');
+                console.log('메시지 내용:', joinMessage);
+                
+                try {
+                    this.socket.send(JSON.stringify(joinMessage));
+                    console.log('✓ 맵 입장 요청 전송 완료');
+                } catch (sendError) {
+                    console.error('메시지 전송 실패:', sendError);
                 }
-            });
+            }
 
-            function showClickEffect() {
+            async handleMessage(message) {
+                console.log('메시지 수신:', message.type, message);
+                try {
+                    switch (message.type) {
+                        case 'player-joined':
+                            console.log('새 플레이어 입장:', message.player);
+                            const avatarInfo = typeof message.player.avatarInfo === 'string' 
+                                ? JSON.parse(message.player.avatarInfo) 
+                                : message.player.avatarInfo;
+                            const defaultPosition = message.player.position;
+                            await this.loadCharacter(avatarInfo, defaultPosition, message.player.memberId, message.player.sessionId, message.player.nickName);  
+                            console.log('✓ 캐릭터 로드 완료');
+                            break;
+
+                        case 'existing-players':
+                            console.log('기존 플레이어들:', message.players);
+                            for (const player of message.players) {
+                                if (player.memberId !== this.player.memberId) {
+                                    const avatarInfo = typeof player.avatarInfo === 'string' 
+                                        ? JSON.parse(player.avatarInfo) 
+                                        : player.avatarInfo;
+                                    await this.loadCharacter(avatarInfo, player.position, player.memberId, player.sessionId, player.nickName);
+                                }
+                            }
+                            break;
+
+                        case 'player-moved':
+                            console.log('=== 플레이어 이동 메시지 수신 ===');
+                            console.log('받은 메시지:', message);
+                            this.updatePlayerPosition(message.sessionId, message.position);
+                            break;
+
+                        case 'player-left':
+                            this.removePlayer(message.sessionId);
+                            break;
+                    }
+                } catch (error) {
+                    console.error('메시지 처리 중 오류:', error);
+                }
+            }
+
+            loadCharacter(avatarInfo, position, memberId, sessionId, nickName) {
+                return new Promise((resolve) => {
+                    console.log('=== 캐릭터 로딩 시작 ===');
+                    console.log('닉네임:', nickName);
+                    console.log('멤버ID:', memberId);
+                    console.log('세션ID:', sessionId);
+                    console.log('위치:', position);
+                    console.log('아바타 정보:', avatarInfo);
+                    
+                    this.loader.load(
+                        avatarInfo.baseModel,
+                        (gltf) => {
+                            console.log('✓ GLTF 모델 로드 성공:', nickName);
+                            const character = gltf.scene;
+                            
+                            // 스케일 설정
+                            const characterScale = 0.8; 
+                            character.scale.set(characterScale, characterScale, characterScale);
+                            
+                            // 위치 설정
+                            character.position.set(position.x, position.y, position.z);
+                            character.rotation.y = Math.PI / 4;
+                            character.rotation.x = -Math.PI / 6;
+             
+                            // 내 캐릭터인 경우 설정
+                            if (memberId === this.player.memberId) {
+                                this.myCharacter = character;
+                                this.setupCameraFollow();
+                                console.log('✓ 내 캐릭터 설정 완료');
+                            }
+
+                            this.scene.add(character);
+                            this.playerCharacters.set(sessionId, character);
+                            
+                            // 파츠 로딩
+                            if (avatarInfo.parts) {
+                                this.loadCharacterParts(character, avatarInfo.parts, nickName);
+                            } 
+                            resolve(character);
+                        },
+                        undefined,
+                        (error) => {
+                            console.log('GLTF 모델 로드 실패', nickName, error);
+                            resolve(null);
+                        }
+                    );
+                });
+            }
+
+            // 캐릭터 파츠 로딩 
+            loadCharacterParts(character, parts, nickName) {
+                console.log('캐릭터 파츠 로딩 시작:', nickName, parts);
+
+                // hair 파츠 로딩
+                if (parts.hair) {
+                    console.log('머리 파츠 로딩:', parts.hair);
+                    this.loader.load(
+                        parts.hair,
+                        (gltf) => {
+                            console.log('머리 파츠 로드 성공:', parts.hair);
+                            const hairModel = gltf.scene;
+                            // 바운딩 박스 계산
+                            const box = new THREE.Box3().setFromObject(hairModel);
+                            const center = box.getCenter(new THREE.Vector3());
+                            
+                            // 파츠 스케일을 베이스 캐릭터와 맞춤
+                            const baseScale = character.scale.x;
+                            const hairScale = baseScale * 1.2;
+                            hairModel.scale.set(hairScale, hairScale, hairScale);
+                            
+                            // 머리 파츠 위치 조정
+                            hairModel.position.set(
+                                -center.x * hairScale - 0.2,
+                                1.5 * baseScale - 0.1 - center.y * hairScale + 3.2,
+                                -center.z * hairScale - 0.1
+                            );
+                            
+                            character.add(hairModel);
+                            console.log('머리 파츠 부착 완료:', nickName);
+                        },
+                        undefined,
+                        (error) => {
+                            console.log('머리 파츠 로드 실패:', parts.hair, error);
+                        }
+                    );
+                }
+            }
+
+            // 플레이어 위치 업데이트
+            updatePlayerPosition(sessionId, position) {
+                console.log('=== 위치 업데이트 시도 ===');
+                console.log('새 위치:', position);
+                console.log('찾는 sessionId:', sessionId);
+                
+                const character = this.playerCharacters.get(sessionId);
+                console.log('찾은 캐릭터:', character);
+                if (character) {
+                    character.position.set(position.x, position.y, position.z);
+                    console.log('위치 업데이트 완료');
+                } else {
+                    console.log('캐릭터를 찾을 수 없음!');
+                }
+            }
+
+            // 플레이어 제거
+            removePlayer(sessionId) {
+                const character = this.playerCharacters.get(sessionId);
+                if (character) {
+                    this.scene.remove(character);
+                    this.playerCharacters.delete(sessionId);
+                }
+            }
+
+         // 카메라 따라다니기 설정
+            setupCameraFollow() {
+                // 키보드 이벤트 설정 (기존 코드 기반)
+                const keys = {};
+                $(document).on('keydown', (e) => { keys[e.key] = true; });
+                $(document).on('keyup', (e) => { keys[e.key] = false; });
+
+                const speed = 0.2;
+
+                // 이동 처리를 animate 루프에서 할 수 있도록 저장
+                this.keys = keys;
+                this.speed = speed;
+            }
+
+            // 키보드 이벤트 설정
+            setupKeyboardEvents() {
+                $(document).on('keydown', (e) => { this.keys[e.key] = true; });
+                $(document).on('keyup', (e) => { this.keys[e.key] = false; });
+            }
+
+            // 마우스 클릭 이벤트 설정
+            setupMouseEvents() {
+                const mouse = new THREE.Vector2();
+                const raycaster = new THREE.Raycaster();
+
+                $(this.renderer.domElement).on('click', (event) => {
+                    // 마우스 좌표를 정규화된 장치 좌표로 변환
+                    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+                    // 레이캐스터 업데이트
+                    raycaster.setFromCamera(mouse, this.camera);
+
+                    if (this.aiChatbot) {
+                        // 캐릭터와의 교차점 검사
+                        const intersects = raycaster.intersectObject(this.aiChatbot, true);
+                        
+                        if (intersects.length > 0) {
+                            console.log('캐릭터 클릭됨!');
+                            this.showClickEffect();
+                            
+                            // 상담페이지로 이동 (0.5초 후)
+                            setTimeout(() => {
+                                this.goToConsultationPage();
+                            }, 500);
+                        }
+                    }
+                });
+            }
+
+            showClickEffect() {
                 // 캐릭터 주변에 파티클 효과
                 const particleGeometry = new THREE.SphereGeometry(0.1, 8, 6);
                 const particleMaterial = new THREE.MeshBasicMaterial({ 
@@ -341,11 +471,11 @@
 
                 for (let i = 0; i < 10; i++) {
                     const particle = new THREE.Mesh(particleGeometry, particleMaterial);
-                    particle.position.copy(aiChatbot.position);
+                    particle.position.copy(this.aiChatbot.position);
                     particle.position.x += (Math.random() - 0.5) * 3;
                     particle.position.y += (Math.random() - 0.5) * 3;
                     particle.position.z += Math.random() * 2;
-                    scene.add(particle);
+                    this.scene.add(particle);
 
                     // 파티클 애니메이션 (사라지기)
                     let opacity = 0.8;
@@ -355,7 +485,7 @@
                         particle.position.y += 0.1;
                         
                         if (opacity <= 0) {
-                            scene.remove(particle);
+                            this.scene.remove(particle);
                             particle.geometry.dispose();
                             particle.material.dispose();
                             clearInterval(fadeOut);
@@ -364,53 +494,109 @@
                 }
             }
 
-            function goToConsultationPage() {
-                window.location.href = '/usr/home/chatBot';
+            goToConsultationPage() {
+                window.location.href = '/usr/game/chatBot';
                 console.log('감정페이지로 이동합니다!');
             }
 
-            // jQuery로 윈도우 리사이즈 처리
-            $(window).on('resize', function() {
-                updateRendererSize();
-                updateMapSize(); // 맵 크기도 함께 업데이트
-            });
+            // 윈도우 리사이즈 이벤트
+            setupResizeEvents() {
+                $(window).on('resize', () => {
+                    this.camera.aspect = window.innerWidth / window.innerHeight;
+                    this.camera.updateProjectionMatrix();
+                    this.renderer.setSize(window.innerWidth, window.innerHeight);
+                });
+            }
 
-            function animate() {
-                requestAnimationFrame(animate);
+            // 위치 업데이트 전송
+            sendPositionUpdate() {
+                if (this.socket && this.myCharacter) {
+                    const moveMessage = {
+                        type: 'player-move',
+                        position: {
+                            x: this.myCharacter.position.x,
+                            y: this.myCharacter.position.y,
+                            z: this.myCharacter.position.z 
+                        }
+                    };
+                    this.socket.send(JSON.stringify(moveMessage));
+                }
+            }
 
-                if (character2) {
-                    if (keys['ArrowUp']) {
-                        character2.position.y += speed;
-                    }
-                    if (keys['ArrowDown']) {
-                        character2.position.y -= speed;
-                    }
-                    if (keys['ArrowLeft']) {
-                        character2.position.x -= speed;
-                    }
-                    if (keys['ArrowRight']) {
-                        character2.position.x += speed;
-                    }
+            // 애니메이션 루프
+            animate() {
+                requestAnimationFrame(() => this.animate());
 
-                    // 카메라는 character2를 따라다니되 45도 시점은 고정 유지
-                    const distance = 30;
-                    const angle45 = Math.PI / 4;
+                // 내 캐릭터 이동 처리
+              if (this.myCharacter && this.keys) {
+                    let moved = false;
                     
-                 // 카메라는 character2를 따라다니되 평면 위에서 수직으로 내려다보기
-                    camera.position.set(
-                        character2.position.x,     // X축으로 따라다니기
-                        character2.position.y,     // Y축으로 따라다니기  
-                        character2.position.z + 30 // Z축은 30만큼 위에서 내려다보기
+                    if (this.keys['ArrowUp'] || this.keys['w'] || this.keys['W']) {
+                        this.myCharacter.position.z -= this.speed;
+                        moved = true;
+                    }
+                    if (this.keys['ArrowDown'] || this.keys['s'] || this.keys['S']) {
+                        this.myCharacter.position.z += this.speed;
+                        moved = true;
+                    }
+                    if (this.keys['ArrowLeft'] || this.keys['a'] || this.keys['A']) {
+                        this.myCharacter.position.x -= this.speed;
+                        moved = true;
+                    }
+                    if (this.keys['ArrowRight'] || this.keys['d'] || this.keys['D']) {
+                        this.myCharacter.position.x += this.speed;
+                        moved = true;
+                    }
+                    // y축은 항상 0.5로 고정 (맵 위)
+                    this.myCharacter.position.y = 1;
+                    // 이동했으면 서버에 위치 전송
+                    if (moved) {
+                        this.sendPositionUpdate();
+                    }
+
+                    // 카메라는 myCharacter를 따라다니되 쿼터뷰 유지
+                    this.camera.position.set(
+                        this.myCharacter.position.x,     
+                        this.myCharacter.position.y+25,   
+                        this.myCharacter.position.z  
                     );
-                    camera.lookAt(character2.position.x, character2.position.y, character2.position.z);
+                    this.camera.lookAt(this.myCharacter.position.x, this.myCharacter.position.y, this.myCharacter.position.z);
                 }
 
-                renderer.render(scene, camera);
+                this.renderer.render(this.scene, this.camera);
             }
-            
-            animate();
-            
-            console.log('jQuery 쿼터뷰 게임 초기화 완료!');
+        }
+
+        $(document).ready(async () => {
+            try {
+                console.log('게임 초기화 시작');
+                console.log('플레이어 정보 확인:', player);
+                
+                // 게임 클라이언트 생성
+                const gameClient = new GameClient();
+                
+                // 1. Three.js 초기화
+                gameClient.initThreeJS();
+                console.log('1. Three.js 초기화완료');
+                
+                // 2. 맵 로드
+                gameClient.loadMap();
+                console.log('2. 맵 로드 완료');
+                
+                // 3. NPC 로드
+                gameClient.loadNPC();
+                console.log('3. NPC 로드 완료');
+                
+                // 4. 웹소켓 연결 후 플레이어 캐릭터 로드
+                await gameClient.connect();
+                console.log('4. 웹소켓 연결 및 플레이어 캐릭터 로드 완료');
+                
+                console.log('카메라 위치:', gameClient.camera.position);
+                
+            } catch (error) {
+                console.error('게임 초기화 중 오류 발생:', error);
+                alert('게임을 시작할 수 없습니다: ' + error.message);
+            }
         });
-    </script>
+</script>
 <%@ include file="/WEB-INF/jsp/common/footer.jsp"%>
