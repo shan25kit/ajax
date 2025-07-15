@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.example.demo.dto.Player;
 import com.example.demo.dto.Req;
 import com.example.demo.service.GameService;
+import com.fasterxml.jackson.databind.JsonNode;
 
 @Controller
 @RequestMapping("/usr/game")
@@ -25,10 +26,12 @@ public class GameController {
 	}
 	// 유저 정보 로딩
 	@GetMapping("")
-    public String userInfoload(Model model) {
+    public String userInfoload(Model model, JsonNode avatarInfo) {
 		System.out.println("=== websocket() 메서드 호출됨 ===");
 		int memberId = this.req.getLoginedMember().getId();
 		Player player = this.gameService.selectPlayerByMemberId(memberId);
+		player.setAvatarInfo(avatarInfo);
+		System.out.println(player);
 		model.addAttribute("player", player);
         return "usr/game/startMap";
     }

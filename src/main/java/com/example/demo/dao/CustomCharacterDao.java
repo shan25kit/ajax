@@ -5,9 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
-import com.example.demo.dto.CustomCharacterDto;
-import com.example.demo.dto.Member;
-import com.example.demo.dto.Player;
+import com.example.demo.dto.CustomCharacter;
 
 @Mapper
 public interface CustomCharacterDao {
@@ -15,20 +13,22 @@ public interface CustomCharacterDao {
 	    @Insert("""
 	    		INSERT INTO custom_character
 	    			SET memberId = #{memberId}
-	    				, skin_face = #{skin_face}
-	    				, hair = #{hair}
-	    				, top = #{top}
-	    				, bottom = #{bottom}
-	    				, dress = #{dress}
-	    				, shoes = #{shoes}
-	    				, accessory = #{accessory}
+	    				, skinColor = #{skinColor}
+		    		    , hair = #{hair}
+		    		    , hairColor = #{hairColor}
+		    		    , top = #{top}
+		    		    , bottom = #{bottom}
+		    		    , dress = #{dress}
+		    		    , shoes = #{shoes}
+		    		    , accessory = #{accessory}
 	    		""")
-		void customCaracterBySave(int memberId, String skin_face, String hair, String top, String bottom, String dress, String shoes, String accessory);
-
+		void customCaracterBySave(int memberId, String skinColor, Integer hair, String hairColor, Integer top, Integer bottom, Integer dress, Integer shoes, Integer accessory);
+	    
 	    @Update("""
 		        UPDATE custom_character
-		    		SET skin_face = #{skin_face}
+		    		SET skinColor = #{skinColor}
 		    		    , hair = #{hair}
+		    		    , hairColor = #{hairColor}
 		    		    , top = #{top}
 		    		    , bottom = #{bottom}
 		    		    , dress = #{dress}
@@ -36,7 +36,7 @@ public interface CustomCharacterDao {
 		    		    , accessory = #{accessory}
 		    		WHERE memberId = #{memberId}
 	    		""")
-		void customCaracterByUpdate(int memberId, String skin_face, String hair, String top, String bottom, String dress, String shoes, String accessory);
+		void customCaracterByUpdate(int memberId, String skinColor, Integer hair, String hairColor, Integer top, Integer bottom, Integer dress, Integer shoes, Integer accessory);
 
 	    @Select("""
 	    		SELECT COUNT(*) > 0 
@@ -44,5 +44,8 @@ public interface CustomCharacterDao {
 	    			WHERE memberId = #{memberId}
 	    		""")
 		boolean existsByMemberId(int memberId);
+
+
+		CustomCharacter getCharacterByMemberId(int memberId);
 
 }

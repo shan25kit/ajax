@@ -7,24 +7,17 @@
 <%@ include file="/WEB-INF/jsp/common/header.jsp"%>
 
 
-
-<script
-	src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script
-	src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-<script
-	src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-
-
-
 <script>
 let scene, camera, renderer, controls, directionalLight;
 let character = null;
 let currentParts = {}; // ✅ 각 파트 그룹(hair, top 등)별로 현재 모델 저장
+let currentSkinColor = '#FFE0BD';
 const loader = new THREE.GLTFLoader();
 
 // ✅ 피부색 변경 함수
 window.setSkinColor = function (hexColor) {
+	 currentSkinColor = hexColor;
+	 
   if (!character) return;
 
   character.traverse((child) => {
@@ -58,6 +51,10 @@ window.setHairColor = function (hexColor) {
 	      child.material.side = THREE.FrontSide;
 	    }
 	  });
+  // ✅ userData에 색상 저장
+  if (model.userData) {
+    model.userData.color = hexColor;
+  }
 	};
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -213,7 +210,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	  loader.load(path, (gltf) => {
 	    const model = gltf.scene;
-
+	 // ✅ userData에 메타데이터 저장
+	    model.userData = {
+	      partGroupKey: partGroupKey,
+	      partStyleKey: parseInt(partStyleKey.replace(/[^0-9]/g, '')),
+	      color: null 
+	    };
 	    if (partStyleKey === 'face1') {
 	      let meshFound = false;
 
@@ -233,7 +235,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	          console.log('✅ face1 메쉬 찾음:', child.name);
 	          console.log('🧪 위치:', child.position);
 	          console.log('🧪 크기:', child.scale);
-
+	          
+	          child.userData = model.userData;  // 메타데이터 복사
 	          scene.add(child);
 	          currentParts[partGroupKey] = child;
 	        }
@@ -640,15 +643,54 @@ function resetAvatar() {
   setSkinColor('#FFE0BD');
   updateSelectBox('skin-face');
 
-//hidden input 초기화
-  const inputs = ['skin_face', 'hair', 'top', 'bottom', 'dress', 'shoes', 'accessory'];
-  inputs.forEach(id => {
-    const input = document.getElementById(`input-${id}`);
-    if (input) input.value = "";
-  });
-
   console.log('🔄 아바타 초기화 완료!');
 }
+
+async function saveAvatar() {
+	  try {
+	    // currentParts에서 데이터 추출
+	    const characterData = {
+	      skinColor: currentSkinColor,
+	      hair: null,
+	      hairColor: null,
+	      top: null,
+	      bottom: null,
+	      dress: null,
+	      shoes: null,
+	      accessory: null
+	    };
+	    
+	    // currentParts 순회하면서 데이터 수집
+	    for (let partGroup in currentParts) {
+	      const model = currentParts[partGroup];
+	      if (model && model.userData) {
+	        // 스타일 번호 저장
+	        characterData[partGroup] = model.userData.partStyleKey;
+	        
+	        // 색상 저장 (헤어만 현재 지원)
+	        if (partGroup === 'hair' && model.userData.color) {
+	          characterData.hairColor = model.userData.color;
+	        }
+	      }
+	    }
+	    
+	    console.log('💾 전송할 데이터:', characterData);
+	    
+	    // AJAX 전송
+	    const response = await fetch('/usr/custom/save', {
+	      method: 'POST',
+	      headers: {
+	        'Content-Type': 'application/json'
+	      },
+	      body: JSON.stringify(characterData)
+	    });
+	    
+	    
+	  } catch (error) {
+	    console.error('❌ 저장 중 오류:', error);
+	    alert('저장 중 오류가 발생했습니다.');
+	  }
+	}
   
 </script>
 
@@ -708,63 +750,11 @@ function resetAvatar() {
 
 
 			<div class="custom-select-box" id="select-box"></div>
-
-			<form action="/usr/custom/save" method="post" id="customForm">
-				<input type="hidden" name="skin_face" id="input-skin_face"/>
-				<input type="hidden" name="hair" id="input-hair"/>
-				<input type="hidden" name="top" id="input-top"/>
-				<input type="hidden" name="bottom" id="input-bottom"/>
-				<input type="hidden" name="dress" id="input-dress"/>
-				<input type="hidden" name="shoes" id="input-shoes"/>
-				<input type="hidden" name="accessory" id="input-accessory"/>
-				
+			
 				<div class="btn_box">
 					<button type="button" onclick="resetAvatar()">RESET</button>
-					<button type="submit">SAVE</button>
+					<button type="button" onclick="saveAvatar()">SAVE</button>  <!-- AJAX 호출 -->
 				</div>
-			</form>
-			
-			<!-- ✅ script는 form 아래에 위치시켜야 함 -->
-			<script>
-			  function loadModel(path, partStyleKey) {
-			    console.log('✅ loadModel 실행됨: ', path, partStyleKey);
-			
-			    // 숫자 제거
-			    let partGroupKey = partStyleKey.replace(/[0-9]/g, '');
-			
-			    // face는 예외 처리
-			    if (partGroupKey === 'face') {
-			      partGroupKey = 'skin_face';
-			    }
-			
-			    const inputId = 'input-' + partGroupKey;
-			    const hiddenInput = document.getElementById(inputId);
-			
-			    console.log('🔍 hidden input: ', hiddenInput);
-			
-			    if (hiddenInput) {
-			      hiddenInput.value = path;
-			      console.log('✅ 저장됨! →', path);
-			    } else {
-			      console.warn('❌ hidden input 못 찾음: ', inputId);
-			    }
-			
-			    // glb 파일 로딩 (예시)
-			    const loader = new THREE.GLTFLoader();
-			    loader.load(
-			      path,
-			      function (gltf) {
-			        console.log('GLTF 로드 완료:', gltf);
-			        // ...모델 처리 로직...
-			      },
-			      undefined,
-			      function (error) {
-			        console.error('GLTF 로드 실패:', error);
-			      }
-			    );
-			  }
-			</script>
-
 		</div>
 	</div>
 </div>
