@@ -1,3 +1,4 @@
+
 DROP DATABASE IF EXISTS ajaxDB;
 CREATE DATABASE ajaxDB;
 USE ajaxDB;
@@ -67,5 +68,3 @@ SELECT *
 		    LEFT JOIN  memberInfo mi
 		    ON p.memberId = mi.memberId
 		    WHERE memberId = 1
-
-
