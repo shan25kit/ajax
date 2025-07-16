@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'top2': { scale: [45, 45, 45], position: [0, -28, 0], rotation: [0, 0.1, 0] },
     'top3': { scale: [42, 42, 45], position: [0, -27, 0.5], rotation: [0, 0, 0] },
     'top4': { scale: [40, 42, 45], position: [0, -28, 0.7], rotation: [0, 0, 0] },
-    'top5': { scale: [40, 42, 45], position: [0, -28, 0.7], rotation: [0, 0, 0] },
+    'top5': { scale: [38, 42, 45], position: [0, -27, 0.7], rotation: [0, 0, 0] },
     'top6': { scale: [40, 42, 45], position: [0, -28, 0.7], rotation: [0, 0, 0] },
     'top7': { scale: [45, 42, 45], position: [0, -28, 0.7], rotation: [0, 0, 0] },
     'top8': { scale: [46.5, 40, 46], position: [0, -26.5, 0.5], rotation: [0, 0, 0] },
@@ -188,21 +188,21 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 👟 신발
     'shoes1': { scale: [32, 30, 32], position: [0, -22, 0], rotation: [0, 0, 0] },
-    'shoes2': { scale: [33, 40, 37], position: [0, -21.5, -0.5], rotation: [0, 0, 0] },
+    'shoes2': { scale: [1.7, 2.1, 2], position: [0, -22, 1], rotation: [0, 0, 0] },
     'shoes3': { scale: [40, 40, 45], position: [0, -22, 0], rotation: [0, 0, 0] },
     'shoes4': { scale: [37, 40, 45], position: [0, -22, -0.2], rotation: [0, 0, 0] },
     'shoes5': { scale: [40, 40, 45], position: [0, -22, -0.25], rotation: [0, 0, 0] },
     'shoes6': { scale: [35, 45, 43], position: [0, -21.7, -0.22], rotation: [0, 0, 0] },
 
     // 🧢 액세서리
-    'accessory1': { scale: [50, 50, 50], position: [0, -32, 4], rotation: [0, 0, 0] },
-    'accessory2': { scale: [3, 3, 3], position: [0, 11, 1], rotation: [0.1, 0, 0] },
-    'accessory3': { scale: [3, 3, 3], position: [0, 11, 1], rotation: [0.1, 0, 0] },
-    'accessory4': { scale: [3, 3, 3], position: [0, 11, 1], rotation: [0.1, 0, 0] },
-    'accessory5': { scale: [3, 3, 3], position: [0, 11, 1], rotation: [0.1, 0, 0] },
-    'accessory6': { scale: [3, 3, 3], position: [0, 11, 1], rotation: [0.1, 0, 0] },
-    'accessory7': { scale: [3, 3, 3], position: [0, 11, 1], rotation: [0.1, 0, 0] },
-    'accessory8': { scale: [3, 3, 3], position: [0, 11, 1], rotation: [0.1, 0, 0] }
+    'accessory1': { scale: [50, 50, 50], position: [7.5, -33, -3], rotation: [0.2, -0.15, 0.1] },
+    'accessory2': { scale: [6, 6, 6], position: [0, -15, 0], rotation: [0, 0, 0] },
+    'accessory3': { scale: [63, 60, 60], position: [0, -41, 0], rotation: [0, 0, 0] },
+    'accessory4': { scale: [75, 80, 75], position: [0, -58.5, 0], rotation: [0, 0, 0] },
+    'accessory5': { scale: [40, 45, 45], position: [0, -30, 0.5], rotation: [0, 0, 0] },
+    'accessory6': { scale: [40, 45, 45], position: [0, -29.9, 0.5], rotation: [0, 0, 0] },
+    'accessory7': { scale: [67, 60, 50], position: [0, -41, 1], rotation: [0, 0, 0] },
+    'accessory8': { scale: [6.3, 6.3, 6.3], position: [0, -16.3, 0], rotation: [0, 0, 0] }
   };
 
   const setting = partSettings[partStyleKey] || {
@@ -252,12 +252,21 @@ document.addEventListener('DOMContentLoaded', () => {
 	   // ✅ 여기서 투명도/렌더링 속성 보정
 	      model.traverse((child) => {
 	        if (child.isMesh && child.material) {
-	          child.material.transparent = false;
-	          child.material.opacity = 1;
-	          child.material.needsUpdate = true;
-	          child.material.depthWrite = true;
-	          child.material.depthTest = true;
-	          child.material.side = THREE.FrontSide;
+	        	child.material.transparent = false;
+	            child.material.opacity = 1;
+	            child.material.depthWrite = true;
+	            child.material.depthTest = true;
+	            child.material.side = THREE.FrontSide;
+
+	            // ✅ 원색 보존 + 밝기 살짝 보정
+	            child.material.emissive = child.material.color.clone();
+	            child.material.emissiveIntensity = 0.1;
+
+	            // ✅ 메탈/러프 세팅 (재질을 부드럽게 + 반사광X)
+	            child.material.metalness = 0;
+	            child.material.roughness = 1;
+
+	            child.material.needsUpdate = true;
 	        }
 	      });
 
