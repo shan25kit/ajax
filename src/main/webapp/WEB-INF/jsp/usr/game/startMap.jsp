@@ -81,6 +81,18 @@ let startY = 0;
 const imageWidth = 4000;  // 실제 이미지 너비
 const imageHeight = 2754; // 실제 이미지 높이
 
+const ASSET_CONFIG = {
+	    MODEL: { base: '/resource/model/', ext: '.glb' },
+	};
+	
+function getModelPath(partType, styleNumber) {
+    if (!styleNumber) return null;
+    
+    const path = ASSET_CONFIG.MODEL.base + String(partType) + String(styleNumber) + ASSET_CONFIG.MODEL.ext;
+    console.log('🔗 생성된 경로:', path);
+    return path;
+}
+	
 function applyTransform() {
   const containerWidth = container.clientWidth;
   const containerHeight = container.clientHeight;
@@ -214,14 +226,14 @@ function animateCloud($cloud, speed, delay, verticalShift = 20) {
  console.log('Member ID Raw:', '${player.memberId}');
  console.log('Nick Name Raw:', '${player.nickName}');
  console.log('Avatar Info Raw:', '${player.avatarInfo}');
- console.log('Avatar Info Type:', typeof '${player.avatarInfo}');
  
         // 서버에서 전달받은 플레이어 데이터
         let player = {
             memberId: ${player.memberId},
             nickName: "${player.nickName}",
-            avatarInfo: typeof '${player.avatarInfo}' === 'string' ? JSON.parse('${player.avatarInfo}') : '${player.avatarInfo}' // 문자열 체크 후 파싱
+            avatarInfo: JSON.parse('${player.avatarInfo}')
         };
+        console.log('🔍 파싱된 avatarInfo:', player.avatarInfo);
 		
      // 채팅 시스템 클래스 추가
         class ChatSystem {
@@ -461,8 +473,8 @@ function animateCloud($cloud, speed, delay, verticalShift = 20) {
                 this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
                 // 카메라를 정면에서 내려다보는 위치로 설정
                 const distance = 30;
-                this.camera.position.set(0, distance, 0); // 위에서 내려다보는 시점
-                this.camera.lookAt(0, 0, 0);
+                this.camera.position.set(0, distance, 15); // 위에서 내려다보는 시점
+                this.camera.lookAt(0, 5, 0);
 
                 this.renderer = new THREE.WebGLRenderer({ 
                     antialias: true,
@@ -1050,16 +1062,30 @@ function animateCloud($cloud, speed, delay, verticalShift = 20) {
             console.log('아바타 정보:', avatarInfo);
             
            this.loader.load(
-                        avatarInfo.baseModel,
+        		   '/resource/model/body.glb',
                         (gltf) => {
-                            console.log('✓ GLTF 모델 로드 성공:', nickName);
+                            console.log('✓ 베이스 모델 로드 성공:', nickName);
                             const character = gltf.scene;
-                            // 먼저 스케일 설정 (원하는 크기로 조정)
-                            const characterScale = 0.8; 
+                            
+                            character.traverse((child) => {
+                                if (child.isMesh) {
+                                	  console.log('🎨 스킨 색상 적용 시도:', avatarInfo.skinColor);
+                                    // 🟢 기존 재질 설정 + 색상 적용 통합
+                                    child.material = new THREE.MeshStandardMaterial({
+                                        color: avatarInfo.skinColor || 0xffe0bd,  
+                                        roughness: 0.8,
+                                        metalness: 0
+                                    });
+                                    child.material.needsUpdate = true;
+                                }
+                            });
+                            
+                            // 스케일 설정 
+                            const characterScale = 0.3; 
                             character.scale.set(characterScale, characterScale, characterScale);
-                          
                             // 위치 설정
           					character.position.set(position.x, position.y, position.z);
+                            character.position.z = 5;
           					character.rotation.y = Math.PI / 4;
           					character.rotation.x = -Math.PI / 6;
          
@@ -1068,7 +1094,6 @@ function animateCloud($cloud, speed, delay, verticalShift = 20) {
                 this.myCharacter = character;
                 console.log('✓ 내 캐릭터 설정 완료');
             }
-
 
             this.scene.add(character);
             this.playerCharacters.set(sessionId, character);
@@ -1087,52 +1112,80 @@ function animateCloud($cloud, speed, delay, verticalShift = 20) {
         }
    
 
-     // 캐릭터 파츠 로딩 
-        loadCharacterParts(character, parts, nickName) {
-            console.log('캐릭터 파츠 로딩 시작:', nickName, parts);
+  // 캐릭터 파츠 로딩
+     loadCharacterParts(character, parts, nickName) {
+         console.log('캐릭터 파츠 로딩 시작:', nickName, parts);
+         console.log('📊 파츠 키들:', Object.keys(parts));
 
-            // hair 파츠 로딩
-            if (parts.hair) {
-                console.log('머리 파츠 로딩:', parts.hair);
-                this.loader.load(
-                    parts.hair,
-                    (gltf) => {
-                        console.log('머리 파츠 로드 성공:', parts.hair);
-                        const hairModel = gltf.scene;
-                        // 바운딩 박스 계산
-                        const box = new THREE.Box3().setFromObject(hairModel);
-                        const center = box.getCenter(new THREE.Vector3());
-                     // 파츠 스케일을 베이스 캐릭터와 맞춤
-                        const baseScale = character.scale.x;
-                        const hairScale = baseScale * 1.2;
-                        hairModel.scale.set(hairScale, hairScale, hairScale);
-                        // 머리 파츠 위치 조정
-                         // 동적 위치 계산
-               			 hairModel.position.set(
-                   			 -center.x * hairScale-.2,
-                   			 1.5 * baseScale-.1 - center.y * hairScale + 3.2,
-                 			   -center.z * hairScale-.1
-               			 );
-                        
-                        character.add(hairModel);
-                        console.log('머리 파츠 부착 완료:', nickName);
-                    },
-                    undefined,
-                    (error) => {
-                        console.log('머리 파츠 로드 실패:', parts.hair, error);
-                    }
-                );
-            }
+         // 모든 파츠를 순회하면서 로딩
+         for (const [partType, partData] of Object.entries(parts)) {
+             if (partData && partData.style) {
+                 const modelPath = getModelPath(partType, partData.style);
+                 console.log(`${partType} 파츠 로딩:`, modelPath);
+                 
+                 this.loader.load(
+                     modelPath,
+                     (gltf) => {
+                         console.log(`${partType} 파츠 로드 성공:`, modelPath);
+                         const partModel = gltf.scene;
+                         console.log(`🔍 ${partType} scene:`, partModel);
+                         console.log(`🔍 ${partType} children 수:`, partModel.children.length);
+                         
+                         // 색상 적용 (있는 경우)
+                         if (partData.color) {
+                             partModel.traverse((child) => {
+                                 if (child.isMesh && child.material && child.material.color) {
+                                     if (child.material.map) child.material.map = null;
+                                     child.material.color.set(partData.color);
+                                     child.material.needsUpdate = true;
+                                 }
+                             });
+                         }
+                         
+                         // 파츠별 특별 설정
+                         this.applyPartSettings(partModel, partType, character);
+                         
+                         character.add(partModel);
+                         console.log(`${partType} 파츠 부착 완료:`, nickName);
+                         console.log(`${partType} 파츠 최종 위치:`, partModel.position);
+                      // 🔍 베이스 캐릭터의 children 수 확인
+                         console.log('🔍 베이스 캐릭터 children 수:', character.children.length);
+                         console.log('🔍 베이스 캐릭터 children 목록:', character.children);
+                     },
+                     undefined,
+                     (error) => {
+                         console.log(`${partType} 파츠 로드 실패:`, modelPath, error);
+                     }
+                 );
+             }
+         }
+     }
 
-            // 추후 추가될 다른 파츠들 (clothing, accessories 등)
-            if (parts.clothing) {
-                this.loadClothingPart(baseCharacter, parts.clothing, nickName);
-            }
-            
-            if (parts.accessories) {
-                this.loadAccessoryParts(baseCharacter, parts.accessories, nickName);
-            }
-        }
+     // 파츠별 위치/스케일 설정
+     applyPartSettings(partModel, partType, character) {
+         const baseScale = character.scale.x * 10;
+         
+         switch (partType) {
+             case 'hair':
+            /*      // 머리는 복잡한 위치 계산 필요
+                 const box = new THREE.Box3().setFromObject(partModel);
+                 const center = box.getCenter(new THREE.Vector3()); */
+                
+           /*       partModel.scale.set(10,10,10);
+                 partModel.position.set(10,10,0); */
+                 break;
+             case 'dress':   
+             case 'top':
+             case 'bottom':
+             case 'shoes':
+             case 'accessory':
+             default:
+                 // 기본 설정s
+                 partModel.scale.set(baseScale, baseScale, baseScale);
+                 partModel.position.set(10, 10, 0);
+                 break;
+         }
+     }
             
             // 플레이어 위치 업데이트
             updatePlayerPosition(sessionId, position) {

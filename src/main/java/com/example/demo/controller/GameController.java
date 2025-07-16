@@ -9,27 +9,35 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.example.demo.dto.CustomCharacter;
 import com.example.demo.dto.Player;
 import com.example.demo.dto.Req;
+import com.example.demo.service.CustomCharacterService;
 import com.example.demo.service.GameService;
 import com.fasterxml.jackson.databind.JsonNode;
 
 @Controller
-@RequestMapping("/usr/game")
 public class GameController {
 	private Req req;
 	private GameService gameService;
+	private CustomCharacterService characterService;
 	
-	public GameController(Req req, GameService gameService) {
+	public GameController(Req req, GameService gameService, CustomCharacterService characterService) {
 		this.req = req;
 		this.gameService = gameService;
+		this.characterService = characterService;
 	}
 	// 유저 정보 로딩
-	@GetMapping("")
-    public String userInfoload(Model model, JsonNode avatarInfo) {
+	@GetMapping("/usr/game/startMap")
+    public String userInfoload(Model model) {
 		System.out.println("=== websocket() 메서드 호출됨 ===");
 		int memberId = this.req.getLoginedMember().getId();
 		Player player = this.gameService.selectPlayerByMemberId(memberId);
+		System.out.println(player);
+		CustomCharacter character = this.characterService.getCharacter(memberId);
+		System.out.println(character);
+		JsonNode avatarInfo = this.characterService.convertCharacterToJson(character);
+		System.out.println(avatarInfo);
 		player.setAvatarInfo(avatarInfo);
 		System.out.println(player);
 		model.addAttribute("player", player);
