@@ -16,6 +16,5 @@ public class UsrHomeController {
 		return "redirect:/usr/home/main";
 	}
 	
-	
-	
+
 }
