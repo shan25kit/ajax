@@ -10,8 +10,14 @@
 <script>
 let scene, camera, renderer, controls, directionalLight;
 let character = null;
-let currentParts = {}; // ✅ 각 파트 그룹(hair, top 등)별로 현재 모델 저장
+
+let currentParts = {
+  accessoryMain: [],     // accessory1~4용 (여러 개 저장)
+  accessoryDetail: null  // accessory5~8용 (단 하나만 저장)
+};
+
 let currentSkinColor = '#FFE0BD';
+
 const loader = new THREE.GLTFLoader();
 
 // ✅ 피부색 변경 함수
@@ -71,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderer.setSize(containerWidth, containerHeight);
   renderer.setClearColor(0x000000, 0); // 투명 배경
   container.appendChild(renderer.domElement);
+
 
   /* controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
@@ -134,11 +141,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const partGroupKey = partStyleKey.replace(/[0-9]/g, '');
   console.log('🚀 loadModel 실행됨:', path, partStyleKey);
 
-  // 기존 파트 제거
-  if (currentParts[partGroupKey]) {
-    scene.remove(currentParts[partGroupKey]);
-  }
-
   // 🎯 파트별 설정
   const partSettings = {
 		  
@@ -154,24 +156,24 @@ document.addEventListener('DOMContentLoaded', () => {
     'hair19': { scale: [65, 60, 61], position: [0, -41.1, 1], rotation: [0, 0, 0] },
 
     // 👕 상의
-    'top1': { scale: [46.5, 45, 45], position: [0, -19.5, 0.5], rotation: [0, 0, 0] },
-    'top2': { scale: [45, 45, 45], position: [0, -28, 0], rotation: [0, 0.1, 0] },
-    'top3': { scale: [42, 42, 45], position: [0, -27, 0.5], rotation: [0, 0, 0] },
-    'top4': { scale: [40, 42, 45], position: [0, -28, 0.7], rotation: [0, 0, 0] },
-    'top5': { scale: [38, 42, 45], position: [0, -27, 0.7], rotation: [0, 0, 0] },
-    'top6': { scale: [40, 42, 45], position: [0, -28, 0.7], rotation: [0, 0, 0] },
+    'top1': { scale: [46.5, 45, 45], position: [0, -19.5, 0.3], rotation: [0, 0, 0] },
+    'top8': { scale: [46.5, 40, 46], position: [0, -26.5, 0.3], rotation: [0, 0, 0] },
+    'top3': { scale: [40, 42, 42], position: [0, -27.5, 0.5], rotation: [0, 0, 0] },
+    'top12': { scale: [40, 38, 39], position: [0, -25, 0.5], rotation: [0, 0, 0] },
+    'top9': { scale: [43.5, 42, 40], position: [0, -27.5, 0.1], rotation: [0, 0, 0] },
+    'top10': { scale: [42.5, 42, 40], position: [0, -27.5, 0.2], rotation: [0, 0, 0] },
+    'top11': { scale: [42.5, 42, 40], position: [0, -27.8, 0.5], rotation: [0, 0, 0] },
     'top7': { scale: [45, 42, 45], position: [0, -28, 0.7], rotation: [0, 0, 0] },
-    'top8': { scale: [46.5, 40, 46], position: [0, -26.5, 0.5], rotation: [0, 0, 0] },
 
     // 👖 하의
     'bottom1': { scale: [47, 40, 36], position: [0.1, -18, 0], rotation: [0, 0, 0] },
-    'bottom2': { scale: [40, 40, 40], position: [0, -7.5, 0], rotation: [0, 0, 0] },
+    'bottom11': { scale: [40, 35, 34], position: [0, -22, 0.2], rotation: [0, 0, 0] },
     'bottom3': { scale: [38, 35, 34], position: [0, -22, 0.2], rotation: [0, 0, 0] },
-    'bottom4': { scale: [39, 35, 34], position: [0, -23, 0.1], rotation: [0, 0, 0] },
-    'bottom5': { scale: [40, 29, 34], position: [0, -21, 0.2], rotation: [0, 0, 0] },
-    'bottom6': { scale: [41, 35, 34], position: [0, -23.5, 0.15], rotation: [0, 0, 0] },
-    'bottom7': { scale: [40, 40, 33], position: [0, -24, 0.3], rotation: [0, 0, 0] },
-    'bottom8': { scale: [40, 40, 34], position: [0, -25, 0], rotation: [0, 0, 0] },
+    'bottom12': { scale: [38.8, 34, 31.5], position: [0, -22.5, 0.1], rotation: [0, 0, 0] },
+    'bottom10': { scale: [40, 29, 32], position: [0, -20, 0.15], rotation: [0, 0, 0] },
+    'bottom8': { scale: [40, 35, 34], position: [0, -23.5, 0.15], rotation: [0, 0, 0] },
+    'bottom4': { scale: [38, 33, 32], position: [0, -22, 0], rotation: [0, 0, 0] },
+    'bottom9': { scale: [40.7, 35, 32], position: [0, -22, 0.15], rotation: [0, 0, 0] },
     
     // 👗 원피스
     'dress1': { scale: [45.2, 45.2, 45.2], position: [0, -19.8, 0.45], rotation: [0, 0, 0] },
@@ -193,92 +195,224 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 🧢 액세서리
     'accessory1': { scale: [50, 50, 50], position: [7.5, -33, -3], rotation: [0.2, -0.15, 0.1] },
-    'accessory2': { scale: [6, 6, 6], position: [0, -15, 0], rotation: [0, 0, 0] },
+    'accessory2': { scale: [67, 60, 50], position: [0, -41, 1], rotation: [0, 0, 0] },
     'accessory3': { scale: [63, 60, 60], position: [0, -41, 0], rotation: [0, 0, 0] },
     'accessory4': { scale: [75, 80, 75], position: [0, -58.5, 0], rotation: [0, 0, 0] },
     'accessory5': { scale: [40, 45, 45], position: [0, -30, 0.5], rotation: [0, 0, 0] },
     'accessory6': { scale: [40, 45, 45], position: [0, -29.9, 0.5], rotation: [0, 0, 0] },
-    'accessory7': { scale: [67, 60, 50], position: [0, -41, 1], rotation: [0, 0, 0] },
+    'accessory7': { scale: [6, 6, 6], position: [0, -15, 0], rotation: [0, 0, 0] },
     'accessory8': { scale: [6.3, 6.3, 6.3], position: [0, -16.3, 0], rotation: [0, 0, 0] }
   };
 
+  // ✅ 설정값 불러오기 (기본값 fallback)
   const setting = partSettings[partStyleKey] || {
-	    scale: [4, 4, 4],
-	    position: [0, 0, 0],
-	    rotation: [0, 0, 0]
-	  };
+    scale: [4, 4, 4],
+    position: [0, 0, 0],
+    rotation: [0, 0, 0]
+  };
 
-	  loader.load(path, (gltf) => {
-	    const model = gltf.scene;
-	 // ✅ userData에 메타데이터 저장
-	    model.userData = {
-	      partGroupKey: partGroupKey,
-	      partStyleKey: parseInt(partStyleKey.replace(/[^0-9]/g, '')),
-	      color: null 
-	    };
-	    if (partStyleKey === 'face1') {
-	      let meshFound = false;
 
-	      model.traverse((child) => {
-	        if (child.isMesh) {
-	          meshFound = true;
+  // 드레스 선택 시 탑/바텀 제거
+  if (partGroupKey === 'dress') {
+    ['top', 'bottom'].forEach(group => {
+      if (currentParts[group]) {
+        scene.remove(currentParts[group]);
+        currentParts[group] = null;
 
-	          // ✅ 설정값 적용
-	          child.scale.set(...setting.scale);
-	          child.position.set(...setting.position);
-	          child.rotation.set(...setting.rotation);
-	          child.visible = true;
+        const input = document.getElementById(`input-${group}`);
+        if (input) input.value = "";
+      }
+    });
+  }
 
-	          // 💡 디버깅용
-	          child.material.needsUpdate = true;
+  // 탑 또는 바텀 선택 시 드레스 제거
+  if (partGroupKey === 'top' || partGroupKey === 'bottom') {
+    if (currentParts['dress']) {
+      scene.remove(currentParts['dress']);
+      currentParts['dress'] = null;
 
-	          console.log('✅ face1 메쉬 찾음:', child.name);
-	          console.log('🧪 위치:', child.position);
-	          console.log('🧪 크기:', child.scale);
-	          
-	          child.userData = model.userData;  // 메타데이터 복사
-	          scene.add(child);
-	          currentParts[partGroupKey] = child;
-	        }
-	      });
+      const input = document.getElementById('input-dress');
+      if (input) input.value = "";
+    }
+  }
+  
+  // 동일 파트 두 번 클릭 시 제거
+  if (currentParts[partGroupKey] && currentParts[partGroupKey].userData?.partStyleKey === partStyleKey) {
+    scene.remove(currentParts[partGroupKey]);
+    currentParts[partGroupKey] = null;
 
-	      if (!meshFound) {
-	        console.warn('⚠️ face1에서 메쉬를 찾을 수 없습니다!');
-	      }
+    const input = document.getElementById(`input-${partGroupKey}`);
+    if (input) input.value = "";
 
-	    } else {
-	      // 일반 파츠
-	      model.scale.set(...setting.scale);
-	      model.position.set(...setting.position);
-	      model.rotation.set(...setting.rotation);
-	      
-	   // ✅ 여기서 투명도/렌더링 속성 보정
-	      model.traverse((child) => {
-	        if (child.isMesh && child.material) {
-	        	child.material.transparent = false;
-	            child.material.opacity = 1;
-	            child.material.depthWrite = true;
-	            child.material.depthTest = true;
-	            child.material.side = THREE.FrontSide;
 
-	            // ✅ 원색 보존 + 밝기 살짝 보정
-	            child.material.emissive = child.material.color.clone();
-	            child.material.emissiveIntensity = 0.1;
+    console.log(`🧹 ${partGroupKey} 파트 해제됨`);
+    return;
+  }
 
-	            // ✅ 메탈/러프 세팅 (재질을 부드럽게 + 반사광X)
-	            child.material.metalness = 0;
-	            child.material.roughness = 1;
+//✅ 악세사리 해제 로직 보강 (1~8 전부 해제 가능하게)
+  if (partGroupKey === 'accessory') {
+  const isDetailAccessory = ['accessory5', 'accessory6', 'accessory7', 'accessory8'].includes(partStyleKey);
 
-	            child.material.needsUpdate = true;
-	        }
-	      });
+  // ✅ accessory5~8: 단일 선택 (중복 제거 + 다시 선택 시 해제)
+  if (isDetailAccessory) {
+    // 이미 선택된 악세사리를 다시 클릭 → 해제
+    if (
+      currentParts.accessoryDetail &&
+      currentParts.accessoryDetail.userData?.partStyleKey === partStyleKey
+    ) {
+      scene.remove(currentParts.accessoryDetail);
+      currentParts.accessoryDetail = null;
 
-	      console.log('✅ 모델 추가됨:', partStyleKey);
-	      scene.add(model);
-	      currentParts[partGroupKey] = model;
-	    }
-	  });
-	};
+      const input = document.getElementById(`input-accessory`);
+      if (input) input.value = "";
+      console.log(`🧹 accessoryDetail (${partStyleKey}) 해제됨`);
+      return;
+    }
+
+	         
+
+    // ✅ 다른 accessory5~8 제거 (중복 방지)
+    if (currentParts.accessoryDetail) {
+      scene.remove(currentParts.accessoryDetail);
+      currentParts.accessoryDetail = null;
+    }
+    
+// 모델 추가
+
+    loader.load(path, (gltf) => {
+      	    const model = gltf.scene;
+
+      const setting = partSettings[partStyleKey] || {
+        scale: [4, 4, 4],
+        position: [0, 0, 0],
+        rotation: [0, 0, 0]
+      };
+
+      const model = gltf.scene;
+      model.scale.set(...setting.scale);
+      model.position.set(...setting.position);
+      model.rotation.set(...setting.rotation);
+      model.userData.partStyleKey = partStyleKey;
+
+      model.traverse((child) => {
+        if (child.isMesh && child.material) {
+          child.material.transparent = false;
+          child.material.opacity = 1;
+          child.material.depthWrite = true;
+          child.material.depthTest = true;
+          child.material.side = THREE.FrontSide;
+          child.material.emissive = child.material.color.clone();
+          child.material.emissiveIntensity = 0.1;
+          child.material.metalness = 0;
+          child.material.roughness = 1;
+          child.material.needsUpdate = true;
+        }
+      });
+
+      scene.add(model);
+      currentParts.accessoryDetail = model;
+
+      const input = document.getElementById(`input-accessory`);
+      if (input) input.value = partStyleKey;
+    });
+
+    return;
+  }
+
+  // ✅ accessory1~4: 중복 허용 + 다시 클릭 시 해제
+  const index = currentParts.accessoryMain.findIndex(m => m.userData?.partStyleKey === partStyleKey);
+  if (index !== -1) {
+    scene.remove(currentParts.accessoryMain[index]);
+    currentParts.accessoryMain.splice(index, 1);
+
+    const input = document.getElementById(`input-accessory`);
+    if (input) input.value = "";
+    console.log(`🧹 accessoryMain (${partStyleKey}) 해제됨`);
+    return;
+  }
+
+  // 모델 추가 (1~4)
+  loader.load(path, (gltf) => {
+    const setting = partSettings[partStyleKey] || {
+      scale: [4, 4, 4],
+      position: [0, 0, 0],
+      rotation: [0, 0, 0]
+    };
+
+    const model = gltf.scene;
+    model.scale.set(...setting.scale);
+    model.position.set(...setting.position);
+    model.rotation.set(...setting.rotation);
+    model.userData.partStyleKey = partStyleKey;
+
+    model.traverse((child) => {
+      if (child.isMesh && child.material) {
+        child.material.transparent = false;
+        child.material.opacity = 1;
+        child.material.depthWrite = true;
+        child.material.depthTest = true;
+        child.material.side = THREE.FrontSide;
+        child.material.emissive = child.material.color.clone();
+        child.material.emissiveIntensity = 0.1;
+        child.material.metalness = 0;
+        child.material.roughness = 1;
+        child.material.needsUpdate = true;
+      }
+    });
+
+    scene.add(model);
+    currentParts.accessoryMain.push(model);
+
+    const input = document.getElementById(`input-accessory`);
+    if (input) input.value = partStyleKey;
+  });
+
+  return;
+}
+
+
+
+  // ✅ 일반 파트 로딩 처리
+  if (currentParts[partGroupKey]) {
+    scene.remove(currentParts[partGroupKey]);
+  }
+
+  loader.load(path, (gltf) => {
+    const model = gltf.scene;
+    model.scale.set(...setting.scale);
+    model.position.set(...setting.position);
+    model.rotation.set(...setting.rotation);
+    model.userData.partStyleKey = partStyleKey;
+
+    model.traverse((child) => {
+      if (child.isMesh && child.material) {
+        child.material.transparent = false;
+        child.material.opacity = 1;
+        child.material.depthWrite = true;
+        child.material.depthTest = true;
+        child.material.side = THREE.FrontSide;
+        child.material.emissive = child.material.color.clone();
+        child.material.emissiveIntensity = 0.1;
+        child.material.metalness = 0;
+        child.material.roughness = 1;
+        child.material.needsUpdate = true;
+      }
+    });
+
+    scene.add(model);
+    currentParts[partGroupKey] = model;
+
+    const input = document.getElementById(`input-${partGroupKey}`);
+    if (input) input.value = partStyleKey;
+
+    console.log('✅ 모델 추가됨:', partStyleKey);
+    
+ // ✅ 헤어 기본 색상 블랙 설정
+    if (partGroupKey === 'hair') {
+      setHairColor('#000000');
+    }
+  });
+};
 
   // ✅ 렌더링 루프
   function animate() {
@@ -301,6 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ✅ 초기값 세팅
   updateSelectBox('skin-face');
   setSkinColor('#FFE0BD');
+  setHairColor('#000000');
 });
 	
 function updateSelectBox(option) {
@@ -312,11 +447,11 @@ function updateSelectBox(option) {
         <h3>Color</h3>
         <div class="color-picker">
 	        <button class="color1" style="background-color: #FFE0BD;" onclick="setSkinColor('#FFE0BD')"></button>
-	        <button class="color2" style="background-color: #FFCD94;" onclick="setSkinColor('#FFCD94')" ></button>
-	        <button class="color3" style="background-color: #EAC086;" onclick="setSkinColor('#EAC086')" ></button>
-	        <button class="color4" style="background-color: #C68642;" onclick="setSkinColor('#C68642')" ></button>
-	        <button class="color5" style="background-color: #8D5524;" onclick="setSkinColor('#8D5524')" ></button>
-	        <button class="color6" style="background-color: #30E3CA;" onclick="setSkinColor('#30E3CA')" ></button>
+	        <button class="color2" style="background-color: #7B4A2F;" onclick="setSkinColor('#7B4A2F')" ></button>
+	        <button class="color3" style="background-color: #9C6B4F;" onclick="setSkinColor('#9C6B4F')" ></button>
+	        <button class="color4" style="background-color: #E5C29F;" onclick="setSkinColor('#E5C29F')" ></button>
+	        <button class="color5" style="background-color: #F8D477;" onclick="setSkinColor('#F8D477')" ></button>
+	        <button class="color6" style="background-color: #F2F2F2;" onclick="setSkinColor('#F2F2F2')" ></button>
       	</div>
         
         <div class="line"></div>
@@ -416,28 +551,28 @@ function updateSelectBox(option) {
 		        	<button class="style1" onclick="loadModel('/resource/model/top1.glb', 'top1')">
 		          		<img src="/resource/img/top1.png" alt="top1" />
 		        	</button>
-		        	<button class="style2" onclick="loadModel('/resource/model/top2.glb', 'top2')">
-		          		<img src="/resource/img/top2.png" alt="top2" />
+		        	<button class="style2" onclick="loadModel('/resource/model/top8.glb', 'top8')">
+		          		<img src="/resource/img/top8.png" alt="top8" />
 		          	</button>
 		          	<button class="style3" onclick="loadModel('/resource/model/top3.glb', 'top3')">
 		          		<img src="/resource/img/top3.png" alt="top3" />
 		        	</button>
-		        	<button class="style3" onclick="loadModel('/resource/model/top4.glb', 'top4')">
-		          		<img src="/resource/img/top4.png" alt="top4" />
+		        	<button class="style3" onclick="loadModel('/resource/model/top12.glb', 'top12')">
+		          		<img src="/resource/img/top12.png" alt="top12" />
 		        	</button>
 	        	</div>
 	        	<div class="style-Wrap">
-		        	<button class="style4" onclick="loadModel('/resource/model/top5.glb', 'top5')">
-		          		<img src="/resource/img/top5.png" alt="top5" />
+		        	<button class="style4" onclick="loadModel('/resource/model/top9.glb', 'top9')">
+		          		<img src="/resource/img/top9.png" alt="top9" />
 		        	</button>
-		        	<button class="style5" onclick="loadModel('/resource/model/top6.glb', 'top6')">
-		          		<img src="/resource/img/top6.png" alt="top6" />
+		        	<button class="style5" onclick="loadModel('/resource/model/top10.glb', 'top10')">
+		          		<img src="/resource/img/top10.png" alt="top10" />
+		        	</button>
+		        	<button class="style6" onclick="loadModel('/resource/model/top11.glb', 'top11')">
+		          		<img src="/resource/img/top11.png" alt="top11" />
 		        	</button>
 		        	<button class="style6" onclick="loadModel('/resource/model/top7.glb', 'top7')">
 		          		<img src="/resource/img/top7.png" alt="top7" />
-		        	</button>
-		        	<button class="style6" onclick="loadModel('/resource/model/top8.glb', 'top8')">
-		          		<img src="/resource/img/top8.png" alt="top8" />
 		        	</button>
 		        </div>
           </div>`;
@@ -461,28 +596,28 @@ function updateSelectBox(option) {
 		            	<button class="style1" onclick="loadModel('/resource/model/bottom1.glb', 'bottom1')">
 			          		<img src="/resource/img/bottom1.png" alt="bottom1" />
 			        	</button>
-			        	<button class="style2" onclick="loadModel('/resource/model/bottom2.glb', 'bottom2')">
-			          		<img src="/resource/img/bottom2.png" alt="bottom2" />
+			        	<button class="style2" onclick="loadModel('/resource/model/bottom11.glb', 'bottom11')">
+			          		<img src="/resource/img/bottom11.png" alt="bottom11" />
 			        	</button>
 			        	<button class="style3" onclick="loadModel('/resource/model/bottom3.glb', 'bottom3')">
 			          		<img src="/resource/img/bottom3.png" alt="bottom3" />
 			        	</button>
-			        	<button class="style3" onclick="loadModel('/resource/model/bottom4.glb', 'bottom4')">
-			          		<img src="/resource/img/bottom4.png" alt="bottom4" />
+			        	<button class="style3" onclick="loadModel('/resource/model/bottom12.glb', 'bottom12')">
+			          		<img src="/resource/img/bottom12.png" alt="bottom12" />
 			        	</button>
 		        	</div>
 		        	<div class="style-Wrap">
-			        	<button class="style4" onclick="loadModel('/resource/model/bottom5.glb', 'bottom5')">
-			          		<img src="/resource/img/bottom5.png" alt="bottom5" />
+			        	<button class="style4" onclick="loadModel('/resource/model/bottom10.glb', 'bottom10')">
+			          		<img src="/resource/img/bottom10.png" alt="bottom10" />
 			        	</button>
-			        	<button class="style5" onclick="loadModel('/resource/model/bottom6.glb', 'bottom6')">
-			          		<img src="/resource/img/bottom6.png" alt="bottom6" />
-			        	</button>
-			          	<button class="style6" onclick="loadModel('/resource/model/bottom7.glb', 'bottom7')">
-			          		<img src="/resource/img/bottom7.png" alt="bottom7" />
-			          	</button>
-			          	<button class="style6" onclick="loadModel('/resource/model/bottom8.glb', 'bottom8')">
+			        	<button class="style5" onclick="loadModel('/resource/model/bottom8.glb', 'bottom8')">
 			          		<img src="/resource/img/bottom8.png" alt="bottom8" />
+			        	</button>
+			          	<button class="style6" onclick="loadModel('/resource/model/bottom4.glb', 'bottom4')">
+			          		<img src="/resource/img/bottom4.png" alt="bottom4" />
+			          	</button>
+			          	<button class="style6" onclick="loadModel('/resource/model/bottom9.glb', 'bottom9')">
+			          		<img src="/resource/img/bottom9.png" alt="bottom9" />
 			          	</button>
 		          	</div>
               </div>`;
@@ -642,15 +777,42 @@ function updateSelectBox(option) {
   setSkinColor('#FFE0BD');
   });
 
-function resetAvatar() {
-  for (let key in currentParts) {
-    if (currentParts[key]) {
-      scene.remove(currentParts[key]);
-      currentParts[key] = null;
-    }
-  }
-  setSkinColor('#FFE0BD');
-  updateSelectBox('skin-face');
+  function resetAvatar() {
+	  // 👕 일반 파트(top, bottom, dress 등)는 그대로 처리
+	  for (let key in currentParts) {
+	    if (key === 'accessoryMain') {
+	      // accessoryMain은 배열 → 각각 제거
+	      currentParts.accessoryMain.forEach(part => scene.remove(part));
+	      currentParts.accessoryMain = [];
+	    } else if (key === 'accessoryDetail') {
+	      // accessoryDetail은 객체 → 단일 제거
+	      if (currentParts.accessoryDetail) {
+	        scene.remove(currentParts.accessoryDetail);
+	        currentParts.accessoryDetail = null;
+	      }
+	    } else {
+	      // 기존 파트(top, hair, dress 등)
+	      if (currentParts[key]) {
+	        scene.remove(currentParts[key]);
+	        currentParts[key] = null;
+	      }
+	    }
+	  }
+
+
+	  // ✅ 피부색 초기화
+	  setSkinColor('#FFE0BD');
+
+	  // ✅ selectBox도 리셋
+	  updateSelectBox('skin-face');
+
+	  // ✅ hidden input 초기화
+	  const inputs = ['skin_face', 'hair', 'top', 'bottom', 'dress', 'shoes', 'accessory'];
+	  inputs.forEach(id => {
+	    const input = document.getElementById(`input-${id}`);
+	    if (input) input.value = "";
+	  });
+
 
   console.log('🔄 아바타 초기화 완료!');
 }
@@ -709,7 +871,6 @@ async function saveAvatar() {
         alert('저장 중 오류가 발생했습니다.');
     }
 }
-
   
 </script>
 
