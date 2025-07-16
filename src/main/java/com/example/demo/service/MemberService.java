@@ -52,6 +52,8 @@ public class MemberService {
 	}
 
 	public void sendEmail(String to, String subject, String text) {
+
+
 		MimeMessage message = this.javaMailSender.createMimeMessage();
 
 		try {
@@ -74,6 +76,7 @@ public class MemberService {
 		sendEmail(member.getEmail(), subject, text);
 	}
 
+
 	public void emailSignUp(String email, String loginId, String loginPw) {
 		this.memberDao.emailSignUp(email, loginId, loginPw);
 	}
@@ -88,6 +91,10 @@ public class MemberService {
 
 	public Member getMemberByLoginIdChk(String loginId) {
 		return this.memberDao.getMemberByLoginIdChk(loginId);
+	}
+
+	public Member getMemberById(int id) {
+		return this.memberDao.getMemberById(id);
 	}
 
 	

@@ -27,7 +27,7 @@ public class MessagePreprocessingService {
 	private static final List<Pattern> POSITIVE_EXCEPTIONS = List.of(Pattern.compile(".*죽을만큼.*(좋|행복|기뻐).*"),
 			Pattern.compile(".*죽도록.*(사랑|좋아).*"), Pattern.compile(".*목숨.*(걸고|바쳐|소중).*"));
 
-	public ProcessedMessage preprocessMessage(String rawMessage, int userId) {
+	public ProcessedMessage preprocessMessage(String rawMessage, int memberId) {
 
 		try {
 			String normalizedMessage = validateMessage(rawMessage);
@@ -43,19 +43,19 @@ public class MessagePreprocessingService {
 
 				ProcessedMessage emergencyResult = ProcessedMessage.emergency(rawMessage, normalizedMessage,
 						detectedKeywords);
-				handleEmergencyCase(userId, emergencyResult);
+				handleEmergencyCase(memberId, emergencyResult);
 
 				return emergencyResult;
 			}
 
-			log.debug("안전한 메시지 처리 완료 - 사용자: {}", userId);
+			log.debug("안전한 메시지 처리 완료 - 사용자: {}", memberId);
 			return ProcessedMessage.safe(rawMessage, normalizedMessage);
 		} catch (IllegalArgumentException e) {
-			log.warn("메시지 검증 실패 - 사용자: {}, 오류: {}", userId, e.getMessage());
-			return ProcessedMessage.error(rawMessage, userId, e.getMessage());
+			log.warn("메시지 검증 실패 - 사용자: {}, 오류: {}", memberId, e.getMessage());
+			return ProcessedMessage.error(rawMessage, memberId, e.getMessage());
 		} catch (Exception e) {
-			log.error("메시지 전처리 중 예상치 못한 오류 - 사용자: {}", userId, e);
-			return ProcessedMessage.error(rawMessage, userId, "메시지 처리 중 오류가 발생했습니다.");
+			log.error("메시지 전처리 중 예상치 못한 오류 - 사용자: {}", memberId, e);
+			return ProcessedMessage.error(rawMessage, memberId, "메시지 처리 중 오류가 발생했습니다.");
 		}
 
 	}
@@ -102,9 +102,9 @@ public class MessagePreprocessingService {
 	}
 
 	/* 로그생성용 */
-	private void handleEmergencyCase(int userId, ProcessedMessage result) {
+	private void handleEmergencyCase(int memberId, ProcessedMessage result) {
 		System.err.println("=== 긴급상황 감지 ===");
-		System.err.println("사용자: " + userId);
+		System.err.println("사용자: " + memberId);
 		System.err.println("원본 메시지: " + result.getRawMessage());
 		System.err.println("감지된 키워드: " + result.getDetectedKeywords());
 		System.err.println("시간: " + LocalDateTime.now());

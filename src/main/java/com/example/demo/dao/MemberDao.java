@@ -92,6 +92,15 @@ public interface MemberDao {
 			""")
 	Member getMemberByLoginIdChk(String loginId);
 
+	@Select("""
+			SELECT mi.*, m.*
+			 FROM memberInfo mi
+			 RIGHT JOIN `member` m
+			 ON mi.memberId = m.id
+			 WHERE m.id = #{id}
+			""")
+	Member getMemberById(int id);
+
 	
 	}
 

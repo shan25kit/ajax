@@ -279,7 +279,7 @@ public class UsrMemberController {
 		
 		this.memberService.insertNickName(memberId, nickName);
 		
-		return Util.jsReplace("닉네임 등록이 완료되었습니다", "/usr/home/testMap");
+		return Util.jsReplace("닉네임 등록이 완료되었습니다", "/usr/member/customPageTest");
 	}
 	
 	@GetMapping("/usr/member/nickNameDupChk")
@@ -312,7 +312,17 @@ public class UsrMemberController {
         return success ? "인증 성공" : "인증 실패";
     }
 	
-	
+
+	@GetMapping("/usr/member/customPageTest")
+	public String customPageTest(Model model) {
+		int id = req.getLoginedMember().getId();
+		
+		Member member = this.memberService.getMemberById(id);
+		
+		model.addAttribute("member", member);
+		
+		return "usr/member/customPageTest";
+	}
 	
 	
 	

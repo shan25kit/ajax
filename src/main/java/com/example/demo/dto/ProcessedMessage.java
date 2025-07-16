@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class ProcessedMessage {
 	 // 원본 정보
     private String rawMessage;
-    private int userId;
+    private int memberId;
     private LocalDateTime timestamp;
     
     // 전처리 결과
@@ -69,10 +69,10 @@ public static ProcessedMessage emergency(String rawMessage, String normalizedMes
 /**
  * 오류 발생 시 처리 결과 생성
  */
-public static ProcessedMessage error(String rawMessage, int userId, String errorMessage) {
+public static ProcessedMessage error(String rawMessage, int memberId, String errorMessage) {
     return ProcessedMessage.builder()
         .rawMessage(rawMessage)
-        .userId(userId)
+        .memberId(memberId)
         .isEmergency(false)
         .detectedKeywords(new HashSet<>())
         .timestamp(LocalDateTime.now())
