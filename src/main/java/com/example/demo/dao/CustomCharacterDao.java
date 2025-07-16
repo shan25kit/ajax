@@ -44,7 +44,13 @@ public interface CustomCharacterDao {
 	    			WHERE memberId = #{memberId}
 	    		""")
 		boolean existsByMemberId(int memberId);
-
+	 
+	    
+	    @Select("""
+	    		SELECT *
+	    			FROM custom_character 
+	    			WHERE memberId = #{memberId}
+	    		""")
 
 		CustomCharacter getCharacterByMemberId(int memberId);
 

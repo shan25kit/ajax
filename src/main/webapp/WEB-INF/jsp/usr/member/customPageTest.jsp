@@ -647,50 +647,60 @@ function resetAvatar() {
 }
 
 async function saveAvatar() {
-	  try {
-	    // currentParts에서 데이터 추출
-	    const characterData = {
-	      skinColor: currentSkinColor,
-	      hair: null,
-	      hairColor: null,
-	      top: null,
-	      bottom: null,
-	      dress: null,
-	      shoes: null,
-	      accessory: null
-	    };
-	    
-	    // currentParts 순회하면서 데이터 수집
-	    for (let partGroup in currentParts) {
-	      const model = currentParts[partGroup];
-	      if (model && model.userData) {
-	        // 스타일 번호 저장
-	        characterData[partGroup] = model.userData.partStyleKey;
-	        
-	        // 색상 저장 (헤어만 현재 지원)
-	        if (partGroup === 'hair' && model.userData.color) {
-	          characterData.hairColor = model.userData.color;
-	        }
-	      }
-	    }
-	    
-	    console.log('💾 전송할 데이터:', characterData);
-	    
-	    // AJAX 전송
-	    const response = await fetch('/usr/custom/save', {
-	      method: 'POST',
-	      headers: {
-	        'Content-Type': 'application/json'
-	      },
-	      body: JSON.stringify(characterData)
-	    });
-	    
-	    
-	  } catch (error) {
-	    console.error('❌ 저장 중 오류:', error);
-	    alert('저장 중 오류가 발생했습니다.');
-	  }
-	}
+    try {
+        // currentParts에서 데이터 추출
+        const characterData = {
+            skinColor: currentSkinColor,
+            hair: null,
+            hairColor: null,
+            top: null,
+            bottom: null,
+            dress: null,
+            shoes: null,
+            accessory: null
+        };
+
+        // currentParts 순회하면서 데이터 수집
+        for (let partGroup in currentParts) {
+            const model = currentParts[partGroup];
+            if (model && model.userData) {
+                // 스타일 번호 저장
+                characterData[partGroup] = model.userData.partStyleKey;
+
+                // 색상 저장 (헤어만 현재 지원)
+                if (partGroup === 'hair' && model.userData.color) {
+                    characterData.hairColor = model.userData.color;
+                }
+            }
+        }
+
+        console.log('💾 전송할 데이터:', characterData);
+
+        // AJAX 전송
+        const response = await fetch('/usr/custom/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(characterData)
+        });
+
+        // ResultData 응답 처리
+        const result = await response.json();
+        
+        if (result.rsCode.startsWith('S-')) {
+            // 성공 시 메시지 표시 후 페이지 이동
+            alert(result.rsMsg); // "캐릭터 저장 완료"
+            window.location.href = '/usr/game/startMap';
+        } else {
+            // 실패 시 에러 메시지 표시
+            alert(result.rsMsg); // 서버에서 온 구체적인 에러 메시지
+        }
+
+    } catch (error) {
+        console.error('❌ 저장 중 오류:', error);
+        alert('저장 중 오류가 발생했습니다.');
+    }
+}
+
   
 </script>
 
@@ -750,11 +760,12 @@ async function saveAvatar() {
 
 
 			<div class="custom-select-box" id="select-box"></div>
-			
-				<div class="btn_box">
-					<button type="button" onclick="resetAvatar()">RESET</button>
-					<button type="button" onclick="saveAvatar()">SAVE</button>  <!-- AJAX 호출 -->
-				</div>
+
+			<div class="btn_box">
+				<button type="button" onclick="resetAvatar()">RESET</button>
+				<button type="button" onclick="saveAvatar()">SAVE</button>
+				<!-- AJAX 호출 -->
+			</div>
 		</div>
 	</div>
 </div>
