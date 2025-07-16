@@ -7,28 +7,23 @@
 <%@ include file="/WEB-INF/jsp/common/header.jsp"%>
 
 
-
-<script
-	src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script
-	src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-<script
-	src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-
-
-
 <script>
 let scene, camera, renderer, controls, directionalLight;
 let character = null;
+
 let currentParts = {
   accessoryMain: [],     // accessory1~4용 (여러 개 저장)
   accessoryDetail: null  // accessory5~8용 (단 하나만 저장)
 };
 
+let currentSkinColor = '#FFE0BD';
+
 const loader = new THREE.GLTFLoader();
 
 // ✅ 피부색 변경 함수
 window.setSkinColor = function (hexColor) {
+	 currentSkinColor = hexColor;
+	 
   if (!character) return;
 
   character.traverse((child) => {
@@ -62,6 +57,10 @@ window.setHairColor = function (hexColor) {
 	      child.material.side = THREE.FrontSide;
 	    }
 	  });
+  // ✅ userData에 색상 저장
+  if (model.userData) {
+    model.userData.color = hexColor;
+  }
 	};
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -212,6 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
     rotation: [0, 0, 0]
   };
 
+
   // 드레스 선택 시 탑/바텀 제거
   if (partGroupKey === 'dress') {
     ['top', 'bottom'].forEach(group => {
@@ -244,6 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const input = document.getElementById(`input-${partGroupKey}`);
     if (input) input.value = "";
 
+
     console.log(`🧹 ${partGroupKey} 파트 해제됨`);
     return;
   }
@@ -268,14 +269,19 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+	         
+
     // ✅ 다른 accessory5~8 제거 (중복 방지)
     if (currentParts.accessoryDetail) {
       scene.remove(currentParts.accessoryDetail);
       currentParts.accessoryDetail = null;
     }
+    
+// 모델 추가
 
-    // 모델 추가
     loader.load(path, (gltf) => {
+      	    const model = gltf.scene;
+
       const setting = partSettings[partStyleKey] || {
         scale: [4, 4, 4],
         position: [0, 0, 0],
@@ -793,6 +799,7 @@ function updateSelectBox(option) {
 	    }
 	  }
 
+
 	  // ✅ 피부색 초기화
 	  setSkinColor('#FFE0BD');
 
@@ -806,9 +813,64 @@ function updateSelectBox(option) {
 	    if (input) input.value = "";
 	  });
 
-	  console.log('🔄 아바타 초기화 완료!');
-	}
 
+  console.log('🔄 아바타 초기화 완료!');
+}
+
+async function saveAvatar() {
+    try {
+        // currentParts에서 데이터 추출
+        const characterData = {
+            skinColor: currentSkinColor,
+            hair: null,
+            hairColor: null,
+            top: null,
+            bottom: null,
+            dress: null,
+            shoes: null,
+            accessory: null
+        };
+
+        // currentParts 순회하면서 데이터 수집
+        for (let partGroup in currentParts) {
+            const model = currentParts[partGroup];
+            if (model && model.userData) {
+                // 스타일 번호 저장
+                characterData[partGroup] = model.userData.partStyleKey;
+
+                // 색상 저장 (헤어만 현재 지원)
+                if (partGroup === 'hair' && model.userData.color) {
+                    characterData.hairColor = model.userData.color;
+                }
+            }
+        }
+
+        console.log('💾 전송할 데이터:', characterData);
+
+        // AJAX 전송
+        const response = await fetch('/usr/custom/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(characterData)
+        });
+
+        // ResultData 응답 처리
+        const result = await response.json();
+        
+        if (result.rsCode.startsWith('S-')) {
+            // 성공 시 메시지 표시 후 페이지 이동
+            alert(result.rsMsg); // "캐릭터 저장 완료"
+            window.location.href = '/usr/game/startMap';
+        } else {
+            // 실패 시 에러 메시지 표시
+            alert(result.rsMsg); // 서버에서 온 구체적인 에러 메시지
+        }
+
+    } catch (error) {
+        console.error('❌ 저장 중 오류:', error);
+        alert('저장 중 오류가 발생했습니다.');
+    }
+}
   
 </script>
 
@@ -869,62 +931,11 @@ function updateSelectBox(option) {
 
 			<div class="custom-select-box" id="select-box"></div>
 
-			<form action="/usr/custom/save" method="post" id="customForm">
-				<input type="hidden" name="skin_face" id="input-skin_face"/>
-				<input type="hidden" name="hair" id="input-hair"/>
-				<input type="hidden" name="top" id="input-top"/>
-				<input type="hidden" name="bottom" id="input-bottom"/>
-				<input type="hidden" name="dress" id="input-dress"/>
-				<input type="hidden" name="shoes" id="input-shoes"/>
-				<input type="hidden" name="accessory" id="input-accessory"/>
-				
-				<div class="btn_box">
-					<button type="button" onclick="resetAvatar()">RESET</button>
-					<button type="submit">SAVE</button>
-				</div>
-			</form>
-			
-			<!-- ✅ script는 form 아래에 위치시켜야 함 -->
-			<script>
-			  function loadModel(path, partStyleKey) {
-			    console.log('✅ loadModel 실행됨: ', path, partStyleKey);
-			
-			    // 숫자 제거
-			    let partGroupKey = partStyleKey.replace(/[0-9]/g, '');
-			
-			    // face는 예외 처리
-			    if (partGroupKey === 'face') {
-			      partGroupKey = 'skin_face';
-			    }
-			
-			    const inputId = 'input-' + partGroupKey;
-			    const hiddenInput = document.getElementById(inputId);
-			
-			    console.log('🔍 hidden input: ', hiddenInput);
-			
-			    if (hiddenInput) {
-			      hiddenInput.value = path;
-			      console.log('✅ 저장됨! →', path);
-			    } else {
-			      console.warn('❌ hidden input 못 찾음: ', inputId);
-			    }
-			
-			    // glb 파일 로딩 (예시)
-			    const loader = new THREE.GLTFLoader();
-			    loader.load(
-			      path,
-			      function (gltf) {
-			        console.log('GLTF 로드 완료:', gltf);
-			        // ...모델 처리 로직...
-			      },
-			      undefined,
-			      function (error) {
-			        console.error('GLTF 로드 실패:', error);
-			      }
-			    );
-			  }
-			</script>
-
+			<div class="btn_box">
+				<button type="button" onclick="resetAvatar()">RESET</button>
+				<button type="button" onclick="saveAvatar()">SAVE</button>
+				<!-- AJAX 호출 -->
+			</div>
 		</div>
 	</div>
 </div>

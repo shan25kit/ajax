@@ -1,14 +1,13 @@
 @charset "UTF-8";
 
-html, body {
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  width: 100%;
-  height: 100%;
+.map-container {
+  user-select: none;
 }
 
-.map-container {
+canvas, body {
+  position: relative;
+  z-index: 1;
+
     position: relative;
     width: 100vw;
     height: 100vh;
@@ -88,6 +87,7 @@ html, body {
 .first_cloud, .second_cloud, .third_cloud {
     position: absolute;
     opacity: 0.7;
+
 }
 
 .first_cloud {
@@ -142,6 +142,7 @@ canvas {
 .clean-chat-container.notification {
     animation: bounce 0.5s ease;
 }
+
 
 @keyframes bounce {
     0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
@@ -300,3 +301,4 @@ canvas {
     font-size: 16px;
     font-weight: bold;
     }
+
