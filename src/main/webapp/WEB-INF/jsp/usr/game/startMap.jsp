@@ -1111,77 +1111,158 @@ function animateCloud($cloud, speed, delay, verticalShift = 20) {
             });
         }
    
-
-  // 캐릭터 파츠 로딩
      loadCharacterParts(character, parts, nickName) {
-         console.log('캐릭터 파츠 로딩 시작:', nickName, parts);
-         console.log('📊 파츠 키들:', Object.keys(parts));
+    	    console.log('캐릭터 파츠 로딩 시작:', nickName, parts);
+    	    console.log('📊 파츠 키들:', Object.keys(parts));
 
-         // 모든 파츠를 순회하면서 로딩
-         for (const [partType, partData] of Object.entries(parts)) {
-             if (partData && partData.style) {
-                 const modelPath = getModelPath(partType, partData.style);
-                 console.log(`${partType} 파츠 로딩:`, modelPath);
-                 
-                 this.loader.load(
-                     modelPath,
-                     (gltf) => {
-                         console.log(`${partType} 파츠 로드 성공:`, modelPath);
-                         const partModel = gltf.scene;
-                         console.log(`🔍 ${partType} scene:`, partModel);
-                         console.log(`🔍 ${partType} children 수:`, partModel.children.length);
-                         
-                         // 색상 적용 (있는 경우)
-                         if (partData.color) {
-                             partModel.traverse((child) => {
-                                 if (child.isMesh && child.material && child.material.color) {
-                                     if (child.material.map) child.material.map = null;
-                                     child.material.color.set(partData.color);
-                                     child.material.needsUpdate = true;
-                                 }
-                             });
-                         }
-                         
-                         // 파츠별 특별 설정
-                         this.applyPartSettings(partModel, partType, character);
-                         
-                         character.add(partModel);
-                         console.log(`${partType} 파츠 부착 완료:`, nickName);
-                         console.log(`${partType} 파츠 최종 위치:`, partModel.position);
-                      // 🔍 베이스 캐릭터의 children 수 확인
-                         console.log('🔍 베이스 캐릭터 children 수:', character.children.length);
-                         console.log('🔍 베이스 캐릭터 children 목록:', character.children);
-                     },
-                     undefined,
-                     (error) => {
-                         console.log(`${partType} 파츠 로드 실패:`, modelPath, error);
-                     }
-                 );
-             }
-         }
-     }
-
-     // 파츠별 위치/스케일 설정
-     applyPartSettings(partModel, partType, character) {
+    	    for (const [partType, partData] of Object.entries(parts)) {
+    	        if (partType === 'accessory') {
+    	            // ✅ partType이 'accessory'일 때만 중첩 구조 처리
+    	            this.loadAccessoryParts(character, partData, nickName);
+    	        } else if (partData && partData.style) {
+    	            // hair, top, bottom 등 일반 파츠
+    	            this.loadSinglePart(character, partType, partData, nickName);
+    	        }
+    	    }
+    	}
+     loadAccessoryParts(character, accessoryData, nickName) {
+    	    console.log('🎒 액세서리 그룹 로딩:', accessoryData);
+    	    
+    	    // accessory.main 처리
+    	    if (accessoryData.main && Array.isArray(accessoryData.main)) {
+    	        accessoryData.main.forEach((mainItem, index) => {
+    	            if (mainItem && mainItem.style) {
+    	                const modelPath = getModelPath('accessory', mainItem.style);
+    	                
+    	                this.loader.load(modelPath, (gltf) => {
+    	                    const partModel = gltf.scene;
+    	                    
+    	                    if (mainItem.color) {
+    	                        this.applyPartColor(partModel, mainItem.color);
+    	                    }
+    	                    
+    	                    // ✅ 'accessory' + 'main' 구분을 위해 별도 타입 전달
+    	                    this.applyPartSettings(partModel, 'accessory', character, 'main');
+    	                    
+    	                    character.add(partModel);
+    	                    console.log(`accessory.main[${index}] 파츠 부착 완료:`, nickName);
+    	                }, undefined, (error) => {
+    	                    console.log(`accessory.main[${index}] 파츠 로드 실패:`, modelPath, error);
+    	                });
+    	            }
+    	        });
+    	    }
+    	    
+    	    // accessory.detail 처리
+    	    if (accessoryData.detail && accessoryData.detail.style) {
+    	        const modelPath = getModelPath('accessory', accessoryData.detail.style);
+    	        
+    	        this.loader.load(modelPath, (gltf) => {
+    	            const partModel = gltf.scene;
+    	            
+    	            if (accessoryData.detail.color) {
+    	                this.applyPartColor(partModel, accessoryData.detail.color);
+    	            }
+    	            
+    	            // ✅ 'accessory' + 'detail' 구분을 위해 별도 타입 전달
+    	            this.applyPartSettings(partModel, 'accessory', character, 'detail');
+    	            
+    	            character.add(partModel);
+    	            console.log('accessory.detail 파츠 부착 완료:', nickName);
+    	        }, undefined, (error) => {
+    	            console.log('accessory.detail 파츠 로드 실패:', modelPath, error);
+    	        });
+    	    }
+    	}
+  // ✅ 파츠별 위치/스케일 설정 (서브타입 추가)
+     applyPartSettings(partModel, partType, character, subType = null) {
          const baseScale = character.scale.x * 75;
-         
+
          switch (partType) {
              case 'hair':
-            	  partModel.scale.set(baseScale*1.6, baseScale*1.6, baseScale*1.6);
-                  partModel.position.set(0, -20 , 0);
-                  break;
-             case 'dress':   
+                 partModel.scale.set(baseScale*1.6, baseScale*1.6, baseScale*1.6);
+                 partModel.position.set(0, -20, 0);
+                 break;
+                 
+             case 'accessory':
+                 if (subType === 'main') {
+                     // accessory1~4 전용 설정
+                     partModel.scale.set(baseScale*0.8, baseScale*0.8, baseScale*0.8);
+                     partModel.position.set(0, -6, 0);
+                 } else if (subType === 'detail') {
+                     // accessory5~8 전용 설정
+                     partModel.scale.set(baseScale*0.9, baseScale*0.9, baseScale*0.9);
+                     partModel.position.set(0, -5, 0);
+                 } else {
+                     // 기본 액세서리 설정
+                     partModel.scale.set(baseScale, baseScale, baseScale);
+                     partModel.position.set(0, -4, 0);
+                 }
+                 break;
+                 
+             case 'dress':
              case 'top':
              case 'bottom':
              case 'shoes':
-             case 'accessory':
              default:
-                 // 기본 설정s
                  partModel.scale.set(baseScale, baseScale, baseScale);
                  partModel.position.set(0, -4, 0);
                  break;
-         }
-     }
+         }}
+         
+    
+  
+     loadSinglePart(character, partType, partData, nickName) {
+    	    console.log(`${partType} 파츠 로딩 시작:`, nickName, partData);
+    	    
+    	    // ✅ 단일 파츠이므로 루프 불필요, 바로 처리
+    	    if (partData && partData.style) {
+    	        const modelPath = getModelPath(partType, partData.style);
+    	        console.log(`${partType} 파츠 로딩:`, modelPath);
+    	        
+    	        this.loader.load(
+    	            modelPath,
+    	            (gltf) => {
+    	                console.log(`${partType} 파츠 로드 성공:`, modelPath);
+    	                const partModel = gltf.scene;
+    	                console.log(`🔍 ${partType} scene:`, partModel);
+    	                console.log(`🔍 ${partType} children 수:`, partModel.children.length);
+    	                
+    	                // ✅ 색상 적용 (있는 경우)
+    	                if (partData.color) {
+    	                    this.applyPartColor(partModel, partData.color);
+    	                }
+    	                
+    	                // ✅ 파츠별 설정 적용
+    	                this.applyPartSettings(partModel, partType, character);
+    	                
+    	                character.add(partModel);
+    	                console.log(`${partType} 파츠 부착 완료:`, nickName);
+    	                console.log(`${partType} 파츠 최종 위치:`, partModel.position);
+    	                
+    	                // 🔍 베이스 캐릭터의 children 수 확인
+    	                console.log('🔍 베이스 캐릭터 children 수:', character.children.length);
+    	                console.log('🔍 베이스 캐릭터 children 목록:', character.children);
+    	            },
+    	            undefined,
+    	            (error) => {
+    	                console.log(`${partType} 파츠 로드 실패:`, modelPath, error);
+    	            }
+    	        );
+    	    }
+    	}
+
+    	// ✅ 색상 적용 함수 추가 (중복 코드 제거)
+    	applyPartColor(partModel, color) {
+    	    partModel.traverse((child) => {
+    	        if (child.isMesh && child.material && child.material.color) {
+    	            if (child.material.map) child.material.map = null;
+    	            child.material.color.set(color);
+    	            child.material.needsUpdate = true;
+    	        }
+    	    });
+    	}
+     
             
             // 플레이어 위치 업데이트
             updatePlayerPosition(sessionId, position) {
