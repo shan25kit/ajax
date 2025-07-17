@@ -1,17 +1,5 @@
 @charset "UTF-8";
 
- * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            background: #f0f2f5;
-            padding: 20px;
-        }
-
         .chat-container {
             max-width: 600px;
             margin: 0 auto;
