@@ -9,6 +9,7 @@ import com.example.demo.dto.CustomCharacter;
 import com.example.demo.dto.Req;
 import com.example.demo.dto.ResultData;
 import com.example.demo.service.CustomCharacterService;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -26,20 +27,18 @@ public class UsrCustomCharacterController {
 
 	@PostMapping("/usr/custom/save")
 	@ResponseBody
-	public ResultData saveCustom(HttpSession session, @RequestBody CustomCharacter character) {
-
+	public ResultData saveCustom(HttpSession session, @RequestBody JsonNode avatarInfo) {
+		System.out.println(avatarInfo);
 		if (this.req.getLoginedMember() == null) {
 			return ResultData.from("F-1", "로그인이 필요합니다");
 		}
-
 		try {
 			int memberId = this.req.getLoginedMember().getId();
-			character.setMemberId(memberId);
 
 			if (customCharacterService.exists(memberId)) {
-				customCharacterService.customCaracterByUpdate(character);
+				customCharacterService.customCaracterByUpdate(memberId, avatarInfo);
 			} else {
-				customCharacterService.customCaracterBySave(character);
+				customCharacterService.customCaracterBySave(memberId, avatarInfo);
 			}
 
 			return ResultData.from("S-1", "캐릭터 저장 완료");

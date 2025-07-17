@@ -17,5 +17,6 @@ public class CustomCharacter {
 	    private Integer bottom;
 	    private Integer dress;
 	    private Integer shoes;
-	    private Integer accessory;
+	    private String accessoryMain;
+	    private Integer accessoryDetail;
 }

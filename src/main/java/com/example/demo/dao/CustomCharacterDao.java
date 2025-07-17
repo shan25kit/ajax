@@ -20,9 +20,10 @@ public interface CustomCharacterDao {
 		    		    , bottom = #{bottom}
 		    		    , dress = #{dress}
 		    		    , shoes = #{shoes}
-		    		    , accessory = #{accessory}
+		    		    , accessoryMain = #{accessoryMain}
+		    		    , accessoryDetail = #{accessoryDetail}
 	    		""")
-		void customCaracterBySave(int memberId, String skinColor, Integer hair, String hairColor, Integer top, Integer bottom, Integer dress, Integer shoes, Integer accessory);
+		void customCaracterBySave(int memberId, String skinColor, Integer hair, String hairColor, Integer top, Integer bottom, Integer dress, Integer shoes, String accessoryMain, Integer accessoryDetail);
 	    
 	    @Update("""
 		        UPDATE custom_character
@@ -33,10 +34,12 @@ public interface CustomCharacterDao {
 		    		    , bottom = #{bottom}
 		    		    , dress = #{dress}
 		    		    , shoes = #{shoes}
-		    		    , accessory = #{accessory}
+		    		    , accessoryMain = #{accessoryMain}
+		    		    , accessoryDetail = #{accessoryDetail}
 		    		WHERE memberId = #{memberId}
 	    		""")
-		void customCaracterByUpdate(int memberId, String skinColor, Integer hair, String hairColor, Integer top, Integer bottom, Integer dress, Integer shoes, Integer accessory);
+		void customCaracterByUpdate(int memberId, String skinColor, Integer hair, String hairColor, Integer top, Integer bottom, Integer dress, Integer shoes, String accessoryMain, Integer accessoryDetail);
+	    
 
 	    @Select("""
 	    		SELECT COUNT(*) > 0 
