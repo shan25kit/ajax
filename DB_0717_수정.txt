@@ -1,4 +1,3 @@
-
 DROP DATABASE IF EXISTS ajaxDB;
 CREATE DATABASE ajaxDB;
 USE ajaxDB;
@@ -27,7 +26,8 @@ CREATE TABLE custom_character (
   , bottom TINYINT
   , dress TINYINT
   , shoes TINYINT
-  , accessory TINYINT
+  , accessoryMain JSON
+  , accessoryDetail TINYINT
 );
 
 #이메일 인증코드 발송용
@@ -43,28 +43,8 @@ SELECT * FROM `member`;
 SELECT * FROM `memberInfo`;
 SELECT * FROM custom_character;
 
-INSERT INTO memberInfo
-    SET memberId = 1
-        , nickName = '재이';
 
-SELECT mi.*, m.*
-    FROM memberInfo mi
-    INNER JOIN `member` m
-    ON mi.memberId = m.id
-    WHERE m.id = 1;
-   
 TRUNCATE TABLE `member`;
 TRUNCATE TABLE memberInfo;
 TRUNCATE TABLE custom_character;
 
-SELECT mi.*, m.*
-			 FROM memberInfo mi
-			 RIGHT JOIN `member` m
-			 ON mi.memberId = m.id
-			 WHERE loginId = 'asd'
-			 
-SELECT *
-		    FROM player p
-		    LEFT JOIN  memberInfo mi
-		    ON p.memberId = mi.memberId
-		    WHERE memberId = 1
