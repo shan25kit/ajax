@@ -7,9 +7,9 @@
 <%@ include file="/WEB-INF/jsp/common/header.jsp"%>
 <link rel="stylesheet" href="/resource/css/chatBot.css" />
 
-<div class="chat-container">
+<div class="chatBot-container">
 	<!-- 헤더 -->
-	<div class="chat-header">
+	<div class="chatBot-header">
 		<h1>감정별 전문 상담 🤖 AI 챗봇</h1>
 
 	</div>

@@ -44,12 +44,12 @@ public class GameController {
         return "usr/game/startMap";
     }
 
-	@GetMapping("/chatBot")
+	@GetMapping("/usr/game/chatBot")
 	public String chatBot() {
 		return "usr/game/chatBot";
 	}
 	
-	@GetMapping("/testMap")
+	@GetMapping("/usr/game/testMap")
 	public String testMap(Model model) {
 		System.out.println("=== websocket() 메서드 호출됨 ===");
 		int memberId = this.req.getLoginedMember().getId();
@@ -61,7 +61,7 @@ public class GameController {
 	}
 	
 	// 테스트용 엔드포인트
-	@GetMapping("/test")
+	@GetMapping("/usr/game/test")
 	public ResponseEntity<Map<String, String>> test() {
 		Map<String, String> response = new HashMap<>();
 		response.put("status", "success");
@@ -70,7 +70,7 @@ public class GameController {
 	}
 
 	// WebSocket 연결 정보 엔드포인트
-	@GetMapping("/websocket-info")
+	@GetMapping("/usr/game/websocket-info")
 	public ResponseEntity<Map<String, String>> getWebSocketInfo() {
 		Map<String, String> info = new HashMap<>();
 		info.put("websocket_url", "ws://localhost:8081/game");

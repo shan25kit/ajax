@@ -12,8 +12,17 @@ let scene, camera, renderer, controls, directionalLight;
 let character = null;
 
 let currentParts = {
-  accessoryMain: [],     // accessory1~4용 (여러 개 저장)
-  accessoryDetail: null  // accessory5~8용 (단 하나만 저장)
+		// 일반 파트들
+		  hair: null,
+		  top: null,
+		  bottom: null,
+		  dress: null,
+		  shoes: null,
+		  
+		  accessory: {
+		        main: [],      // accessory1~4 (배열)
+		        detail: null   // accessory5~8 (단일)
+		    }
 };
 
 let currentSkinColor = '#F3D7B6';
@@ -138,9 +147,11 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // ✅ 파츠 모델 로드 함수
   window.loadModel = function (path, partStyleKey) {
-  const partGroupKey = partStyleKey.replace(/[0-9]/g, '');
-  console.log('🚀 loadModel 실행됨:', path, partStyleKey);
-
+	  let partGroupKey = partStyleKey.replace(/[0-9]/g, '');  // "hair", "top" 등
+	  const styleNumber = parseInt(partStyleKey.replace(/[^0-9]/g, ''));  // 1, 2, 3 등
+	  
+console.log(partGroupKey);
+console.log(partGroupKey);  
   // 🎯 파트별 설정
   const partSettings = {
 		  
@@ -220,9 +231,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (currentParts[group]) {
         scene.remove(currentParts[group]);
         currentParts[group] = null;
-
-        const input = document.getElementById(`input-${group}`);
-        if (input) input.value = "";
       }
     });
   }
@@ -233,8 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
       scene.remove(currentParts['dress']);
       currentParts['dress'] = null;
 
-      const input = document.getElementById('input-dress');
-      if (input) input.value = "";
+ 
     }
   }
   
@@ -243,8 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
     scene.remove(currentParts[partGroupKey]);
     currentParts[partGroupKey] = null;
 
-    const input = document.getElementById(`input-${partGroupKey}`);
-    if (input) input.value = "";
+
 
 
     console.log(`🧹 ${partGroupKey} 파트 해제됨`);
@@ -258,31 +264,25 @@ document.addEventListener('DOMContentLoaded', () => {
   // ✅ accessory5~8: 단일 선택 (중복 제거 + 다시 선택 시 해제)
   if (isDetailAccessory) {
     // 이미 선택된 악세사리를 다시 클릭 → 해제
-    if (
-      currentParts.accessoryDetail &&
-      currentParts.accessoryDetail.userData?.partStyleKey === partStyleKey
-    ) {
-      scene.remove(currentParts.accessoryDetail);
-      currentParts.accessoryDetail = null;
+    // ✅ accessory.detail 처리 (단일 선택)
+            if (currentParts.accessory.detail && 
+                currentParts.accessory.detail.userData?.styleNumber === styleNumber) {
+                scene.remove(currentParts.accessory.detail);
+                currentParts.accessory.detail = null;
+                console.log(`🧹 accessory.detail (${styleNumber}) 해제됨`);
+                return;
+            }
 
-      const input = document.getElementById(`input-accessory`);
-      if (input) input.value = "";
-      console.log(`🧹 accessoryDetail (${partStyleKey}) 해제됨`);
-      return;
-    }
-
-	         
-
-    // ✅ 다른 accessory5~8 제거 (중복 방지)
-    if (currentParts.accessoryDetail) {
-      scene.remove(currentParts.accessoryDetail);
-      currentParts.accessoryDetail = null;
-    }
+            // 다른 detail 제거 (중복 방지)
+            if (currentParts.accessory.detail) {
+                scene.remove(currentParts.accessory.detail);
+                currentParts.accessory.detail = null;
+            }
     
 // 모델 추가
 
     loader.load(path, (gltf) => {
-    	
+
       const setting = partSettings[partStyleKey] || {
         scale: [4, 4, 4],
         position: [0, 0, 0],
@@ -293,7 +293,14 @@ document.addEventListener('DOMContentLoaded', () => {
       model.scale.set(...setting.scale);
       model.position.set(...setting.position);
       model.rotation.set(...setting.rotation);
-      model.userData.partStyleKey = partStyleKey;
+   // ✅ userData 설정
+     model.userData = {
+                    partGroupKey: 'accessory',
+                    partSubGroup: 'detail',
+                    styleNumber: styleNumber,
+                    color: null
+                };
+     console.log('🎒 accessory.detail userData:', model.userData);
 
       model.traverse((child) => {
         if (child.isMesh && child.material) {
@@ -311,68 +318,71 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       scene.add(model);
-      currentParts.accessoryDetail = model;
-
-      const input = document.getElementById(`input-accessory`);
-      if (input) input.value = partStyleKey;
+      currentParts.accessory.detail = model;
+      console.log('✅ accessory.detail 추가됨:', styleNumber);
     });
-
-    return;
-  }
-
-  // ✅ accessory1~4: 중복 허용 + 다시 클릭 시 해제
-  const index = currentParts.accessoryMain.findIndex(m => m.userData?.partStyleKey === partStyleKey);
-  if (index !== -1) {
-    scene.remove(currentParts.accessoryMain[index]);
-    currentParts.accessoryMain.splice(index, 1);
-
-    const input = document.getElementById(`input-accessory`);
-    if (input) input.value = "";
-    console.log(`🧹 accessoryMain (${partStyleKey}) 해제됨`);
-    return;
-  }
-
-  // 모델 추가 (1~4)
-  loader.load(path, (gltf) => {
-    const setting = partSettings[partStyleKey] || {
-      scale: [4, 4, 4],
-      position: [0, 0, 0],
-      rotation: [0, 0, 0]
-    };
-
-    const model = gltf.scene;
-    model.scale.set(...setting.scale);
-    model.position.set(...setting.position);
-    model.rotation.set(...setting.rotation);
-    model.userData.partStyleKey = partStyleKey;
-
-    model.traverse((child) => {
-      if (child.isMesh && child.material) {
-        child.material.transparent = false;
-        child.material.opacity = 1;
-        child.material.depthWrite = true;
-        child.material.depthTest = true;
-        child.material.side = THREE.FrontSide;
-        child.material.emissive = child.material.color.clone();
-        child.material.emissiveIntensity = 0.1;
-        child.material.metalness = 0;
-        child.material.roughness = 1;
-        child.material.needsUpdate = true;
+  } else {
+      // ✅ accessory.main 처리 (중복 허용)
+      const index = currentParts.accessory.main.findIndex(m => 
+          m.userData?.styleNumber === styleNumber
+      );
+      
+      if (index !== -1) {
+          scene.remove(currentParts.accessory.main[index]);
+          currentParts.accessory.main.splice(index, 1);
+          console.log(`🧹 accessory.main (${styleNumber}) 해제됨`);
+          console.log('🎒 남은 main 개수:', currentParts.accessory.main.length);
+          return;
       }
-    });
 
-    scene.add(model);
-    currentParts.accessoryMain.push(model);
+      // 모델 추가
+      loader.load(path, (gltf) => {
+          const model = gltf.scene;
+          model.scale.set(...setting.scale);
+          model.position.set(...setting.position);
+          model.rotation.set(...setting.rotation);
+          
+          model.userData = {
+              partGroupKey: 'accessory',
+              partSubGroup: 'main',
+              partStyleKey: partStyleKey,
+              styleNumber: styleNumber,
+              color: null
+          };
+          
+          console.log('🎒 accessory.main userData:', model.userData);
 
-    const input = document.getElementById(`input-accessory`);
-    if (input) input.value = partStyleKey;
-  });
+          model.traverse((child) => {
+              if (child.isMesh && child.material) {
+                  child.material.transparent = false;
+                  child.material.opacity = 1;
+                  child.material.depthWrite = true;
+                  child.material.depthTest = true;
+                  child.material.side = THREE.FrontSide;
+                  child.material.needsUpdate = true;
+              }
+          });
 
-  return;
-}
+          scene.add(model);
+          currentParts.accessory.main.push(model);
+          console.log('✅ accessory.main 추가됨, 총 개수:', currentParts.accessory.main.length);
+      });
+  }
 
+    return;
+  }
 
-
+  // 일반 파트 동일 선택 해제
+  if (currentParts[partGroupKey] && 
+      currentParts[partGroupKey].userData?.styleNumber === styleNumber) {
+      scene.remove(currentParts[partGroupKey]);
+      currentParts[partGroupKey] = null;
+      // ❌ 제거: const input = document.getElementById(`input-${partGroupKey}`);
+      // ❌ 제거: if (input) input.value = "";
+      console.log(`🧹 ${partGroupKey} (${styleNumber}) 해제됨`);
+      return;
+  }
+  
   // ✅ 일반 파트 로딩 처리
   if (currentParts[partGroupKey]) {
     scene.remove(currentParts[partGroupKey]);
@@ -383,7 +393,13 @@ document.addEventListener('DOMContentLoaded', () => {
     model.scale.set(...setting.scale);
     model.position.set(...setting.position);
     model.rotation.set(...setting.rotation);
-    model.userData.partStyleKey = partStyleKey;
+ // ✅ userData 설정
+    model.userData = {
+      partGroupKey: partGroupKey,    // "hair", "top" 등
+      styleNumber: styleNumber,      // 1, 3 등
+      color: null
+    };
+  console.log(model.userData);
 
     model.traverse((child) => {
       if (child.isMesh && child.material) {
@@ -402,9 +418,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     scene.add(model);
     currentParts[partGroupKey] = model;
-
-    const input = document.getElementById(`input-${partGroupKey}`);
-    if (input) input.value = partStyleKey;
 
     console.log('✅ 모델 추가됨:', partStyleKey);
     
@@ -724,25 +737,23 @@ function updateSelectBox(option) {
   });
 
   function resetAvatar() {
-	  // 👕 일반 파트(top, bottom, dress 등)는 그대로 처리
 	  for (let key in currentParts) {
-	    if (key === 'accessoryMain') {
-	      // accessoryMain은 배열 → 각각 제거
-	      currentParts.accessoryMain.forEach(part => scene.remove(part));
-	      currentParts.accessoryMain = [];
-	    } else if (key === 'accessoryDetail') {
-	      // accessoryDetail은 객체 → 단일 제거
-	      if (currentParts.accessoryDetail) {
-	        scene.remove(currentParts.accessoryDetail);
-	        currentParts.accessoryDetail = null;
-	      }
-	    } else {
-	      // 기존 파트(top, hair, dress 등)
-	      if (currentParts[key]) {
-	        scene.remove(currentParts[key]);
-	        currentParts[key] = null;
-	      }
-	    }
+	        if (key === 'accessory') {
+	            // 액세서리 그룹 처리
+	            currentParts.accessory.main.forEach(part => scene.remove(part));
+	            currentParts.accessory.main = [];
+	            
+	            if (currentParts.accessory.detail) {
+	                scene.remove(currentParts.accessory.detail);
+	                currentParts.accessory.detail = null;
+	            }
+	        } else {
+	            // 기존 파트
+	            if (currentParts[key]) {
+	                scene.remove(currentParts[key]);
+	                currentParts[key] = null;
+	            }
+	        }
 	  }
 
 
@@ -752,52 +763,53 @@ function updateSelectBox(option) {
 	  // ✅ selectBox도 리셋
 	  updateSelectBox('skin-face');
 
-	  // ✅ hidden input 초기화
-	  const inputs = ['skin_face', 'hair', 'top', 'bottom', 'dress', 'shoes', 'accessory'];
-	  inputs.forEach(id => {
-	    const input = document.getElementById(`input-${id}`);
-	    if (input) input.value = "";
-	  });
-
-
   console.log('🔄 아바타 초기화 완료!');
 }
 
 async function saveAvatar() {
     try {
         // currentParts에서 데이터 추출
-        const characterData = {
+           const avatarInfo = {
             skinColor: currentSkinColor,
-            hair: null,
-            hairColor: null,
-            top: null,
-            bottom: null,
-            dress: null,
-            shoes: null,
-            accessory: null
+            parts: {}
         };
-
-        // currentParts 순회하면서 데이터 수집
-        for (let partGroup in currentParts) {
-            const model = currentParts[partGroup];
-            if (model && model.userData) {
-                // 스타일 번호 저장
-                characterData[partGroup] = model.userData.partStyleKey;
-
-                // 색상 저장 (헤어만 현재 지원)
-                if (partGroup === 'hair' && model.userData.color) {
-                    characterData.hairColor = model.userData.color;
-                }
-            }
-        }
-
-        console.log('💾 전송할 데이터:', characterData);
+        
+        // ✅ 중첩 구조에 맞춰 순회
+           for (let partGroup in currentParts) {
+               const part = currentParts[partGroup];
+               
+               if (partGroup === 'accessory') {
+                   // ✅ 액세서리 그룹 처리
+                   if (part.main.length > 0) {
+                       avatarInfo.parts.accessoryMain = part.main.map(model => ({
+                           style: model.userData.styleNumber
+                       }));
+                   }
+                   
+                   if (part.detail && part.detail.userData) {
+                       avatarInfo.parts.accessoryDetail = {
+                           style: part.detail.userData.styleNumber
+                       };
+                   }
+               } else if (part && part.userData) {
+                   // 일반 파트 처리
+                   avatarInfo.parts[partGroup] = {
+                       style: part.userData.styleNumber
+                   };
+                   
+                   // 헤어 색상 추가
+                   if (partGroup === 'hair' && part.userData.color) {
+                       avatarInfo.parts[partGroup].color = part.userData.color;
+                   }
+               }
+           }
+        console.log('💾 전송할 데이터:', avatarInfo);
 
         // AJAX 전송
         const response = await fetch('/usr/custom/save', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(characterData)
+            body: JSON.stringify(avatarInfo)
         });
 
         // ResultData 응답 처리

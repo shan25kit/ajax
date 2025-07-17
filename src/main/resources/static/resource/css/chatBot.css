@@ -1,6 +1,9 @@
 @charset "UTF-8";
 
-        .chat-container {
+
+
+        .chatBot-container {
+
             max-width: 600px;
             margin: 0 auto;
             background: white;
@@ -9,7 +12,7 @@
             overflow: hidden;
         }
 
-        .chat-header {
+        .chatBot-header {
             background: black;
             color: white;
             padding: 20px;

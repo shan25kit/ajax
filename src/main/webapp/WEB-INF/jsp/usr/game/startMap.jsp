@@ -1163,17 +1163,13 @@ function animateCloud($cloud, speed, delay, verticalShift = 20) {
 
      // 파츠별 위치/스케일 설정
      applyPartSettings(partModel, partType, character) {
-         const baseScale = character.scale.x * 10;
+         const baseScale = character.scale.x * 75;
          
          switch (partType) {
              case 'hair':
-            /*      // 머리는 복잡한 위치 계산 필요
-                 const box = new THREE.Box3().setFromObject(partModel);
-                 const center = box.getCenter(new THREE.Vector3()); */
-                
-           /*       partModel.scale.set(10,10,10);
-                 partModel.position.set(10,10,0); */
-                 break;
+            	  partModel.scale.set(baseScale*1.6, baseScale*1.6, baseScale*1.6);
+                  partModel.position.set(0, -20 , 0);
+                  break;
              case 'dress':   
              case 'top':
              case 'bottom':
@@ -1182,7 +1178,7 @@ function animateCloud($cloud, speed, delay, verticalShift = 20) {
              default:
                  // 기본 설정s
                  partModel.scale.set(baseScale, baseScale, baseScale);
-                 partModel.position.set(10, 10, 0);
+                 partModel.position.set(0, -4, 0);
                  break;
          }
      }
