@@ -25,7 +25,7 @@ let currentParts = {
 		    }
 };
 
-let currentSkinColor = '#FFE0BD';
+let currentSkinColor = '#F3D7B6';
 
 const loader = new THREE.GLTFLoader();
 
@@ -167,24 +167,24 @@ console.log(partGroupKey);
     'hair19': { scale: [65, 60, 61], position: [0, -41.1, 1], rotation: [0, 0, 0] },
 
     // 👕 상의
+    'top10': { scale: [42.5, 42, 40], position: [0, -27.5, 0.2], rotation: [0, 0, 0] },
+    'top12': { scale: [40, 38, 39], position: [0, -25, 0.5], rotation: [0, 0, 0] },
+    'top13': { scale: [45, 42, 42], position: [0, -27.8, 0.5], rotation: [0, 0, 0] },
+    'top14': { scale: [40, 38, 35], position: [0, -25, 0.3], rotation: [0, 0, 0] },
     'top1': { scale: [46.5, 45, 45], position: [0, -19.5, 0.3], rotation: [0, 0, 0] },
     'top8': { scale: [46.5, 40, 46], position: [0, -26.5, 0.3], rotation: [0, 0, 0] },
-    'top3': { scale: [40, 42, 42], position: [0, -27.5, 0.5], rotation: [0, 0, 0] },
-    'top12': { scale: [40, 38, 39], position: [0, -25, 0.5], rotation: [0, 0, 0] },
-    'top9': { scale: [43.5, 42, 40], position: [0, -27.5, 0.1], rotation: [0, 0, 0] },
-    'top10': { scale: [42.5, 42, 40], position: [0, -27.5, 0.2], rotation: [0, 0, 0] },
     'top11': { scale: [42.5, 42, 40], position: [0, -27.8, 0.5], rotation: [0, 0, 0] },
-    'top7': { scale: [45, 42, 45], position: [0, -28, 0.7], rotation: [0, 0, 0] },
+    'top9': { scale: [43.5, 42, 40], position: [0, -27.5, 0.1], rotation: [0, 0, 0] },
 
     // 👖 하의
-    'bottom1': { scale: [47, 40, 36], position: [0.1, -18, 0], rotation: [0, 0, 0] },
-    'bottom11': { scale: [40, 35, 34], position: [0, -22, 0.2], rotation: [0, 0, 0] },
     'bottom3': { scale: [38, 35, 34], position: [0, -22, 0.2], rotation: [0, 0, 0] },
     'bottom12': { scale: [38.8, 34, 31.5], position: [0, -22.5, 0.1], rotation: [0, 0, 0] },
-    'bottom10': { scale: [40, 29, 32], position: [0, -20, 0.15], rotation: [0, 0, 0] },
-    'bottom8': { scale: [40, 35, 34], position: [0, -23.5, 0.15], rotation: [0, 0, 0] },
+    'bottom8': { scale: [40, 35, 34], position: [0, -23, 0.15], rotation: [0, 0, 0] },
+    'bottom9': { scale: [41, 35, 32], position: [0, -22, 0.15], rotation: [0, 0, 0] },
+    'bottom1': { scale: [47, 40, 36], position: [0.1, -18, 0], rotation: [0, 0, 0] },
+    'bottom11': { scale: [40, 35, 34], position: [0, -22, 0.2], rotation: [0, 0, 0] },
     'bottom4': { scale: [38, 33, 32], position: [0, -22, 0], rotation: [0, 0, 0] },
-    'bottom9': { scale: [40.7, 35, 32], position: [0, -22, 0.15], rotation: [0, 0, 0] },
+    'bottom10': { scale: [40, 29, 32], position: [0, -20, 0.15], rotation: [0, 0, 0] },
     
     // 👗 원피스
     'dress1': { scale: [45.2, 45.2, 45.2], position: [0, -19.8, 0.45], rotation: [0, 0, 0] },
@@ -202,12 +202,14 @@ console.log(partGroupKey);
     'shoes3': { scale: [40, 40, 45], position: [0, -22, 0], rotation: [0, 0, 0] },
     'shoes4': { scale: [37, 40, 45], position: [0, -22, -0.2], rotation: [0, 0, 0] },
     'shoes5': { scale: [40, 40, 45], position: [0, -22, -0.25], rotation: [0, 0, 0] },
-    'shoes6': { scale: [35, 45, 43], position: [0, -21.7, -0.22], rotation: [0, 0, 0] },
+    'shoes6': { scale: [40, 45, 43], position: [0, -21.8, -0.22], rotation: [0, 0, 0] },
+    'shoes7': { scale: [40, 45, 43], position: [0, -21.7, -0.22], rotation: [0, 0, 0] },
+    'shoes8': { scale: [37, 45, 43], position: [0, -21.7, -0.22], rotation: [0, 0, 0] },
 
     // 🧢 액세서리
     'accessory1': { scale: [50, 50, 50], position: [7.5, -33, -3], rotation: [0.2, -0.15, 0.1] },
     'accessory2': { scale: [67, 60, 50], position: [0, -41, 1], rotation: [0, 0, 0] },
-    'accessory3': { scale: [63, 60, 60], position: [0, -41, 0], rotation: [0, 0, 0] },
+    'accessory3': { scale: [67, 60, 50], position: [0, -41, 1], rotation: [0, 0, 0] },
     'accessory4': { scale: [75, 80, 75], position: [0, -58.5, 0], rotation: [0, 0, 0] },
     'accessory5': { scale: [40, 45, 45], position: [0, -30, 0.5], rotation: [0, 0, 0] },
     'accessory6': { scale: [40, 45, 45], position: [0, -29.9, 0.5], rotation: [0, 0, 0] },
@@ -445,7 +447,7 @@ console.log(partGroupKey);
   
   // ✅ 초기값 세팅
   updateSelectBox('skin-face');
-  setSkinColor('#FFE0BD');
+  setSkinColor('#F3D7B6');
   setHairColor('#000000');
 });
 	
@@ -457,42 +459,42 @@ function updateSelectBox(option) {
       html = `
         <h3>Color</h3>
         <div class="color-picker">
-	        <button class="color1" style="background-color: #FFE0BD;" onclick="setSkinColor('#FFE0BD')"></button>
-	        <button class="color2" style="background-color: #7B4A2F;" onclick="setSkinColor('#7B4A2F')" ></button>
-	        <button class="color3" style="background-color: #9C6B4F;" onclick="setSkinColor('#9C6B4F')" ></button>
-	        <button class="color4" style="background-color: #E5C29F;" onclick="setSkinColor('#E5C29F')" ></button>
-	        <button class="color5" style="background-color: #F8D477;" onclick="setSkinColor('#F8D477')" ></button>
-	        <button class="color6" style="background-color: #F2F2F2;" onclick="setSkinColor('#F2F2F2')" ></button>
+	        <button class="color1" style="background-color: #FCE9D6;" onclick="setSkinColor('#FCE9D6')"></button>
+	        <button class="color2" style="background-color: #F3D7B6;" onclick="setSkinColor('#F3D7B6')" ></button>
+	        <button class="color3" style="background-color: #D8B89F;" onclick="setSkinColor('#D8B89F')" ></button>
+	        <button class="color4" style="background-color: #A47551;" onclick="setSkinColor('#A47551')" ></button>
+	        <button class="color5" style="background-color: #5C3A2E;" onclick="setSkinColor('#5C3A2E')" ></button>
+	        <button class="color6" style="background-color: #8FE3CF;" onclick="setSkinColor('#8FE3CF')" ></button>
       	</div>
         
         <div class="line"></div>
         <div class="style-select">
         	<div class="style-Wrap">
         		<button class="style1" onclick="loadModel('/resource/model/face1.glb', 'face1')">
-        			<img src="/resource/img/face1.png" alt="face1" />
+        			<img class="face" src="/resource/img/face1.png" alt="face1" />
         		</button>
         		<button class="style2" onclick="loadModel('/resource/model/face2.glb', 'face2')">
-        			<img src="/resource/img/face2.png" alt="face2" />
+        			<img class="face" src="/resource/img/face2.png" alt="face2" />
         		</button>
         		<button class="style3" onclick="loadModel('/resource/model/face3.glb', 'face3')">
-        			<img src="/resource/img/face3.png" alt="face3" />
+        			<img class="face" src="/resource/img/face3.png" alt="face3" />
         		</button>
         		<button class="style4" onclick="loadModel('/resource/model/face4.glb', 'face4')">
-        			<img src="/resource/img/face4.png" alt="face4" />
+        			<img class="face" src="/resource/img/face4.png" alt="face4" />
         		</button>
           	</div>
           	<div class="style-Wrap">
           		<button class="style5" onclick="loadModel('/resource/model/face5.glb', 'face5')">
-          			<img src="/resource/img/face4.png" alt="face4" />
+          			<img class="face" src="/resource/img/face4.png" alt="face4" />
           		</button>
           		<button class="style6" onclick="loadModel('/resource/model/face6.glb', 'face6')">
-          			<img src="/resource/img/face4.png" alt="face4" />
+          			<img class="face" src="/resource/img/face4.png" alt="face4" />
           		</button>
           		<button class="style7" onclick="loadModel('/resource/model/face7.glb', 'face7')">
-          			<img src="/resource/img/face4.png" alt="face4" />
+          			<img class="face" src="/resource/img/face4.png" alt="face4" />
           		</button>
           		<button class="style8" onclick="loadModel('/resource/model/face8.glb', 'face8')">
-          			<img src="/resource/img/face4.png" alt="face4" />
+          			<img class="face" src="/resource/img/face4.png" alt="face4" />
           		</button>
           	</div>
         </div>`;
@@ -546,108 +548,75 @@ function updateSelectBox(option) {
     } else if (option === 'top') {
     	
         html = `
-        	<h3>Color</h3>
-        	<div class="color-picker">
-	        	<button class="color1"></button>
-	        	<button class="color2"></button>
-	        	<button class="color3"></button>
-	        	<button class="color4"></button>
-	        	<button class="color5"></button>
-	        	<button class="color6"></button>
-          	</div>
-          
-	      	<div class="line"></div>
-          	<div class="style-select">
-          		<div class="style-Wrap">
-		        	<button class="style1" onclick="loadModel('/resource/model/top1.glb', 'top1')">
-		          		<img src="/resource/img/top1.png" alt="top1" />
-		        	</button>
-		        	<button class="style2" onclick="loadModel('/resource/model/top8.glb', 'top8')">
-		          		<img src="/resource/img/top8.png" alt="top8" />
-		          	</button>
-		          	<button class="style3" onclick="loadModel('/resource/model/top3.glb', 'top3')">
-		          		<img src="/resource/img/top3.png" alt="top3" />
-		        	</button>
-		        	<button class="style3" onclick="loadModel('/resource/model/top12.glb', 'top12')">
-		          		<img src="/resource/img/top12.png" alt="top12" />
-		        	</button>
-	        	</div>
+          	<div class="style-select-option">
 	        	<div class="style-Wrap">
-		        	<button class="style4" onclick="loadModel('/resource/model/top9.glb', 'top9')">
-		          		<img src="/resource/img/top9.png" alt="top9" />
-		        	</button>
-		        	<button class="style5" onclick="loadModel('/resource/model/top10.glb', 'top10')">
+		        	<button class="style1" onclick="loadModel('/resource/model/top10.glb', 'top10')">
 		          		<img src="/resource/img/top10.png" alt="top10" />
 		        	</button>
-		        	<button class="style6" onclick="loadModel('/resource/model/top11.glb', 'top11')">
-		          		<img src="/resource/img/top11.png" alt="top11" />
-		        	</button>
-		        	<button class="style6" onclick="loadModel('/resource/model/top7.glb', 'top7')">
-		          		<img src="/resource/img/top7.png" alt="top7" />
+		        	<button class="style2" onclick="loadModel('/resource/model/top12.glb', 'top12')">
+	          			<img src="/resource/img/top12.png" alt="top12" />
+	        		</button>
+	        		<button class="style3" onclick="loadModel('/resource/model/top13.glb', 'top13')">
+	          			<img src="/resource/img/top13.png" alt="top13" />
+	        		</button>
+		        	<button class="style4" onclick="loadModel('/resource/model/top14.glb', 'top14')">
+		          		<img src="/resource/img/top14.png" alt="top14" />
 		        	</button>
 		        </div>
+          		<div class="style-Wrap">
+		        	<button class="style5" onclick="loadModel('/resource/model/top1.glb', 'top1')">
+		          		<img src="/resource/img/top1.png" alt="top1" />
+		        	</button>
+		        	<button class="style6" onclick="loadModel('/resource/model/top8.glb', 'top8')">
+		          		<img src="/resource/img/top8.png" alt="top8" />
+		          	</button>
+		        	<button class="style7" onclick="loadModel('/resource/model/top11.glb', 'top11')">
+	          			<img src="/resource/img/top11.png" alt="top11" />
+	        		</button>
+		        	<button class="style8" onclick="loadModel('/resource/model/top9.glb', 'top9')">
+	          			<img src="/resource/img/top9.png" alt="top9" />
+	        		</button>
+	        	</div>
           </div>`;
           
       } else if (option === 'bottom') {
     	  
           html = `
-            <h3>Color</h3>
-            	<div class="color-picker">
-	              	<button class="color1"></button>
-	                <button class="color2"></button>
-	                <button class="color3"></button>
-	                <button class="color4"></button>
-	                <button class="color5"></button>
-	                <button class="color6"></button>
-            	</div>
-              
-	            <div class="line"></div>
-            	<div class="style-select">
+            	<div class="style-select-option">
             		<div class="style-Wrap">
-		            	<button class="style1" onclick="loadModel('/resource/model/bottom1.glb', 'bottom1')">
-			          		<img src="/resource/img/bottom1.png" alt="bottom1" />
-			        	</button>
-			        	<button class="style2" onclick="loadModel('/resource/model/bottom11.glb', 'bottom11')">
-			          		<img src="/resource/img/bottom11.png" alt="bottom11" />
-			        	</button>
-			        	<button class="style3" onclick="loadModel('/resource/model/bottom3.glb', 'bottom3')">
+			        	<button class="style1" onclick="loadModel('/resource/model/bottom3.glb', 'bottom3')">
 			          		<img src="/resource/img/bottom3.png" alt="bottom3" />
 			        	</button>
-			        	<button class="style3" onclick="loadModel('/resource/model/bottom12.glb', 'bottom12')">
+			        	<button class="style2" onclick="loadModel('/resource/model/bottom12.glb', 'bottom12')">
 			          		<img src="/resource/img/bottom12.png" alt="bottom12" />
 			        	</button>
-		        	</div>
-		        	<div class="style-Wrap">
-			        	<button class="style4" onclick="loadModel('/resource/model/bottom10.glb', 'bottom10')">
-			          		<img src="/resource/img/bottom10.png" alt="bottom10" />
-			        	</button>
-			        	<button class="style5" onclick="loadModel('/resource/model/bottom8.glb', 'bottom8')">
+			        	<button class="style3" onclick="loadModel('/resource/model/bottom8.glb', 'bottom8')">
 			          		<img src="/resource/img/bottom8.png" alt="bottom8" />
 			        	</button>
-			          	<button class="style6" onclick="loadModel('/resource/model/bottom4.glb', 'bottom4')">
-			          		<img src="/resource/img/bottom4.png" alt="bottom4" />
-			          	</button>
-			          	<button class="style6" onclick="loadModel('/resource/model/bottom9.glb', 'bottom9')">
+			          	<button class="style4" onclick="loadModel('/resource/model/bottom9.glb', 'bottom9')">
 			          		<img src="/resource/img/bottom9.png" alt="bottom9" />
 			          	</button>
+		        	</div>
+		        	<div class="style-Wrap">
+		            	<button class="style5" onclick="loadModel('/resource/model/bottom1.glb', 'bottom1')">
+			          		<img src="/resource/img/bottom1.png" alt="bottom1" />
+			        	</button>
+			        	<button class="style6" onclick="loadModel('/resource/model/bottom11.glb', 'bottom11')">
+			          		<img src="/resource/img/bottom11.png" alt="bottom11" />
+			        	</button>
+			          	<button class="style7" onclick="loadModel('/resource/model/bottom4.glb', 'bottom4')">
+			          		<img src="/resource/img/bottom4.png" alt="bottom4" />
+			          	</button>
+			        	<button class="style8" onclick="loadModel('/resource/model/bottom10.glb', 'bottom10')">
+			          		<img src="/resource/img/bottom10.png" alt="bottom10" />
+			        	</button>
 		          	</div>
               </div>`;
               
       } else if (option === 'dress') {
     	  
 	          html = `
-	              <h3>Color</h3>
-	              <div class="color-picker">
-		              <button class="color1"></button>
-		              <button class="color2"></button>
-		              <button class="color3"></button>
-		              <button class="color4"></button>
-		              <button class="color5"></button>
-		              <button class="color6"></button>
-	              </div>
-	              
-		          <div class="line"></div>
-	              <div class="style-select">
+	              <div class="style-select-option">
 					<div class="style-Wrap">
 		            	<button class="style1" onclick="loadModel('/resource/model/dress1.glb', 'dress1')">
 			          		<img src="/resource/img/dress1.png" alt="dress1" />
@@ -681,18 +650,7 @@ function updateSelectBox(option) {
       } else if (option === 'shoes') {
     	  
 				html = `
-					<h3>Color</h3>
-					<div class="color-picker">
-		                <button class="color1"></button>
-		                <button class="color2"></button>
-		                <button class="color3"></button>
-		                <button class="color4"></button>
-		                <button class="color5"></button>
-		                <button class="color6"></button>
-	              	</div>
-	              
-		          	<div class="line"></div>
-	              	<div class="style-select">
+	              	<div class="style-select-option">
 	              		<div class="style-Wrap">
 			            	<button class="style1" onclick="loadModel('/resource/model/shoes1.glb', 'shoes1')">
 				          		<img src="/resource/img/shoes1.png" alt="shoes1" />
@@ -726,18 +684,7 @@ function updateSelectBox(option) {
       } else if (option === 'accessory') {
     	  
 				html = `
-					<h3>Color</h3>
-						<div class="color-picker">
-	                    <button class="color1"></button>
-	                    <button class="color2"></button>
-	                    <button class="color3"></button>
-	                    <button class="color4"></button>
-	                    <button class="color5"></button>
-	                    <button class="color6"></button>
-					</div>
-                  
-					<div class="line"></div>
-					<div class="style-select">
+					<div class="style-select-option">
 						<div class="style-Wrap">
 							<button class="style1" onclick="loadModel('/resource/model/accessory1.glb', 'accessory1')">
 				          		<img src="/resource/img/accessory1.png" alt="accessory1" />
@@ -748,21 +695,21 @@ function updateSelectBox(option) {
 				          	<button class="style3" onclick="loadModel('/resource/model/accessory3.glb', 'accessory3')">
 				          		<img src="/resource/img/accessory3.png" alt="accessory3" />
 				          	</button>
-				          	<button class="style3" onclick="loadModel('/resource/model/accessory4.glb', 'accessory4')">
+				          	<button class="style4" onclick="loadModel('/resource/model/accessory4.glb', 'accessory4')">
 				          		<img src="/resource/img/accessory4.png" alt="accessory4" />
 				          	</button>
 						</div>
 						<div class="style-Wrap">
-				          	<button class="style4" onclick="loadModel('/resource/model/accessory5.glb', 'accessory5')">
+				          	<button class="style5" onclick="loadModel('/resource/model/accessory5.glb', 'accessory5')">
 				          		<img src="/resource/img/accessory5.png" alt="accessory5" />
 				          	</button>
-				          	<button class="style5" onclick="loadModel('/resource/model/accessory6.glb', 'accessory6')">
+				          	<button class="style6" onclick="loadModel('/resource/model/accessory6.glb', 'accessory6')">
 				          		<img src="/resource/img/accessory6.png" alt="accessory6" />
 				          	</button>
-				          	<button class="style6" onclick="loadModel('/resource/model/accessory7.glb', 'accessory7')">
+				          	<button class="style7" onclick="loadModel('/resource/model/accessory7.glb', 'accessory7')">
 				          		<img src="/resource/img/accessory7.png" alt="accessory7" />
 				          	</button>
-				          	<button class="style6" onclick="loadModel('/resource/model/accessory8.glb', 'accessory8')">
+				          	<button class="style8" onclick="loadModel('/resource/model/accessory8.glb', 'accessory8')">
 				          		<img src="/resource/img/accessory8.png" alt="accessory8" />
 				          	</button>
 						</div>
@@ -785,7 +732,7 @@ function updateSelectBox(option) {
     document.querySelector('.accessory').addEventListener('click', () => updateSelectBox('accessory'));
     
   updateSelectBox('skin-face');
-  setSkinColor('#FFE0BD');
+  setSkinColor('#F3D7B6');
   });
 
   function resetAvatar() {
@@ -810,7 +757,7 @@ function updateSelectBox(option) {
 
 
 	  // ✅ 피부색 초기화
-	  setSkinColor('#FFE0BD');
+	  setSkinColor('#F3D7B6');
 
 	  // ✅ selectBox도 리셋
 	  updateSelectBox('skin-face');

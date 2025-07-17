@@ -1,6 +1,24 @@
 @charset "UTF-8";
 
 
+
+ */
+ .map-container {
+  user-select: none;
+}
+
+canvas, body {
+  	z-index: 1;
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: linear-gradient(to bottom, #87CEEB 0%, #98FB98 100%);
+
+} */
+
+
+
 /* 맵 내부 - 줌/드래그 가능한 영역 */
 .map-inner {
     position: absolute;
