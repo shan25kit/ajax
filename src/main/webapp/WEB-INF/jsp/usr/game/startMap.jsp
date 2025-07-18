@@ -15,14 +15,7 @@
 
 		<div class="map_field">
 
-			<div class="object1">
-				<img src="/resource/img/fountain.png" alt="분수대" />
-			</div>
-
-			<div class="portal">
-				<img src="/resource/img/portal.gif" alt="portal" />
-			</div>
-
+		
 		</div>
 		<div class="clouds">
 			<img class="first_cloud" src="/resource/img/cloud1.png" alt="구름1" />
