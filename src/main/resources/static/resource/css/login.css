@@ -536,8 +536,8 @@ input {
  }
   
 #three-container canvas {
-   margin-top:90px;
-   margin-left:100px;
+   /* margin-top:90px;
+   margin-left:100px; */
    width: 260px;
    height: 350px ;
    display: block;

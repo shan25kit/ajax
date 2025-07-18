@@ -8,7 +8,7 @@
 
 
 
-<div class="map-container" id="mapContainer">
+<div class="startMap-container" id="mapContainer">
 
 	<div class="map-inner" id="mapInner">
 		<img id="zoomMap" src="/resource/img/background-1.png" alt="map" />
@@ -490,14 +490,14 @@ function animateCloud($cloud, speed, delay, verticalShift = 20) {
                     this.renderer.outputEncoding = THREE.sRGBEncoding;
                 }
                 
-                const canvas = this.renderer.domElement;
-                canvas.style.position = 'fixed';
-                canvas.style.top = '0';
-                canvas.style.left = '0';
-                canvas.style.zIndex = '10';
-                canvas.style.pointerEvents = 'auto'; // 키보드 포커스를 위해 활성화
-                canvas.tabIndex = 0; // 포커스 가능하게 설정
-                document.body.appendChild(canvas);
+                const startMap_canvas = this.renderer.domElement;
+                startMap_canvas.style.position = 'fixed';
+                startMap_canvas.style.top = '0';
+                startMap_canvas.style.left = '0';
+                startMap_canvas.style.zIndex = '10';
+                startMap_canvas.style.pointerEvents = 'auto'; // 키보드 포커스를 위해 활성화
+                startMap_canvas.tabIndex = 0; // 포커스 가능하게 설정
+                document.body.appendChild(startMap_canvas);
           
                 // 씬 그룹 생성 (모든 게임 오브젝트를 이 그룹에 추가)
                 this.sceneGroup = new THREE.Group();

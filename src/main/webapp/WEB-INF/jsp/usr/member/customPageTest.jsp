@@ -780,17 +780,23 @@ async function saveAvatar() {
                
                if (partGroup === 'accessory') {
                    // ✅ 액세서리 그룹 처리
-                   if (part.main.length > 0) {
-                       avatarInfo.parts.accessoryMain = part.main.map(model => ({
+                   const accessoryGroup = {};
+                   if (part.main && part.main.length > 0) {
+                       accessoryGroup.main = part.main.map(model => ({
                            style: model.userData.styleNumber
                        }));
                    }
                    
                    if (part.detail && part.detail.userData) {
-                       avatarInfo.parts.accessoryDetail = {
+                       accessoryGroup.detail = {
                            style: part.detail.userData.styleNumber
                        };
                    }
+                   
+                   // 데이터가 있을 때만 추가
+                   if (Object.keys(accessoryGroup).length > 0) {
+                       avatarInfo.parts.accessory = accessoryGroup;
+                   }   
                } else if (part && part.userData) {
                    // 일반 파트 처리
                    avatarInfo.parts[partGroup] = {
