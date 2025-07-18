@@ -111,9 +111,6 @@ function applyTransform() {
 
   mapInner.style.transform = `translate(\${posX}px, \${posY}px) scale(\${scale})`;
   
-//CSS 변환 적용
-  mapInner.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
-  
   // Three.js 씬과 좌표계 동기화
   if (gameClient && gameClient.scene) {
     gameClient.updateSceneTransform(posX, posY, scale);
@@ -1119,69 +1116,86 @@ function animateCloud($cloud, speed, delay, verticalShift = 20) {
 
          // 모든 파츠를 순회하면서 로딩
          for (const [partType, partData] of Object.entries(parts)) {
-             if (partData && partData.style) {
-                 const modelPath = getModelPath(partType, partData.style);
-                 console.log(`${partType} 파츠 로딩:`, modelPath);
-                 
-                 this.loader.load(
-                     modelPath,
-                     (gltf) => {
-                         console.log(`${partType} 파츠 로드 성공:`, modelPath);
-                         const partModel = gltf.scene;
-                         console.log(`🔍 ${partType} scene:`, partModel);
-                         console.log(`🔍 ${partType} children 수:`, partModel.children.length);
-                         
-                         // 색상 적용 (있는 경우)
-                         if (partData.color) {
-                             partModel.traverse((child) => {
-                                 if (child.isMesh && child.material && child.material.color) {
-                                     if (child.material.map) child.material.map = null;
-                                     child.material.color.set(partData.color);
-                                     child.material.needsUpdate = true;
-                                 }
-                             });
-                         }
-                         
-                         // 파츠별 특별 설정
-                         this.applyPartSettings(partModel, partType, character);
-                         
-                         character.add(partModel);
-                         console.log(`${partType} 파츠 부착 완료:`, nickName);
-                         console.log(`${partType} 파츠 최종 위치:`, partModel.position);
-                      // 🔍 베이스 캐릭터의 children 수 확인
-                         console.log('🔍 베이스 캐릭터 children 수:', character.children.length);
-                         console.log('🔍 베이스 캐릭터 children 목록:', character.children);
-                     },
-                     undefined,
-                     (error) => {
-                         console.log(`${partType} 파츠 로드 실패:`, modelPath, error);
-                     }
-                 );
+        	 if (partType === 'accessory') {
+        		 // main 배열
+        		    partData.main?.forEach((item, i) => {
+        		        if (item?.style) {
+        		            this.loadPart(character, 'accessory', item, 'main');
+        		        }
+        		    });
+        		    // detail 단일
+        		    if (partData.detail?.style) {
+        		        this.loadPart(character, 'accessory', partData.detail, 'detail');
+        		    }
+             } else if (partData?.style) {
+                 // ✅ 일반 파츠
+                 this.loadPart(character, partType, partData);
              }
-         }
-     }
+           }
+        }
+     loadPart(character, partType, partData, subType = null) {
+    	    const modelPath = getModelPath(partType, partData.style);
+    	    const name = subType ? `${partType}.${subType}` : partType;
+    	    
+    	    this.loader.load(modelPath, (gltf) => {
+    	        const model = gltf.scene;
+    	        // 색상 적용 (있는 경우)
+                if (partData.color) {
+                    model.traverse((child) => {
+                        if (child.isMesh && child.material && child.material.color) {
+                            if (child.material.map) child.material.map = null;
+                            child.material.color.set(partData.color);
+                            child.material.needsUpdate = true;
+                        }
+                    });
+                }
+    	        this.applyPartSettings(model, partType, character, subType);
+    	        character.add(model);
+    	        console.log(`${name} 로딩 완료`);
+    	    });
+    	}       
+       
 
      // 파츠별 위치/스케일 설정
-     applyPartSettings(partModel, partType, character) {
-         const baseScale = character.scale.x * 75;
-         
-         switch (partType) {
-             case 'hair':
-            	  partModel.scale.set(baseScale*1.6, baseScale*1.6, baseScale*1.6);
-                  partModel.position.set(0, -20 , 0);
-                  break;
-             case 'dress':   
-             case 'top':
-             case 'bottom':
-             case 'shoes':
-             case 'accessory':
-             default:
-                 // 기본 설정s
-                 partModel.scale.set(baseScale, baseScale, baseScale);
-                 partModel.position.set(0, -4, 0);
-                 break;
-         }
-     }
+    applyPartSettings(model, partType, character, subType) {
+    const baseScale = character.scale.x * 75;
+    console.log(subType);
+    switch (partType) {
+        case 'hair':
+            model.scale.set(baseScale*1.6, baseScale*1.6, baseScale*1.6);
+            model.position.set(0, -13, 0);
+            break;
+            
+        case 'accessory':
+            if (subType === 'main') {
+                model.scale.set(baseScale*1.5, baseScale*1.5, baseScale*1.5);
+                model.position.set(0, -9, 0);
+            } else if (subType === 'detail') {
+                model.scale.set(baseScale*0.3, baseScale*0.3, baseScale*0.3);
+                model.position.set(0, -10, 0);
+            } else {
+                model.scale.set(baseScale, baseScale, baseScale);
+                model.position.set(0, -4, 0);
+            }
+            break;
+            
+        case 'dress':
+        case 'top':
+        	  model.scale.set(baseScale*1.6, baseScale*1.6, baseScale*1.6);
+              model.position.set(0, 5, 0);
+        case 'bottom':
+        case 'shoes':
+        default:
+            model.scale.set(baseScale, baseScale, baseScale);
+            model.position.set(0, -4, 0);
+            break;
+    }
+    
+    console.log(`⚙️ ${partType}${subType ? '.' + subType : ''} 설정 적용:`, {
+        scale: model.scale,
+        position: model.position
+    });
+}
             
             // 플레이어 위치 업데이트
             updatePlayerPosition(sessionId, position) {
