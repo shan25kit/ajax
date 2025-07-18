@@ -1,7 +1,7 @@
-@charset "UTF-8";
+/* @charset "UTF-8";
 
 
-/* 맵 내부 - 줌/드래그 가능한 영역 */
+맵 내부 - 줌/드래그 가능한 영역
 .map-inner {
     position: absolute;
     width: 4000px;
@@ -15,7 +15,7 @@
     cursor: grabbing;
 }
 
-/* 배경 이미지 */
+배경 이미지
 #zoomMap {
     width: 100%;
     height: 100%;
@@ -23,7 +23,7 @@
     pointer-events: none;
 }
 
-/* 맵 오브젝트들 */
+맵 오브젝트들
 .map_field {
     position: absolute;
     top: 0;
@@ -59,7 +59,7 @@
     height: auto;
 }
 
-/* 구름 애니메이션 */
+구름 애니메이션
 .clouds {
     position: absolute; 
     top: 0;
@@ -67,7 +67,7 @@
     width: 100vw;
     height: 100vh;
     pointer-events: none;
-    z-index: 5; /* Three.js 렌더러보다 낮게 */
+    z-index: 5; Three.js 렌더러보다 낮게
 }
 
 .first_cloud, .second_cloud, .third_cloud {
@@ -97,7 +97,7 @@
     z-index: 8;
 }
 
-/* Three.js 캔버스 스타일 */
+Three.js 캔버스 스타일
  canvas {
     position: fixed !important;
     top: 0 !important;
@@ -106,7 +106,7 @@
     pointer-events: auto !important;
 } 
 
-/* 채팅 시스템 */
+채팅 시스템
 .clean-chat-container {
     position: fixed;
     bottom: 20px;
@@ -115,7 +115,7 @@
     background: rgba(255, 255, 255, 0.95);
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    z-index: 1000; /* 가장 위에 */
+    z-index: 1000; 가장 위에
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
 }
@@ -288,3 +288,4 @@
     font-weight: bold;
     }
 
+ */

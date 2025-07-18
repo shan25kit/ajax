@@ -8,7 +8,7 @@
 
 
 
-<div class="startMap-container" id="mapContainer">
+<div class="map-container" id="mapContainer">
 
 	<div class="map-inner" id="mapInner">
 		<img id="zoomMap" src="/resource/img/background-1.png" alt="map" />
@@ -23,7 +23,7 @@
 			<img class="third_cloud" src="/resource/img/cloud3.png" alt="구름3" />
 		</div>
 	</div>
-	<div class="clean-chat-container" id="chatContainer">
+	<div class="player-chat-container" id="chatContainer">
 		<div class="chat-header">
 			<div class="chat-title-wrapper">
 				<div class="chat-icon">💬</div>
