@@ -1,17 +1,212 @@
-body {
+
+html, body {
   margin: 0;
+  padding: 0;
   overflow: hidden;
-  background-color: #f0f0f0;
-  font-family: sans-serif;
+  width: 100%;
+  height: 100%;
 }
 
-/* 캔버스 꽉 채우기 */
-canvas {
-  display: block;
+.map-container {
+  position: relative;
   width: 100vw;
   height: 100vh;
+  background: black;
+  overflow: hidden;
+}
+
+#mapImage, #mapCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+}
+
+#mapCanvas {
+  z-index: 10;
+  pointer-events: none;
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 
-/*여기서부터 작성*/
+#portalLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 999;
+  pointer-events: none;
+}
 
+.portal_1,
+.portal_2,
+.portal_3 {
+  position: absolute;
+  display: block;
+  z-index: 999;
+  pointer-events: none;
+  transform-origin: top left;
+}
+
+
+.portal_1 img,
+.portal_2 img,
+.portal_3 img,
+.portal_4 img,
+.portal_5 img {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+}
+
+
+
+.portal_1 .portal_back {
+  width: 300px;
+  transform: translate(220px, 225px);
+  z-index: 1;
+  mix-blend-mode: color-burn;
+}
+
+.portal_1 .portal_center {
+  width: 500px;
+  transform: translate(80px, 225px);
+  z-index: 3;
+}
+
+.portal_1 .portal_inside {
+  width: 300px;
+  transform: translate(225px, 230px);
+  z-index: 2;
+  opacity: 0.7;
+  mix-blend-mode: hard-light;
+}
+
+
+.portal_2 .portal_back {
+  width: 390px;
+  transform: translate(-200px, 5px);
+  z-index: 1;
+  mix-blend-mode: color-burn;
+}
+
+.portal_2 .portal_center {
+  width: 550px;
+  transform: translate(-380px, 20px);
+  z-index: 3;
+}
+
+.portal_2 .portal_inside {
+  width: 530px;
+  transform: translate(-263px, -60px);
+  z-index: 2;
+  opacity: 0.7;
+  mix-blend-mode: hard-light;
+}
+
+
+.portal_3 .portal_back {
+  width: 550px;
+  transform: translate(90px, 20px);
+  z-index: 1;
+  mix-blend-mode: color-burn;
+}
+
+.portal_3 .portal_center {
+  width: 670px;
+  transform: translate(-20px, 20px);
+  z-index: 3;
+}
+
+.portal_3 .portal_inside {
+  width: 300px;
+  transform: translate(330px, 75px);
+  z-index: 2;
+  opacity: 0.7;
+  mix-blend-mode: hard-light;
+}
+
+
+.portal_4 .portal_back {
+  width: 300px;
+  transform: translate(120px, 20px) scaleX(-1);
+  z-index: 1;
+  mix-blend-mode: color-burn;
+}
+
+.portal_4 .portal_center {
+  width: 490px;
+  transform: translate(1px, 15px);
+  z-index: 3;
+}
+
+.portal_4 .portal_inside {
+  width: 600px;
+  transform: translate(-35px, -120px) scaleX(-1);
+  z-index: 2;
+  opacity: 0.7;
+  mix-blend-mode: hard-light;
+}
+
+.portal_5 .portal_back {
+  width: 580px;
+  transform: translate(175px, 10px) scaleX(-1);
+  z-index: 1;
+  mix-blend-mode: color-burn;
+}
+
+.portal_5 .portal_center {
+  width: 670px;
+  z-index: 3;
+}
+
+.portal_5 .portal_inside {
+  width: 330px;
+  transform: translate(180px, 26px) scaleX(-1);
+  z-index: 2;
+  opacity: 0.7;
+  mix-blend-mode: hard-light;
+} 
+.object {
+    position: absolute;       
+    transform-origin: top left;
+    z-index: 16;
+}
+
+
+.clouds {
+    position: absolute; 
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 5; }
+
+.first_cloud, .second_cloud, .third_cloud {
+    position: absolute;
+    opacity: 0.7;
+
+}
+
+.first_cloud {
+    top: 10%;
+    left: -200px;
+    width: 150px;
+    z-index: 6;
+}
+
+.second_cloud {
+    top: 5%;
+    left: -300px;
+    width: 200px;
+    z-index: 7;
+}
+
+.third_cloud {
+    top: 15%;
+    left: -250px;
+    width: 120px;
+    z-index: 8;
+}
