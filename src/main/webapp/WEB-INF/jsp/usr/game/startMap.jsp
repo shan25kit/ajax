@@ -666,6 +666,15 @@ function animateCloud($cloud, speed, delay, verticalShift = 20) {
             // 애니메이션 루프 (기존 코드 기반)
             animate() {
                 requestAnimationFrame(() => this.animate());
+                
+                
+             // 애니메이션 업데이트
+                if (this.mixer && this.clock) {
+			        const delta = this.clock.getDelta();
+			        this.mixer.update(delta);
+			    }
+             
+             /*    this.renderer.render(this.scene, this.camera); */
 
                 // 내 캐릭터 이동 처리
                 if (this.myCharacter && this.keys) {
@@ -688,6 +697,24 @@ function animateCloud($cloud, speed, delay, verticalShift = 20) {
                         moved = true;
                     }
                     
+                  /*   // 🔄 걷기 애니메이션 play/pause
+                    if (this.walkAction) {
+                      this.walkAction.paused = !moved; // 이동 중이면 재생, 아니면 멈춤
+                    } */
+                    
+                 // 캐릭터가 이동 중인지 체크
+                    if (moved) {
+                        // 걷기 애니메이션 실행
+                        if (this.walkAction && !this.walkAction.isRunning()) {
+                            this.walkAction.reset().play();
+                        }
+                    } else {
+                        // 멈췄을 때 애니메이션 정지
+                        if (this.walkAction && this.walkAction.isRunning()) {
+                            this.walkAction.stop();
+                        }
+                    } 
+                    
                     if (moved) {
                     // 카메라가 내 캐릭터를 따라다니기 
                     this.camera.position.set(
@@ -709,6 +736,8 @@ function animateCloud($cloud, speed, delay, verticalShift = 20) {
                 this.animatePortals();
                 this.renderer.render(this.scene, this.camera);
             }
+            
+            
             // 캐릭터를 따라 맵 중심 이동 (선택사항)
             updateMapToFollowCharacter() {
                 if (!this.myCharacter) return;
@@ -1062,23 +1091,18 @@ function animateCloud($cloud, speed, delay, verticalShift = 20) {
             console.log('아바타 정보:', avatarInfo);
             
            this.loader.load(
-        		   '/resource/model/body.glb',
+        		   '/resource/model/body_anim.glb',
                         (gltf) => {
                             console.log('✓ 베이스 모델 로드 성공:', nickName);
                             const character = gltf.scene;
                             
                             character.traverse((child) => {
-                                if (child.isMesh) {
-                                	  console.log('🎨 스킨 색상 적용 시도:', avatarInfo.skinColor);
-                                    // 🟢 기존 재질 설정 + 색상 적용 통합
-                                    child.material = new THREE.MeshStandardMaterial({
-                                        color: avatarInfo.skinColor || 0xffe0bd,  
-                                        roughness: 0.8,
-                                        metalness: 0
-                                    });
-                                    child.material.needsUpdate = true;
-                                }
-                            });
+                            	  if (child.isMesh && child.material && child.material.color) {
+                            	    console.log('🎨 기존 재질에 색상 적용:', avatarInfo.skinColor);
+                            	    child.material.color = new THREE.Color(avatarInfo.skinColor || 0xffe0bd);
+                            	    child.material.needsUpdate = true;
+                            	  }
+                            	});
                             
                             // 스케일 설정 
                             const characterScale = 0.3; 
@@ -1092,6 +1116,27 @@ function animateCloud($cloud, speed, delay, verticalShift = 20) {
             // 내 캐릭터인 경우 설정
             if (memberId === this.player.memberId) {
                 this.myCharacter = character;
+                
+             // ✅ Clock 먼저 선언!
+                this.clock = new THREE.Clock();
+                
+             // ✅ 애니메이션 Mixer와 Action 설정
+                this.mixer = new THREE.AnimationMixer(character);
+                console.log('🎬 애니메이션 클립 수:', gltf.animations.length);
+                console.log('📋 애니메이션 클립 이름들:', gltf.animations.map(c => c.name));
+                // 'Walk' 애니메이션이 있을 때만 적용
+                if (gltf.animations && gltf.animations.length > 0) {
+                    const walkClip = gltf.animations.find(clip => clip.name === "Armature|mixamo.com|Layer0");
+                    if (walkClip) {
+                        this.walkAction = this.mixer.clipAction(walkClip);
+                        this.walkAction.loop = THREE.LoopRepeat;
+                        this.walkAction.enabled = true;
+                     // 💥 반드시 추가!
+//                         this.walkAction.play();
+                        this.walkAction.paused = true;
+                    }
+                }
+
                 console.log('✓ 내 캐릭터 설정 완료');
             }
 
