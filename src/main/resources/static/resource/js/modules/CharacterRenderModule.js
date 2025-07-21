@@ -1,6 +1,3 @@
-// ===== 직접 import 방식 =====
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 export class CharacterRenderModule {
     constructor(gameClient) {
@@ -25,8 +22,8 @@ export class CharacterRenderModule {
         console.log('THREE 객체:', typeof THREE);
       
             // GLTFLoader 초기화
-            if (typeof GLTFLoader !== 'undefined') {
-                this.loader = new GLTFLoader();
+			if (typeof THREE.GLTFLoader !== 'undefined') {
+			             this.loader = new THREE.GLTFLoader();
                 console.log('✓ GLTFLoader 초기화 완료');
             } else {
                 throw new Error('GLTFLoader가 로드되지 않았습니다.');

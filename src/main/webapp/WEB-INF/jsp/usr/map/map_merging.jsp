@@ -3,7 +3,20 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <c:set var="pageTitle" value="StartMap" />
 <%@ include file="/WEB-INF/jsp/common/header.jsp"%>
+<script type="text/javascript">
+console.log('=== 서버 데이터 원본 ===');
+console.log('Member ID Raw:', '${player.memberId}');
+console.log('Nick Name Raw:', '${player.nickName}');
+console.log('Avatar Info Raw:', '${player.avatarInfo}');
 
+       // 서버에서 전달받은 플레이어 데이터
+       let player = {
+           memberId: ${player.memberId},
+           nickName: "${player.nickName}",
+           avatarInfo: JSON.parse('${player.avatarInfo}')
+       };
+       console.log('🔍 파싱된 avatarInfo:', player.avatarInfo);
+</script>
   <!-- 맵 컨테이너 -->
     <div class="map-container" id="mapContainer">
        

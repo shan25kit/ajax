@@ -16,7 +16,7 @@
 <link rel="stylesheet" href="/resource/css/login.css" />
 <link rel="stylesheet" href="/resource/css/chatBot.css" />
 <link rel="stylesheet" href="/resource/css/chatPlayer.css" />
-<link rel="stylesheet" href="/resource/css/map.css" />
+<link rel="stylesheet" href="/resource/css/map_merging.css" />
 <!-- CSS 끝 -->
 
 <!-- lottie -->

@@ -128,7 +128,7 @@ export class GameClient {
         }
     }
     
- /*    // ===== 서버 연결 =====
+ // ===== 서버 연결 =====
     async connect() {
         try {
             console.log('=== 서버 연결 시작 ===');
@@ -150,7 +150,7 @@ export class GameClient {
             console.error('서버 연결 실패:', error);
             throw error;
         }
-    } */
+    } 
     async connect() {
     try {
         console.log('=== 서버 연결 시작 (테스트 모드) ===');
@@ -162,13 +162,13 @@ export class GameClient {
         // 🚫 테스트용: 웹소켓 연결 비활성화
         console.log('⚠️ 테스트 모드: 웹소켓 연결 생략');
         
-        /*
+        
         // 웹소켓 연결
-        await this.webSocketChatModule.connect();
+        await this.websocketChatModule.connect();
         
         // 맵 입장 요청
-        await this.webSocketChatModule.joinMap(this.player);
-        */
+        await this.websocketChatModule.joinMap(this.player);
+        
         
         this.isConnected = true;
         console.log('=== 서버 연결 완료 (테스트 모드) ===');

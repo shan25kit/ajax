@@ -1,6 +1,3 @@
-
-import * as THREE from 'three';
-
 export class ThreeInit {
     constructor() {
         // Three.js 핵심 객체들
@@ -255,9 +252,9 @@ export class ThreeInit {
         this.scene.add(axesHelper);
         
         // 그리드 헬퍼 추가
-        const gridHelper = new THREE.GridHelper(50, 50);
+  /*      const gridHelper = new THREE.GridHelper(50, 50);
         this.scene.add(gridHelper);
-        
+        */
         console.log('✅ 디버그 헬퍼 활성화 완료');
         
     } catch (error) {
