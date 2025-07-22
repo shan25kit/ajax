@@ -111,11 +111,6 @@
             return;
         }
         
-        if (typeof THREE.GLTFLoader === 'undefined') {
-            console.error('GLTFLoader가 로드되지 않았습니다!');
-            return;
-        }
-        
         console.log('✅ 라이브러리 로드 완료');
 
 

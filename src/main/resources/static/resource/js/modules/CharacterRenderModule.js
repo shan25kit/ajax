@@ -114,7 +114,7 @@ export class CharacterRenderModule {
 		character.position.z = 5;
 
 		// 회전 설정
-		character.rotation.y = Math.PI / 4;
+		character.rotation.y = 0;
 		character.rotation.x = -Math.PI / 6;
 
 		// 사용자 데이터 저장

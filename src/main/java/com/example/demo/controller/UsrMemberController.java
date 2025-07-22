@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.example.demo.dto.CustomCharacter;
 import com.example.demo.dto.GoogleUserInfo;
 import com.example.demo.dto.KakaoUserInfo;
 import com.example.demo.dto.LoginedMember;
@@ -14,6 +15,7 @@ import com.example.demo.dto.Member;
 import com.example.demo.dto.NaverUserInfo;
 import com.example.demo.dto.Req;
 import com.example.demo.dto.ResultData;
+import com.example.demo.service.CustomCharacterService;
 import com.example.demo.service.EmailAuthService;
 import com.example.demo.service.GoogleService;
 import com.example.demo.service.KakaoService;
@@ -26,14 +28,16 @@ import com.example.demo.util.Util;
 public class UsrMemberController {
 
 	private MemberService memberService;
+	private CustomCharacterService customCharacterService;
 	private EmailAuthService emailAuthService;
 	private KakaoService kakaoService;
 	private NaverService naverService;
 	private GoogleService googleService;
 	private Req req;
 	
-	public UsrMemberController(MemberService memberService, KakaoService kakaoService, NaverService naverService, GoogleService googleService, Req req , EmailAuthService emailAuthService) {
+	public UsrMemberController(MemberService memberService, CustomCharacterService customCharacterService, KakaoService kakaoService, NaverService naverService, GoogleService googleService, Req req , EmailAuthService emailAuthService) {
 		this.memberService = memberService;
+		this.customCharacterService = customCharacterService;
 		this.emailAuthService = emailAuthService;
 		this.naverService = naverService;
 		this.kakaoService = kakaoService;
@@ -187,6 +191,12 @@ public class UsrMemberController {
 
 		if (member.getNickName() == null) {
 			return Util.jsReplace("환영합니다 최초 닉네임을 설정하세요", "/usr/member/info");
+		}
+		
+		System.out.println(customCharacterService.exists(member.getId()));
+		
+		if (customCharacterService.exists(member.getId())) {
+			return Util.jsReplace("환영합니다", "/usr/game/startMap");
 		}
 
 		return Util.jsReplace("환영합니다", "/usr/member/customPageTest");
