@@ -29,9 +29,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 
 
-<!-- three.js -->
+<!-- Three.js 메인 라이브러리 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!-- GLTFLoader 추가 -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+
 
 <meta charset="UTF-8">
 <title>${pageTitle }</title>
