@@ -5,7 +5,10 @@ export class CharacterRenderModule {
 		this.loader = null;
 		this.playerCharacters = new Map();
 		this.myCharacter = null;
-
+		// ✅ 애니메이션 관련 (내 캐릭터만)
+		this.mixer = null;
+		this.clock = new THREE.Clock();
+		this.walkAction = null;
 		// 모델 경로 설정
 		this.ASSET_CONFIG = {
 			MODEL: { base: '/resource/model/', ext: '.glb' }
@@ -73,6 +76,7 @@ export class CharacterRenderModule {
 					// 내 캐릭터인 경우 별도 저장
 					if (memberId === this.gameClient.player.memberId) {
 						this.myCharacter = character;
+						this.setupMyCharacterAnimations(character, gltf);
 						console.log('✓ 내 캐릭터 설정 완료');
 					}
 
@@ -109,12 +113,12 @@ export class CharacterRenderModule {
 		const characterScale = characterConfig.SCALE;
 		character.scale.set(characterScale, characterScale, characterScale);
 
-		// 위치 설정
-		character.position.set(position.x, position.y, position.z);
-		character.position.z = 5;
+		/*// 위치 설정
+		const worldPosition = this.mapToThreePosition(position);
+		character.position.set(worldPosition.x, 0, worldPosition.z);*/
 
 		// 회전 설정
-		character.rotation.y = 0;
+		character.rotation.y = Math.PI / 4;
 		character.rotation.x = -Math.PI / 6;
 
 		// 사용자 데이터 저장
@@ -124,7 +128,61 @@ export class CharacterRenderModule {
 			avatarInfo: avatarInfo
 		};
 	}
+	// ✅ 내 캐릭터 애니메이션 설정 (RenderModule 역할)
+	setupMyCharacterAnimations(character, gltf) {
+		console.log('🎬 내 캐릭터 애니메이션 설정 시작');
 
+		// Mixer 설정
+		this.mixer = new THREE.AnimationMixer(character);
+
+		if (gltf.animations && gltf.animations.length > 0) {
+			console.log('📋 애니메이션 클립들:', gltf.animations.map(c => c.name));
+
+			// Walk 애니메이션 찾기
+			const walkClip = gltf.animations.find(clip =>
+				clip.name === "Armature|mixamo.com|Layer0"
+			);
+
+			if (walkClip) {
+				this.walkAction = this.mixer.clipAction(walkClip);
+				this.walkAction.loop = THREE.LoopRepeat;
+				this.walkAction.enabled = true;
+				// 💥 반드시 추가!
+				//                         this.walkAction.play();
+				this.walkAction.paused = true;
+			}
+		}
+
+		// ✅ MovementModule에 애니메이션 전달
+		const movementModule = this.gameClient.getCharacterMovementModule();
+		if (movementModule) {
+			movementModule.setAnimationActions(this.walkAction);
+		}
+
+		console.log('✅ 애니메이션 설정 완료');
+	}
+
+	// ✅ 애니메이션 업데이트 (RenderModule 역할)
+	updateAnimations() {
+		if (this.mixer && this.clock) {
+			const delta = this.clock.getDelta();
+			this.mixer.update(delta);
+		}
+	}
+
+	// ===== 맵 좌표를 3D 좌표로 변환 =====
+	mapToThreePosition(mapPosition) {
+		const mapConfig = this.gameClient.getMapConfig();
+		const mapCenterX = mapConfig.IMAGE_WIDTH / 2;
+		const mapCenterY = mapConfig.IMAGE_HEIGHT / 2;
+		const scale = 0.1;
+
+		return {
+			x: (mapPosition.x - mapCenterX) * scale,
+			y: 0,
+			z: (mapPosition.y - mapCenterY) * scale
+		};
+	}
 	// ===== 캐릭터 파츠 로딩 =====
 	loadCharacterParts(character, parts, nickName) {
 		console.log('캐릭터 파츠 로딩 시작:', nickName, parts);
