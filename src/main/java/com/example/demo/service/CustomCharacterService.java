@@ -22,6 +22,7 @@ public class CustomCharacterService {
 	// 캐릭터 저장
 	public void customCaracterBySave(int memberId, JsonNode avatarInfo) {
 		CustomCharacter character = convertJsonToCharacter(avatarInfo, memberId);
+		System.out.println(character);
 		customCharacterDao.customCaracterBySave(character.getMemberId(), character.getSkinColor(),
 				character.getFace() != null ? Integer.valueOf(character.getFace()) : null,
 				character.getHair() != null ? Integer.valueOf(character.getHair()) : null, character.getHairColor(),
@@ -181,6 +182,8 @@ public class CustomCharacterService {
 			parts.set("shoes", shoes);
 		}
 
+		ObjectNode accessoryGroup = objectMapper.createObjectNode();
+	    boolean hasAccessory = false;
 		 // ✅ 액세서리 Main (JSON 문자열 → 배열)
 	    if (character.getAccessoryMain() != null && !character.getAccessoryMain().isEmpty()) {
 	        try {
@@ -192,21 +195,25 @@ public class CustomCharacterService {
 	                    accessory.put("style", item.asInt());
 	                    mainArray.add(accessory);
 	                }
-	                parts.set("accessoryMain", mainArray);
+	                accessoryGroup.set("main", mainArray);
+	                hasAccessory = true;
 	            }
 	        } catch (Exception e) {
-	            // JSON 파싱 실패 시 무시
 	            System.err.println("accessoryMain JSON 파싱 실패: " + e.getMessage());
 	        }
 	    }
 
 	    // ✅ 액세서리 Detail (숫자 → 객체)
 	    if (character.getAccessoryDetail() != null && character.getAccessoryDetail() > 0) {
-	        ObjectNode accessoryDetail = objectMapper.createObjectNode();
-	        accessoryDetail.put("style", character.getAccessoryDetail());
-	        parts.set("accessoryDetail", accessoryDetail);
+	        ObjectNode detailObject = objectMapper.createObjectNode();
+	        detailObject.put("style", character.getAccessoryDetail());
+	        accessoryGroup.set("detail", detailObject);
+	        hasAccessory = true;
 	    }
-
+	    // ✅ 액세서리 데이터가 있을 때만 추가
+	    if (hasAccessory) {
+	        parts.set("accessory", accessoryGroup);
+	    }
 		avatarInfo.set("parts", parts);
 		return avatarInfo; // character -> avartarInfo jsonNode로 변환
 	}
