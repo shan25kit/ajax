@@ -48,12 +48,6 @@ public class UsrMemberController {
 	    return "usr/map/map";
 	}
 	
-	@GetMapping("/usr/map/map2")
-	public String showMapPage2() {
-	    return "usr/map/map_merging";
-	}
-	
-	
 	@GetMapping("/usr/member/signup")
 	public String signup() {
 		return "usr/member/signup";
