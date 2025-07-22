@@ -463,6 +463,8 @@ function animateCloud($cloud, speed, delay, verticalShift = 20) {
                 this.speed = 0.2;
                 this.isChangingMap = false;
                 this.chatSystem = null;
+                
+                this.followZOffset = 15; // ✅ 카메라가 따라갈 거리 설정 (적당히 조절 가능)
             }
 
             // Three.js 초기화 (기존 코드 기반)
@@ -667,6 +669,11 @@ function animateCloud($cloud, speed, delay, verticalShift = 20) {
             animate() {
                 requestAnimationFrame(() => this.animate());
                 
+             // ✅ 항상 스케일과 높이 고정 (혹시라도 애니메이션에 의해 덮어씌워질 경우 방지)
+                if (this.myCharacter) {
+                    this.myCharacter.scale.set(0.3, 0.3, 0.3);
+                    this.myCharacter.position.y = 0;
+                }
                 
              // 애니메이션 업데이트
                 if (this.mixer && this.clock) {
@@ -679,7 +686,7 @@ function animateCloud($cloud, speed, delay, verticalShift = 20) {
                 // 내 캐릭터 이동 처리
                 if (this.myCharacter && this.keys) {
                     let moved = false;
-                    
+
                     if (this.keys['arrowup'] || this.keys['w'] || this.keys['W']) {
                         this.myCharacter.position.z -= this.speed;
                         moved = true;
@@ -696,44 +703,52 @@ function animateCloud($cloud, speed, delay, verticalShift = 20) {
                         this.myCharacter.position.x += this.speed;
                         moved = true;
                     }
-                    
-                  /*   // 🔄 걷기 애니메이션 play/pause
-                    if (this.walkAction) {
-                      this.walkAction.paused = !moved; // 이동 중이면 재생, 아니면 멈춤
-                    } */
-                    
-                 // 캐릭터가 이동 중인지 체크
+
+                    // ✅ 걷기 애니메이션 시작/정지 처리
                     if (moved) {
-                        // 걷기 애니메이션 실행
                         if (this.walkAction && !this.walkAction.isRunning()) {
+                        	
+                        	 // 🔍 진단용 로그 (걷기 시작 시점)
+                            console.log('🧍‍♀️ 캐릭터 위치:', this.myCharacter.position);
+                            console.log('📏 캐릭터 스케일:', this.myCharacter.scale);
+                            console.log('📷 카메라와 거리:',
+                                this.camera.position.distanceTo(this.myCharacter.position)
+                            );
+                            
+                            this.myCharacter.scale.set(0.3, 0.3, 0.3); // 다시 한 번 크기 보정
+                            this.myCharacter.position.y = 0; // ← 혹시 위로 뜨는 문제일 수 있으므로
+                            this.myCharacter.updateMatrixWorld(true);
+                            
                             this.walkAction.reset().play();
+                            console.log('🚶‍♀️ 걷기 애니메이션 실행됨!');
                         }
                     } else {
-                        // 멈췄을 때 애니메이션 정지
                         if (this.walkAction && this.walkAction.isRunning()) {
                             this.walkAction.stop();
                         }
-                    } 
-                    
-                    if (moved) {
-                    // 카메라가 내 캐릭터를 따라다니기 
-                    this.camera.position.set(
-                        this.myCharacter.position.x,
-                        this.myCharacter.position.y + 25,
-                        this.myCharacter.position.z 
-                    );
-                    this.camera.lookAt(this.myCharacter.position);
-                    // 이동했으면 서버에 위치 전송
-                    this.sendPositionUpdate();
-                    // 캐릭터 이동에 따라 맵도 함께 이동 (옵션)
-                    this.updateMapToFollowCharacter();
                     }
+
+                    if (moved) {
+                        // 카메라 따라가기
+                        this.camera.position.set(
+                            this.myCharacter.position.x,
+                            this.myCharacter.position.y + 25,
+                            this.myCharacter.position.z + this.followZOffset
+                        );
+                        this.camera.lookAt(this.myCharacter.position);
+
+                        this.sendPositionUpdate();
+                        this.updateMapToFollowCharacter();
+                    }
+
                     // 포털 충돌 검사
                     this.checkPortalCollision();
-                    
                 }
-             // 포털 애니메이션
+
+                // 포털 애니메이션
                 this.animatePortals();
+
+                // 렌더링
                 this.renderer.render(this.scene, this.camera);
             }
             
@@ -1124,18 +1139,42 @@ function animateCloud($cloud, speed, delay, verticalShift = 20) {
                 this.mixer = new THREE.AnimationMixer(character);
                 console.log('🎬 애니메이션 클립 수:', gltf.animations.length);
                 console.log('📋 애니메이션 클립 이름들:', gltf.animations.map(c => c.name));
-                // 'Walk' 애니메이션이 있을 때만 적용
+             // 'Walk' 애니메이션이 있을 때만 적용
                 if (gltf.animations && gltf.animations.length > 0) {
                     const walkClip = gltf.animations.find(clip => clip.name === "Armature|mixamo.com|Layer0");
+
                     if (walkClip) {
-                        this.walkAction = this.mixer.clipAction(walkClip);
+
+                        console.log('🎯 전체 트랙 이름들:');
+                        walkClip.tracks.forEach((track, idx) => {
+                            console.log(`${idx}: ${track.name}`);
+                        });
+
+                        console.log('🧹 제거 전 트랙들:', walkClip.tracks.map(t => t.name));
+
+                        // ✅ walkClip 복제 후 scale 트랙 제거
+                        const walkClipClone = walkClip.clone();
+                        walkClipClone.tracks = walkClipClone.tracks.filter(track => {
+                            return !track.name.endsWith('.scale') && !track.name.endsWith('scale');
+                        });
+                        
+                        console.log('✅ 제거 후 트랙들:', walkClipClone.tracks.map(t => t.name));
+
+                        // ✅ 이전 캐시 제거 (혹시 몰라서 원본도 제거)
+                        this.mixer.uncacheClip(walkClip);
+                        this.mixer.uncacheClip(walkClipClone);
+
+                        // ✅ 꼭 clone으로 넣기!
+                        this.walkAction = this.mixer.clipAction(walkClipClone);
                         this.walkAction.loop = THREE.LoopRepeat;
                         this.walkAction.enabled = true;
-                     // 💥 반드시 추가!
-//                         this.walkAction.play();
-                        this.walkAction.paused = true;
+                        this.walkAction.paused = false; // 필요 시 play()
+
+                        console.log('🏃‍♀️ walkAction 준비 완료!');
                     }
                 }
+
+
 
                 console.log('✓ 내 캐릭터 설정 완료');
             }
@@ -1211,6 +1250,7 @@ function animateCloud($cloud, speed, delay, verticalShift = 20) {
          const baseScale = character.scale.x * 75;
          
          switch (partType) {
+         	 case 'face':
              case 'hair':
             	  partModel.scale.set(baseScale*1.6, baseScale*1.6, baseScale*1.6);
                   partModel.position.set(0, -20 , 0);

@@ -205,7 +205,7 @@ console.log(partGroupKey);
     
     // 👟 신발
     'shoes1': { scale: [32, 30, 32], position: [0, -22, 0], rotation: [0, 0, 0] },
-    'shoes2': { scale: [1.7, 2.1, 2], position: [0, -22, 1], rotation: [0, 0, 0] },
+    'shoes2': { scale: [20, 25, 26], position: [0, -13.5, -1.3], rotation: [0, 0, 0] },
     'shoes3': { scale: [40, 40, 45], position: [0, -22, 0], rotation: [0, 0, 0] },
     'shoes4': { scale: [37, 40, 45], position: [0, -22, -0.2], rotation: [0, 0, 0] },
     'shoes5': { scale: [40, 40, 45], position: [0, -22, -0.25], rotation: [0, 0, 0] },
@@ -215,8 +215,8 @@ console.log(partGroupKey);
 
     // 🧢 액세서리
     'accessory1': { scale: [50, 50, 50], position: [7.5, -33, -3], rotation: [0.2, -0.15, 0.1] },
-    'accessory2': { scale: [69, 60, 50], position: [-0.3, -41, 1], rotation: [0, 0, 0] },
-    'accessory3': { scale: [69, 60, 50], position: [-0.3, -41, 1], rotation: [0, 0, 0] },
+    'accessory2': { scale: [67.5, 60, 50], position: [0, -41, 1], rotation: [0, 0, 0] },
+    'accessory3': { scale: [67.5, 60, 50], position: [0, -41.2, 1], rotation: [0, 0, 0] },
     'accessory4': { scale: [75, 80, 75], position: [0, -58.5, 0], rotation: [0, 0, 0] },
     'accessory5': { scale: [40, 45, 45], position: [0, -30, 0.5], rotation: [0, 0, 0] },
     'accessory6': { scale: [40, 45, 45], position: [0, -29.9, 0.5], rotation: [0, 0, 0] },
