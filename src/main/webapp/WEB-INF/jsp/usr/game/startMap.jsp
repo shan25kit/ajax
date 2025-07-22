@@ -62,22 +62,22 @@
 
     <!-- 채팅 시스템 -->
     <div class="player-chat-container" id="chatContainer">
-        <div class="chat-header">
-            <div class="chat-title-wrapper">
-                <div class="chat-icon">💬</div>
-                <span class="chat-title">대화</span>
+        <div class="player-chat-header">
+            <div class="player-chat-title-wrapper">
+                <div class="player-chat-icon">💬</div>
+                <span class="player-chat-title">대화</span>
             </div>
-            <button class="chat-toggle" id="chatToggle">−</button>
+            <button class="player-chat-toggle" id="chatToggle">−</button>
         </div>
-        <div class="chat-messages" id="chatMessages">
+        <div class="player-chat-messages" id="chatMessages">
             <!-- 채팅 메시지들이 여기에 추가됩니다 -->
         </div>
-        <div class="chat-input-area">
-            <div class="input-wrapper">
-                <input type="text" id="chatInput" class="clean-input"
+        <div class="player-chat-input-area">
+            <div class="player-input-wrapper">
+                <input type="text" id="chatInput" class="player-input"
                     placeholder="메시지를 입력하세요..." maxlength="200">
-                <button id="chatSend" class="send-button">
-                    <span class="send-icon">↗</span>
+                <button id="chatSend" class="player-send-button">
+                    <span class="player-send-icon">↗</span>
                 </button>
             </div>
             <!-- 메시지 종류 선택 버튼 숨김 -->
@@ -85,9 +85,72 @@
         </div>
     </div>
 
-    <!-- jQuery (채팅 시스템용) -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- 메인 스크립트 -->
-    <script type="module" src="/resource/js/main.js"></script>
+    <script type="module">
+    import { GameClient } from '/resource/js/core/GameClient.js';
+		
+	console.log('=== 서버 데이터 원본 ===');
+ 	console.log('Member ID Raw:', '${player.memberId}');
+ 	console.log('Nick Name Raw:', '${player.nickName}');
+ 	console.log('Avatar Info Raw:', '${player.avatarInfo}');
+ 
+        // 서버에서 전달받은 플레이어 데이터
+     let player = {
+            memberId: ${player.memberId},
+            nickName: "${player.nickName}",
+            avatarInfo: JSON.parse('${player.avatarInfo}')
+        };
+     console.log('🔍 파싱된 avatarInfo:', player.avatarInfo);
+		
+	async function startGame() {
+  		try {
+       		 console.log('🎮 게임 시작');
 
+        if (typeof THREE === 'undefined') {
+            console.error('THREE.js가 로드되지 않았습니다!');
+            return;
+        }
+        
+        if (typeof THREE.GLTFLoader === 'undefined') {
+            console.error('GLTFLoader가 로드되지 않았습니다!');
+            return;
+        }
+        
+        console.log('✅ 라이브러리 로드 완료');
+
+        // 게임 클라이언트 생성 및 초기화
+        const gameClient = new GameClient();
+        await gameClient.initialize(player);
+        
+        // 서버 연결
+        await gameClient.connect();
+        
+        // 게임 시작
+        gameClient.startGame();
+        
+       // 디버그 활성화
+        gameClient.enableDebugMode(); 
+
+        // 전역 등록
+        window.gameClient = gameClient;
+        window.gameDebug = gameClient;
+
+        console.log('✅ 게임 시작 완료');
+        console.log('💡 window.gameDebug 사용 가능');
+
+    } catch (error) {
+        console.error('❌ 게임 시작 실패:', error);
+        alert(`게임 시작 실패: ${error.message}`);
+    }
+}
+
+// ===== 정리 =====
+window.addEventListener('beforeunload', () => {
+    window.gameClient?.destroy();
+});
+
+// ===== 시작 =====
+document.addEventListener('DOMContentLoaded', startGame);
+
+</script>
 <%@ include file="/WEB-INF/jsp/common/footer.jsp"%>

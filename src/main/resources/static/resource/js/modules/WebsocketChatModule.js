@@ -417,7 +417,7 @@ class ChatSystem {
     // ===== UI 초기화 =====
     initializeUI() {
         // jQuery 이벤트 바인딩
-        $('.chat-header').on('click', () => this.toggleChat());
+        $('.player-chat-header').on('click', () => this.toggleChat());
         $('#chatToggle').on('click', (e) => {
             e.stopPropagation();
             this.toggleChat();
