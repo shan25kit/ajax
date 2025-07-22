@@ -210,4 +210,5 @@ public class CustomCharacterService {
 		avatarInfo.set("parts", parts);
 		return avatarInfo; // character -> avartarInfo jsonNode로 변환
 	}
+
 }

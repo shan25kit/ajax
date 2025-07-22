@@ -623,30 +623,22 @@ function animateCloud($cloud, speed, delay, verticalShift = 20) {
                 
                 // 전역 키보드 이벤트 - 방향키나 WASD 입력 시 자동으로 캐릭터 모드 활성화
                 document.addEventListener('keydown', (e) => {
-                    const movementKeys = ['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'];
-                    const key = e.key.toLowerCase();
-                    
-                    // 채팅 입력 중이면 무시
-                    if (document.activeElement.id === 'chatInput') {
-                        return;
-                    }
-                    
-                    // 이동 키가 눌렸을 때 자동으로 캐릭터 모드 활성화
-                    if (movementKeys.includes(key)) {
-                        showCharacterMode();
-                        this.keys[key] = true;
-                        e.preventDefault();
-                    }
-                });
+				  const key = e.key; // 🔥 대소문자 그대로!
+				  if (document.activeElement.id === 'chatInput') return;
+				  const movementKeys = ['w', 'a', 's', 'd', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+				  if (movementKeys.includes(key)) {
+				    this.keys[key] = true;
+				    e.preventDefault();
+				  }
+				});
                 
                 document.addEventListener('keyup', (e) => {
-                    const movementKeys = ['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'];
-                    const key = e.key.toLowerCase();
-                    
-                    if (movementKeys.includes(key)) {
-                        this.keys[key] = false;
-                        e.preventDefault();
-                    }
+               	  const key = e.key;
+               	  const movementKeys = ['w', 'a', 's', 'd', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+               	  if (movementKeys.includes(key)) {
+               	    this.keys[key] = false;
+               	    e.preventDefault();
+               	  }
                 });
                 
                 // 캔버스별 키보드 이벤트 (추가 제어를 위해 유지)
@@ -706,27 +698,44 @@ function animateCloud($cloud, speed, delay, verticalShift = 20) {
 
                     // ✅ 걷기 애니메이션 시작/정지 처리
                     if (moved) {
-                        if (this.walkAction && !this.walkAction.isRunning()) {
-                        	
-                        	 // 🔍 진단용 로그 (걷기 시작 시점)
-                            console.log('🧍‍♀️ 캐릭터 위치:', this.myCharacter.position);
-                            console.log('📏 캐릭터 스케일:', this.myCharacter.scale);
-                            console.log('📷 카메라와 거리:',
-                                this.camera.position.distanceTo(this.myCharacter.position)
-                            );
-                            
-                            this.myCharacter.scale.set(0.3, 0.3, 0.3); // 다시 한 번 크기 보정
-                            this.myCharacter.position.y = 0; // ← 혹시 위로 뜨는 문제일 수 있으므로
-                            this.myCharacter.updateMatrixWorld(true);
-                            
-                            this.walkAction.reset().play();
-                            console.log('🚶‍♀️ 걷기 애니메이션 실행됨!');
-                        }
-                    } else {
-                        if (this.walkAction && this.walkAction.isRunning()) {
-                            this.walkAction.stop();
-                        }
-                    }
+					    // ✅ 이동 방향에 따라 회전 (항상 적용해야 함)
+					    const moveX = (this.keys['ArrowLeft'] || this.keys['a'] || this.keys['A'] ? 1 : 0)
+						            - (this.keys['ArrowRight'] || this.keys['d'] || this.keys['D'] ? 1 : 0);
+						
+						const moveZ = (this.keys['ArrowUp'] || this.keys['w'] || this.keys['W'] ? 1 : 0)
+						            - (this.keys['ArrowDown'] || this.keys['s'] || this.keys['S'] ? 1 : 0);
+
+
+					
+					    if (moveX !== 0 || moveZ !== 0) {
+					        const angle = Math.atan2(moveX, moveZ);
+					        this.myCharacter.rotation.y = angle + Math.PI; // 💡 쿼터뷰라면 +보정 필요
+					    }
+					
+					    // 걷기 애니메이션 시작
+					    if (this.walkAction && !this.walkAction.isRunning()) {
+					        this.myCharacter.scale.set(0.3, 0.3, 0.3);
+					        this.myCharacter.position.y = 0;
+					        this.myCharacter.updateMatrixWorld(true);
+					        this.walkAction.reset().play();
+					    }
+					
+					    // 카메라 따라가기
+					    this.camera.position.set(
+					        this.myCharacter.position.x,
+					        this.myCharacter.position.y + 25,
+					        this.myCharacter.position.z + this.followZOffset
+					    );
+					    this.camera.lookAt(this.myCharacter.position);
+					
+					    this.sendPositionUpdate();
+					    this.updateMapToFollowCharacter();
+					} else {
+					    // 멈추면 애니메이션 정지
+					    if (this.walkAction && this.walkAction.isRunning()) {
+					        this.walkAction.stop();
+					    }
+					}
 
                     if (moved) {
                         // 카메라 따라가기
@@ -1125,7 +1134,7 @@ function animateCloud($cloud, speed, delay, verticalShift = 20) {
                             // 위치 설정
           					character.position.set(position.x, position.y, position.z);
                             character.position.z = 5;
-          					character.rotation.y = Math.PI / 4;
+          					character.rotation.y = 0;
           					character.rotation.x = -Math.PI / 6;
          
             // 내 캐릭터인 경우 설정

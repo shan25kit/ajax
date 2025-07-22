@@ -18,4 +18,5 @@ public class Member {
 	private String loginId;
 	private String loginPw;
 	private String nickName;
+	private String customCharacter;
 }
