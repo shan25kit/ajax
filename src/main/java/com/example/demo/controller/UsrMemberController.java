@@ -52,7 +52,6 @@ public class UsrMemberController {
 	    return "usr/map/map";
 	}
 	
-	
 	@GetMapping("/usr/member/signup")
 	public String signup() {
 		return "usr/member/signup";
