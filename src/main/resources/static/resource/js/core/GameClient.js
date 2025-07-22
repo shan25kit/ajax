@@ -229,7 +229,9 @@ export class GameClient {
                 if (this.characterMovementModule?.updateMovement) {
                     this.characterMovementModule.updateMovement();
                 }
-                
+				if (this.characterRenderModule) {
+				    this.characterRenderModule.updateAnimations();
+				    }
                 if (this.mapModule?.updatePortals) {
                     this.mapModule.updatePortals();
                 }

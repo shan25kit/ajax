@@ -4,7 +4,6 @@ export class CharacterMovementModule {
         this.gameClient = gameClient;
         this.keys = {};
         this.speed = gameClient.getConfig('MOVEMENT_SPEED') || 0.2;
-        this.isCharacterMoving = false;
         this.lastPositionSent = null;
         this.positionUpdateThrottle = 50; // 50ms마다 위치 업데이트
         this.lastPositionUpdate = 0;
@@ -23,6 +22,8 @@ export class CharacterMovementModule {
 			// 카메라 설정 추가!!! 👇
 	        this.camera = this.gameClient.getCamera();
 	        this.followZOffset = 15;
+			
+			
             
             // 전역 변수 설정 (기존 코드와의 호환성)
             if (typeof window !== 'undefined') {
@@ -36,7 +37,11 @@ export class CharacterMovementModule {
             throw error;
         }
     }
-    
+	// ✅ 애니메이션 액션 설정 (RenderModule에서 호출)
+	   setAnimationActions(walkAction) {
+	       this.walkAction = walkAction;
+	       console.log('🎬 MovementModule 애니메이션 액션 설정 완료');
+	   }
     // ===== 키보드 컨트롤 설정 =====
     setupKeyboardControls() {
         const canvas = this.gameClient.getCanvas();
@@ -175,22 +180,17 @@ export class CharacterMovementModule {
 				
 				const moveZ = (this.keys['ArrowUp'] || this.keys['w'] || this.keys['W'] ? 1 : 0)
 				            - (this.keys['ArrowDown'] || this.keys['s'] || this.keys['S'] ? 1 : 0);
-
-
 			
 			    if (moveX !== 0 || moveZ !== 0) {
 			        const angle = Math.atan2(moveX, moveZ);
 			        this.myCharacter.rotation.y = angle + Math.PI; // 💡 쿼터뷰라면 +보정 필요
 			    }
 			
-			    // 걷기 애니메이션 시작
-			    if (this.walkAction && !this.walkAction.isRunning()) {
-			        this.myCharacter.scale.set(0.3, 0.3, 0.3);
-			        this.myCharacter.position.y = 0;
-			        this.myCharacter.updateMatrixWorld(true);
-			        this.walkAction.reset().play();
-			    }
-			
+				// ✅ 걷기 애니메이션 시작 (MovementModule 역할)
+				if (this.walkAction && !this.walkAction.isRunning()) {
+				this.walkAction.reset().play();
+				console.log('🚶‍♀️ 걷기 애니메이션 시작!');
+				               }
 			    // 카메라 따라가기
 			    this.camera.position.set(
 			        this.myCharacter.position.x,
@@ -203,9 +203,10 @@ export class CharacterMovementModule {
 			    this.updateMapToFollowCharacter(this.myCharacter);
 			} else {
 			    // 멈추면 애니메이션 정지
-			    if (this.walkAction && this.walkAction.isRunning()) {
-			        this.walkAction.stop();
-			    }
+				if (this.walkAction && this.walkAction.isRunning()) {
+				this.walkAction.stop();
+				console.log('⏹️ 걷기 애니메이션 정지');
+				}
 			}
 
             if (moved) {
@@ -382,10 +383,6 @@ export class CharacterMovementModule {
         return this.keys;
     }
     
-    // ===== 이동 중인지 확인 =====
-    isMoving() {
-        return this.isCharacterMoving;
-    }
     
     // ===== 리소스 정리 =====
     dispose() {
