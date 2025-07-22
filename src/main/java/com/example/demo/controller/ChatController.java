@@ -10,8 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.example.demo.dto.ChatRequest;
-import com.example.demo.dto.ChatResponse;
+import com.example.demo.dto.AIChatMessage;
 import com.example.demo.dto.ProcessedMessage;
 import com.example.demo.dto.Req;
 import com.example.demo.service.ChatService;
@@ -34,7 +33,7 @@ public class ChatController {
 
 	@PostMapping("/message")
 	@ResponseBody
-	public ChatResponse chat(@RequestBody ChatRequest request) {
+	public AIChatMessage  chat(@RequestBody AIChatMessage request) {
 		System.out.println("받은 메시지: " + request.getMessage()); // 디버깅
 		System.out.println("요청 시간: " + LocalDateTime.now());
 
@@ -46,22 +45,22 @@ public class ChatController {
 		ProcessedMessage processed = messagePreprocessingService.preprocessMessage(rawMessage, memberId);
 		// 1. 오류 상황 처리
 		if (processed.isHasError()) {
-			return new ChatResponse(processed.getErrorMessage());
+			return AIChatMessage.createResponse(processed.getErrorMessage());
 		}
 
 		// 2. 긴급 상황 처리
 		if (processed.isEmergency()) {
-			return new ChatResponse(processed.getEmergencyMessage());
+			return AIChatMessage.createResponse(processed.getEmergencyMessage());
 		}
 
 		// 3. 정상 상황 - 기존 ChatService 호출
 		String response = chatService.sendMessage(request.getMessage());
-		return new ChatResponse(response);
+		return AIChatMessage.createResponse(response);
 	}
 
 	@PostMapping("/message/{botType}")
 	@ResponseBody
-	public ChatResponse sendMessageWithRole(@PathVariable String botType, @RequestBody ChatRequest request) {
+	public AIChatMessage  sendMessageWithRole(@PathVariable String botType, @RequestBody AIChatMessage request) {
 		System.out.println("봇타입: " + botType + " - 받은 메시지: " + request.getMessage());
 		System.out.println("요청 시간: " + LocalDateTime.now());
 		// rawMessage와 memberId 추출
@@ -71,16 +70,16 @@ public class ChatController {
 		// 전처리 서비스 호출
 		ProcessedMessage processed = messagePreprocessingService.preprocessMessage(rawMessage, memberId);
 		if (processed.isHasError()) {
-			return new ChatResponse(processed.getErrorMessage());
+			return AIChatMessage.createResponse(processed.getErrorMessage());
 		}
 
 		if (processed.isEmergency()) {
-			return new ChatResponse(processed.getEmergencyMessage());
+			return AIChatMessage.createResponse(processed.getEmergencyMessage());
 		}
 
 		// 정상 상황
 		String response = chatService.sendMessageWithRole(request.getMessage(), botType);
-		return new ChatResponse(response);
+		return AIChatMessage.createResponse(response);
 	}
 	
 }

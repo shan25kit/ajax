@@ -91,7 +91,7 @@
 		renderer : 'svg',
 		loop : true,
 		autoplay : true,
-		path : '/lottie/loading2.json' // Spring Boot static 경로 기준
+		path : '/resource/lottie/loading2.json' // Spring Boot static 경로 기준
 	});
 </script>
 

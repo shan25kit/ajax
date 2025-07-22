@@ -14,7 +14,8 @@
 <!-- Main -->
 <link rel="stylesheet" href="/resource/css/main.css" />
 <link rel="stylesheet" href="/resource/css/login.css" />
-<link rel="stylesheet" href="/resource/css/socketTest.css" />
+<link rel="stylesheet" href="/resource/css/chatBot.css" />
+<!-- <link rel="stylesheet" href="/resource/css/startMap.css" />  -->
 <link rel="stylesheet" href="/resource/css/map.css" />
 <!-- CSS 끝 -->
 
@@ -34,8 +35,8 @@
 <!-- GLTFLoader 추가 -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
-
-
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+	
 <meta charset="UTF-8">
 <title>${pageTitle }</title>
 </head>

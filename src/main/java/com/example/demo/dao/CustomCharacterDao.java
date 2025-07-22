@@ -14,6 +14,10 @@ public interface CustomCharacterDao {
 	    		INSERT INTO custom_character
 	    			SET memberId = #{memberId}
 	    				, skinColor = #{skinColor}
+<<<<<<< HEAD
+=======
+	    				, face = #{face}
+>>>>>>> f2624a3ddec58d4ad5e555414e0321dca254e948
 		    		    , hair = #{hair}
 		    		    , hairColor = #{hairColor}
 		    		    , top = #{top}
@@ -23,11 +27,12 @@ public interface CustomCharacterDao {
 		    		    , accessoryMain = #{accessoryMain}
 		    		    , accessoryDetail = #{accessoryDetail}
 	    		""")
-		void customCaracterBySave(int memberId, String skinColor, Integer hair, String hairColor, Integer top, Integer bottom, Integer dress, Integer shoes, String accessoryMain, Integer accessoryDetail);
+		void customCaracterBySave(int memberId, String skinColor, Integer face, Integer hair, String hairColor, Integer top, Integer bottom, Integer dress, Integer shoes, String accessoryMain, Integer accessoryDetail);
 	    
 	    @Update("""
 		        UPDATE custom_character
 		    		SET skinColor = #{skinColor}
+		    			, face = #{face}
 		    		    , hair = #{hair}
 		    		    , hairColor = #{hairColor}
 		    		    , top = #{top}
@@ -38,7 +43,8 @@ public interface CustomCharacterDao {
 		    		    , accessoryDetail = #{accessoryDetail}
 		    		WHERE memberId = #{memberId}
 	    		""")
-		void customCaracterByUpdate(int memberId, String skinColor, Integer hair, String hairColor, Integer top, Integer bottom, Integer dress, Integer shoes, String accessoryMain, Integer accessoryDetail);
+		void customCaracterByUpdate(int memberId, String skinColor, Integer face, Integer hair, String hairColor, Integer top, Integer bottom, Integer dress, Integer shoes, String accessoryMain, Integer accessoryDetail);
+
 	    
 
 	    @Select("""

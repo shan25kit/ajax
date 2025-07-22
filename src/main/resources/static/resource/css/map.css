@@ -1,3 +1,6 @@
+
+@charset "UTF-8";
+
 html, body {
   margin: 0;
   padding: 0;
@@ -31,7 +34,6 @@ html, body {
 
 /*오브젝트 영역*/
 
-
 #portalLayer {
   position: absolute;
   top: 0;
@@ -42,18 +44,7 @@ html, body {
   pointer-events: none;
 }
 
-/*포탈 */
-.portal_1,
-.portal_2,
-.portal_3 {
-  position: absolute;
-  display: block;
-  z-index: 999;
-  pointer-events: none;
-  transform-origin: top left; /* 반드시 유지 */
-}
 
-/* 포탈 내부 이미지 공통 */
 .portal_1 img,
 .portal_2 img,
 .portal_3 img,
@@ -64,10 +55,7 @@ html, body {
   pointer-events: none;
 }
 
-
-
 /* 포탈 1 */
-
 
 .portal_1 .portal_back {
   width: 300px;
@@ -214,7 +202,3 @@ html, body {
   will-change: transform;
   transform: translateZ(0);
 }
-
-
-
-

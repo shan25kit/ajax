@@ -47,4 +47,3 @@ SELECT * FROM custom_character;
 TRUNCATE TABLE `member`;
 TRUNCATE TABLE memberInfo;
 TRUNCATE TABLE custom_character;
-

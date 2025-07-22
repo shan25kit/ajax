@@ -11,6 +11,7 @@ public class CustomCharacter {
 	private int memberId;
 	    // 개별 컬럼들 (DB 효율성)
 	    private String skinColor;
+	    private Integer face;
 	    private Integer hair;
 	    private String hairColor;
 	    private Integer top;

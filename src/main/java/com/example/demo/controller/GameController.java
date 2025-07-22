@@ -6,34 +6,39 @@ import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.example.demo.dto.CustomCharacter;
 import com.example.demo.dto.Player;
 import com.example.demo.dto.Req;
+import com.example.demo.service.CustomCharacterService;
 import com.example.demo.service.GameService;
+import com.fasterxml.jackson.databind.JsonNode;
 
 @Controller
-@CrossOrigin(origins = "*")
 public class GameController {
 	private Req req;
 	private GameService gameService;
+	private CustomCharacterService characterService;
 	
-	public GameController(Req req, GameService gameService) {
+	public GameController(Req req, GameService gameService, CustomCharacterService characterService) {
 		this.req = req;
 		this.gameService = gameService;
+		this.characterService = characterService;
 	}
-	
-	
 	// 유저 정보 로딩
-	@GetMapping("/usr/game")
-    public String test(Model model) {
-		System.out.println("=== GameController.test() 메서드 호출됨 ===");
+	@GetMapping("/usr/game/startMap")
+    public String userInfoload(Model model) {
+		System.out.println("=== websocket() 메서드 호출됨 ===");
 		int memberId = this.req.getLoginedMember().getId();
-		System.out.println(memberId);
 		Player player = this.gameService.selectPlayerByMemberId(memberId);
+		System.out.println(player);
+		CustomCharacter character = this.characterService.getCharacter(memberId);
+		System.out.println(character);
+		JsonNode avatarInfo = this.characterService.convertCharacterToJson(character);
+		System.out.println(avatarInfo);
+		player.setAvatarInfo(avatarInfo);
 		System.out.println(player);
 		model.addAttribute("player", player);
         return "usr/game/startMap";
@@ -45,12 +50,18 @@ public class GameController {
 	}
 	
 	@GetMapping("/usr/game/testMap")
-	public String testMap() {
+	public String testMap(Model model) {
+		System.out.println("=== websocket() 메서드 호출됨 ===");
+		int memberId = this.req.getLoginedMember().getId();
+		System.out.println(memberId);
+		Player player = this.gameService.selectPlayerByMemberId(memberId);
+		System.out.println(player);
+		model.addAttribute("player", player);
 		return "usr/game/testMap";
 	}
 	
 	// 테스트용 엔드포인트
-	@GetMapping("/test")
+	@GetMapping("/usr/game/test")
 	public ResponseEntity<Map<String, String>> test() {
 		Map<String, String> response = new HashMap<>();
 		response.put("status", "success");
@@ -59,7 +70,7 @@ public class GameController {
 	}
 
 	// WebSocket 연결 정보 엔드포인트
-	@GetMapping("/websocket-info")
+	@GetMapping("/usr/game/websocket-info")
 	public ResponseEntity<Map<String, String>> getWebSocketInfo() {
 		Map<String, String> info = new HashMap<>();
 		info.put("websocket_url", "ws://localhost:8081/game");
