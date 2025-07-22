@@ -179,7 +179,7 @@ export class GameClient {
     }
 }
     // ===== 게임 루프 시작 =====
-    startGame() {
+    async startGame() {
         if (!this.isInitialized || !this.isConnected) {
             console.error('게임을 시작할 수 없습니다. 초기화 또는 연결 상태를 확인하세요.');
             return;
@@ -188,12 +188,32 @@ export class GameClient {
     
     // 🚫 테스트용: 캐릭터 렌더링 모듈 초기화 (웹소켓 없이)
     if (this.characterRenderModule && this.characterRenderModule.initialize) {
-        this.characterRenderModule.initialize();
+        await this.characterRenderModule.initialize();
     }
+	
+	// ✅ 캐릭터 렌더링 완료될 때까지 기다리기
+	    await this.waitForMyCharacter();
    
         this.isRunning = true;
         this.startAnimationLoop();
     }
+	
+	async waitForMyCharacter() {
+	    return new Promise((resolve) => {
+	        const check = () => {
+	            const myChar = this.characterRenderModule.getMyCharacter();
+	            if (myChar) {
+	                console.log('✅ myCharacter 로딩 확인 완료');
+	                resolve();
+	            } else {
+	                console.log('⏳ myCharacter 로딩 대기 중...');
+	                setTimeout(check, 100); // 100ms 단위로 재확인
+	            }
+	        };
+	        check();
+	    });
+	}
+
     
     // ===== 애니메이션 루프 =====
     startAnimationLoop() {

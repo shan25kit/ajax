@@ -19,6 +19,10 @@ export class CharacterMovementModule {
             
             // 키보드 컨트롤 설정
             this.setupKeyboardControls();
+			
+			// 카메라 설정 추가!!! 👇
+	        this.camera = this.gameClient.getCamera();
+	        this.followZOffset = 15;
             
             // 전역 변수 설정 (기존 코드와의 호환성)
             if (typeof window !== 'undefined') {
@@ -76,31 +80,24 @@ export class CharacterMovementModule {
         
         // 전역 키보드 이벤트 - 방향키나 WASD 입력 시 자동으로 캐릭터 모드 활성화
         document.addEventListener('keydown', (e) => {
-            const movementKeys = ['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'];
-            const key = e.key.toLowerCase();
-            
-            // 채팅 입력 중이면 무시
-            if (document.activeElement.id === 'chatInput') {
-                return;
-            }
-            
-            // 이동 키가 눌렸을 때 자동으로 캐릭터 모드 활성화
-            if (movementKeys.includes(key)) {
-                showCharacterMode();
-                this.keys[key] = true;
-                e.preventDefault();
-            }
-        });
+			const key = e.key; // 🔥 대소문자 그대로!
+			  if (document.activeElement.id === 'chatInput') return;
+			  const movementKeys = ['w', 'a', 's', 'd', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+			  if (movementKeys.includes(key)) {
+			    this.keys[key] = true;
+			    e.preventDefault();
+			  }
+			});
         
         document.addEventListener('keyup', (e) => {
-            const movementKeys = ['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'];
-            const key = e.key.toLowerCase();
-            
-            if (movementKeys.includes(key)) {
-                this.keys[key] = false;
-                e.preventDefault();
-            }
-        });
+			const key = e.key;
+	       	  const movementKeys = ['w', 'a', 's', 'd', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+	       	  if (movementKeys.includes(key)) {
+	       	    this.keys[key] = false;
+	       	    e.preventDefault();
+				console.log('🔑 키 입력됨:', e.key);
+	       	  }
+       	 });
         
         // 캔버스별 키보드 이벤트 (추가 제어를 위해 유지)
         canvas.addEventListener('keydown', (e) => {
@@ -121,66 +118,115 @@ export class CharacterMovementModule {
     
     // ===== 이동 업데이트 (애니메이션 루프에서 호출) =====
     updateMovement() {
-        const characterRenderModule = this.gameClient.getCharacterRenderModule();
-        const myCharacter = characterRenderModule?.getMyCharacter();
-        
-        if (!myCharacter || !this.keys) {
-            return;
+		if (!this.myCharacter) {
+		        const characterRenderModule = this.gameClient.getCharacterRenderModule();
+		        this.myCharacter = characterRenderModule?.getMyCharacter();
+
+		        // 디버깅 로그
+		        if (!this.myCharacter) {
+		            console.warn('🚨 myCharacter가 아직 정의되지 않았습니다!');
+		            return;
+		        } else {
+		            console.log('✅ myCharacter 할당 성공:', this.myCharacter);
+		        }
+		    }
+
+		    if (!this.keys) return;
+		
+		// ✅ 항상 스케일과 높이 고정 (혹시라도 애니메이션에 의해 덮어씌워질 경우 방지)
+        if (this.myCharacter) {
+            this.myCharacter.scale.set(0.3, 0.3, 0.3);
+            this.myCharacter.position.y = 0;
         }
         
-        let moved = false;
-        const originalPosition = {
-            x: myCharacter.position.x,
-            y: myCharacter.position.y,
-            z: myCharacter.position.z
-        };
-          // 임시 새 위치 계산
-        let newPosition = { ...originalPosition };
-        // 키 입력에 따른 이동
-        if (this.keys['arrowup'] || this.keys['w']) {
-            newPosition.z -= this.speed;
-            moved = true;
+     	// 애니메이션 업데이트
+        if (this.mixer && this.clock) {
+	        const delta = this.clock.getDelta();
+	        this.mixer.update(delta);
+	    }
+
+        // 내 캐릭터 이동 처리
+        if (this.myCharacter && this.keys) {
+            let moved = false;
+
+            if (this.keys['ArrowUp'] || this.keys['w'] || this.keys['W']) {
+				console.log('⬆️ 위로 이동!');
+                this.myCharacter.position.z -= this.speed;
+                moved = true;
+            }
+            if (this.keys['ArrowDown'] || this.keys['s'] || this.keys['S']) {
+                this.myCharacter.position.z += this.speed;
+                moved = true;
+            }
+            if (this.keys['ArrowLeft'] || this.keys['a'] || this.keys['A']) {
+                this.myCharacter.position.x -= this.speed;
+                moved = true;
+            }
+            if (this.keys['ArrowRight'] || this.keys['d'] || this.keys['D']) {
+                this.myCharacter.position.x += this.speed;
+                moved = true;
+            }
+
+            // ✅ 걷기 애니메이션 시작/정지 처리
+            if (moved) {
+			    // ✅ 이동 방향에 따라 회전 (항상 적용해야 함)
+			    const moveX = (this.keys['ArrowLeft'] || this.keys['a'] || this.keys['A'] ? 1 : 0)
+				            - (this.keys['ArrowRight'] || this.keys['d'] || this.keys['D'] ? 1 : 0);
+				
+				const moveZ = (this.keys['ArrowUp'] || this.keys['w'] || this.keys['W'] ? 1 : 0)
+				            - (this.keys['ArrowDown'] || this.keys['s'] || this.keys['S'] ? 1 : 0);
+
+
+			
+			    if (moveX !== 0 || moveZ !== 0) {
+			        const angle = Math.atan2(moveX, moveZ);
+			        this.myCharacter.rotation.y = angle + Math.PI; // 💡 쿼터뷰라면 +보정 필요
+			    }
+			
+			    // 걷기 애니메이션 시작
+			    if (this.walkAction && !this.walkAction.isRunning()) {
+			        this.myCharacter.scale.set(0.3, 0.3, 0.3);
+			        this.myCharacter.position.y = 0;
+			        this.myCharacter.updateMatrixWorld(true);
+			        this.walkAction.reset().play();
+			    }
+			
+			    // 카메라 따라가기
+			    this.camera.position.set(
+			        this.myCharacter.position.x,
+			        this.myCharacter.position.y + 25,
+			        this.myCharacter.position.z + this.followZOffset
+			    );
+			    this.camera.lookAt(this.myCharacter.position);
+			
+			    this.sendPositionUpdateThrottled();
+			    this.updateMapToFollowCharacter(this.myCharacter);
+			} else {
+			    // 멈추면 애니메이션 정지
+			    if (this.walkAction && this.walkAction.isRunning()) {
+			        this.walkAction.stop();
+			    }
+			}
+
+            if (moved) {
+                // 카메라 따라가기
+                this.camera.position.set(
+                    this.myCharacter.position.x,
+                    this.myCharacter.position.y + 25,
+                    this.myCharacter.position.z + this.followZOffset
+                );
+                this.camera.lookAt(this.myCharacter.position);
+
+                this.sendPositionUpdateThrottled();
+                this.updateMapToFollowCharacter(this.myCharacter);
+            }
+
+           // 포털 충돌 검사
+            this.checkPortalCollision(this.myCharacter);
         }
-        if (this.keys['arrowdown'] || this.keys['s']) {
-            newPosition.z += this.speed;
-            moved = true;
-        }
-        if (this.keys['arrowleft'] || this.keys['a']) {
-            newPosition.x -= this.speed;
-            moved = true;
-        }
-        if (this.keys['arrowright'] || this.keys['d']) {
-            newPosition.x += this.speed;
-            moved = true;
-        }
-        
-        if (moved) {
-             // 이동 가능 여부 검사
-            if (this.isMovementAllowed(newPosition)) {
-                // 실제 이동 적용
-                myCharacter.position.set(newPosition.x, newPosition.y, newPosition.z);
-            this.isCharacterMoving = true;
-            
-            // 카메라가 내 캐릭터를 따라다니기
-            this.updateCameraToFollowCharacter(myCharacter);
-            
-            // 서버에 위치 전송 (스로틀링 적용)
-            this.sendPositionUpdateThrottled();
-            
-            // 캐릭터 이동에 따라 맵도 함께 이동
-            this.updateMapToFollowCharacter(myCharacter);
-            
-            // 포털 충돌 검사
-            this.checkPortalCollision(myCharacter);
-        } else {
-              // 이동 불가능한 경우 원래 위치 유지
-                console.log('🚫 이동 제한: 해당 영역으로 이동할 수 없습니다.');  // 이동 불가능한 경우 원래 위치 유지
-               }
-        } else {   
-            this.isCharacterMoving = false;
-        }
+
     }
-    
+	
     // ===== 카메라가 캐릭터를 따라다니도록 업데이트 =====
     updateCameraToFollowCharacter(character) {
         const camera = this.gameClient.getCamera();
