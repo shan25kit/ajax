@@ -24,6 +24,7 @@ public class CustomCharacterService {
 		CustomCharacter character = convertJsonToCharacter(avatarInfo, memberId);
 		System.out.println(character);
 		customCharacterDao.customCaracterBySave(character.getMemberId(), character.getSkinColor(),
+				character.getFace() != null ? Integer.valueOf(character.getFace()) : null,
 				character.getHair() != null ? Integer.valueOf(character.getHair()) : null, character.getHairColor(),
 				character.getTop() != null ? Integer.valueOf(character.getTop()) : null,
 				character.getBottom() != null ? Integer.valueOf(character.getBottom()) : null,
@@ -37,6 +38,7 @@ public class CustomCharacterService {
 	public void customCaracterByUpdate(int memberId, JsonNode avatarInfo) {
 		CustomCharacter character = convertJsonToCharacter(avatarInfo, memberId);
 		customCharacterDao.customCaracterByUpdate(character.getMemberId(), character.getSkinColor(),
+				character.getFace() != null ? Integer.valueOf(character.getFace()) : null,
 				character.getHair() != null ? Integer.valueOf(character.getHair()) : null, character.getHairColor(),
 				character.getTop() != null ? Integer.valueOf(character.getTop()) : null,
 				character.getBottom() != null ? Integer.valueOf(character.getBottom()) : null,
@@ -65,6 +67,10 @@ public class CustomCharacterService {
 
 		// 파츠 정보
 		JsonNode parts = avatarInfo.path("parts");
+		
+		if (parts.has("face")) {
+			character.setFace(parts.path("face").path("style").asInt(0));
+		}
 
 		if (parts.has("hair")) {
 			JsonNode hair = parts.path("hair");
@@ -127,6 +133,13 @@ public class CustomCharacterService {
 		// 피부색
 		if (character.getSkinColor() != null) {
 			avatarInfo.put("skinColor", character.getSkinColor());
+		}
+		
+		// 상의
+		if (character.getFace() != null) {
+			ObjectNode face = objectMapper.createObjectNode();
+			face.put("style", character.getFace());
+			parts.set("face", face);
 		}
 
 		// 헤어

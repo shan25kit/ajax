@@ -155,14 +155,21 @@ console.log(partGroupKey);
   // 🎯 파트별 설정
   const partSettings = {
 		  
-    'face1': { scale: [4, 4, 4], position: [0, 9, 6], rotation: [20.4, 0, 0] },
+    'face1': { scale: [1.7, 1.7, 1.7], position: [0, -18, 0.1], rotation: [0, 0, 0] },
+    'face2': { scale: [1.7, 1.7, 1.7], position: [0, -18, 0.1], rotation: [0, 0, 0] },
+    'face3': { scale: [1.7, 1.7, 1.7], position: [0, -18, 0.1], rotation: [0, 0, 0] },
+    'face4': { scale: [1.7, 1.7, 1.7], position: [0, -18, 0.1], rotation: [0, 0, 0] },
+    'face5': { scale: [1.7, 1.7, 1.7], position: [0, -18, 0.1], rotation: [0, 0, 0] },
+    'face6': { scale: [1.7, 1.7, 1.7], position: [0, -18, 0.1], rotation: [0, 0, 0] },
+    'face7': { scale: [1.7, 1.7, 1.7], position: [0, -18, 0.1], rotation: [0, 0, 0] },
+    'face8': { scale: [1.7, 1.7, 1.7], position: [0, -18, 0.1], rotation: [0, 0, 0] },
     // 💇 헤어
     'hair1': { scale: [66, 66, 65], position: [0, -46, 0], rotation: [0, 0, 0] },
     'hair12': { scale: [65, 64, 63], position: [0, -45, 0.8], rotation: [0, 0, 0] },
     'hair3': { scale: [66.8, 65, 55.75], position: [0, -45.2, 0.4], rotation: [0, 0, 0] },
     'hair14': { scale: [62, 61, 60], position: [0, -66, 1], rotation: [0, 0, 0] },
     'hair10': { scale: [59, 60, 61], position: [0, -64.5, 0.5], rotation: [0, 0, 0] },
-    'hair17': { scale: [65, 60, 58], position: [0, -41.2, 0], rotation: [0, 0, 0] },
+    'hair17': { scale: [66, 60, 58], position: [0, -41, 0], rotation: [0, 0, 0] },
     'hair18': { scale: [65, 58, 65], position: [0, -40, 0], rotation: [0, 0, 0] },
     'hair19': { scale: [65, 60, 61], position: [0, -41.1, 1], rotation: [0, 0, 0] },
 
@@ -198,7 +205,7 @@ console.log(partGroupKey);
     
     // 👟 신발
     'shoes1': { scale: [32, 30, 32], position: [0, -22, 0], rotation: [0, 0, 0] },
-    'shoes2': { scale: [1.7, 2.1, 2], position: [0, -22, 1], rotation: [0, 0, 0] },
+    'shoes2': { scale: [20, 25, 26], position: [0, -13.5, -1.3], rotation: [0, 0, 0] },
     'shoes3': { scale: [40, 40, 45], position: [0, -22, 0], rotation: [0, 0, 0] },
     'shoes4': { scale: [37, 40, 45], position: [0, -22, -0.2], rotation: [0, 0, 0] },
     'shoes5': { scale: [40, 40, 45], position: [0, -22, -0.25], rotation: [0, 0, 0] },
@@ -208,8 +215,8 @@ console.log(partGroupKey);
 
     // 🧢 액세서리
     'accessory1': { scale: [50, 50, 50], position: [7.5, -33, -3], rotation: [0.2, -0.15, 0.1] },
-    'accessory2': { scale: [67, 60, 50], position: [0, -41, 1], rotation: [0, 0, 0] },
-    'accessory3': { scale: [67, 60, 50], position: [0, -41, 1], rotation: [0, 0, 0] },
+    'accessory2': { scale: [67.5, 60, 50], position: [0, -41, 1], rotation: [0, 0, 0] },
+    'accessory3': { scale: [67.5, 60, 50], position: [0, -41.2, 1], rotation: [0, 0, 0] },
     'accessory4': { scale: [75, 80, 75], position: [0, -58.5, 0], rotation: [0, 0, 0] },
     'accessory5': { scale: [40, 45, 45], position: [0, -30, 0.5], rotation: [0, 0, 0] },
     'accessory6': { scale: [40, 45, 45], position: [0, -29.9, 0.5], rotation: [0, 0, 0] },
@@ -486,16 +493,16 @@ function updateSelectBox(option) {
           	</div>
           	<div class="style-Wrap">
           		<button class="style5" onclick="loadModel('/resource/model/face5.glb', 'face5')">
-          			<img class="face" src="/resource/img/face4.png" alt="face4" />
+          			<img class="face" src="/resource/img/face5.png" alt="face4" />
           		</button>
           		<button class="style6" onclick="loadModel('/resource/model/face6.glb', 'face6')">
-          			<img class="face" src="/resource/img/face4.png" alt="face4" />
+          			<img class="face" src="/resource/img/face6.png" alt="face4" />
           		</button>
           		<button class="style7" onclick="loadModel('/resource/model/face7.glb', 'face7')">
-          			<img class="face" src="/resource/img/face4.png" alt="face4" />
+          			<img class="face" src="/resource/img/face7.png" alt="face4" />
           		</button>
           		<button class="style8" onclick="loadModel('/resource/model/face8.glb', 'face8')">
-          			<img class="face" src="/resource/img/face4.png" alt="face4" />
+          			<img class="face" src="/resource/img/face8.png" alt="face4" />
           		</button>
           	</div>
         </div>`;

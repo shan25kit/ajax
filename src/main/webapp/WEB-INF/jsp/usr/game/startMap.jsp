@@ -118,6 +118,7 @@
         
         console.log('✅ 라이브러리 로드 완료');
 
+
         // 게임 클라이언트 생성 및 초기화
         const gameClient = new GameClient();
         await gameClient.initialize(player);
@@ -131,6 +132,7 @@
        // 디버그 활성화
         gameClient.enableDebugMode(); 
 
+
         // 전역 등록
         window.gameClient = gameClient;
         window.gameDebug = gameClient;
@@ -143,7 +145,6 @@
         alert(`게임 시작 실패: ${error.message}`);
     }
 }
-
 // ===== 정리 =====
 window.addEventListener('beforeunload', () => {
     window.gameClient?.destroy();
