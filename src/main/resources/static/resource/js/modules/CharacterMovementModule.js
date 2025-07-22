@@ -338,7 +338,7 @@ export class CharacterMovementModule {
     }
     
     // ===== 포털 충돌 검사 =====
-checkPortalCollision(character) {
+	checkPortalCollision(character) {
     const mapModule = this.gameClient.getMapModule();
     if (!mapModule) return;
     
