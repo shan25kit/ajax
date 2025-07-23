@@ -133,14 +133,14 @@ export class CharacterMovementModule {
 		            return;
 		        } else {
 		            console.log('✅ myCharacter 할당 성공:', this.myCharacter);
+					this.initializeCharacterPosition();
 		        }
 		    }
 
 		    if (!this.keys) return;
 		
-		// ✅ 항상 스케일과 높이 고정 (혹시라도 애니메이션에 의해 덮어씌워질 경우 방지)
+		// ✅ 항상 높이 고정 
         if (this.myCharacter) {
-            this.myCharacter.scale.set(0.3, 0.3, 0.3);
             this.myCharacter.position.y = 0;
         }
         
@@ -227,6 +227,39 @@ export class CharacterMovementModule {
         }
 
     }
+	initializeCharacterPosition() {
+	        const config = this.gameClient.getCharacterConfig();
+	        
+	        if (!this.myCharacter) {
+	            console.warn('⚠️ myCharacter가 없어서 초기 위치 설정을 건너뜁니다.');
+	            return;
+	        }
+	        
+	        // 2D 맵 좌표를 3D 월드 좌표로 변환
+	        const worldPos = this.imageToWorldCoordinates(
+	            config.MAP_POSITION.x, 
+	            config.MAP_POSITION.y
+	        );
+	        
+	        // 캐릭터를 계산된 위치로 배치
+	        this.myCharacter.position.set(worldPos.x, 0, worldPos.z);
+	        console.log(`🎯 캐릭터 초기 위치 설정: 3D(${worldPos.x}, 0, ${worldPos.z}) <- 2D(${config.MAP_POSITION.x}, ${config.MAP_POSITION.y})`);
+	        
+	        // 초기 카메라 위치도 설정
+	        this.updateCameraPosition();
+	    }
+	    
+	    // 🔥 카메라 위치 업데이트 메서드
+	    updateCameraPosition() {
+	        if (!this.myCharacter || !this.camera) return;
+	        
+	        this.camera.position.set(
+	            this.myCharacter.position.x,
+	            this.myCharacter.position.y + 25,
+	            this.myCharacter.position.z + this.followZOffset
+	        );
+	        this.camera.lookAt(this.myCharacter.position);
+	    }
 	
     // ===== 카메라가 캐릭터를 따라다니도록 업데이트 =====
     updateCameraToFollowCharacter(character) {

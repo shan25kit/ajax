@@ -259,7 +259,7 @@ export class CharacterRenderModule {
 			case 'bottom':
 			case 'shoes':
 			default:
-				model.scale.set(baseScale, baseScale, baseScale);
+				model.scale.set(baseScale* 0.3, baseScale* 0.2, baseScale* 0.2);
 				model.position.set(0, -4, 0);
 				break;
 		}
