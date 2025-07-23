@@ -132,8 +132,8 @@ export class WebsocketChatModule {
                     await this.handleExistingPlayers(message);
                     break;
                     
-                case 'player-moved':
-                    this.handlePlayerMoved(message);
+                case 'player-move':
+                    this.handlePlayerMove(message);
                     break;
                     
                 case 'player-left':
@@ -214,7 +214,7 @@ export class WebsocketChatModule {
     }
     
     // ===== 플레이어 이동 처리 =====
-    handlePlayerMoved(message) {
+    handlePlayerMove(message) {
         console.log('🚶 플레이어 이동:', message.sessionId, message.position);
         
         const characterRenderModule = this.gameClient.getCharacterRenderModule();

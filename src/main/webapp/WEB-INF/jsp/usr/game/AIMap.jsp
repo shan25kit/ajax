@@ -282,7 +282,7 @@
                             }
                             break;
 
-                        case 'player-moved':
+                        case 'player-move':
                             console.log('=== 플레이어 이동 메시지 수신 ===');
                             console.log('받은 메시지:', message);
                             this.updatePlayerPosition(message.sessionId, message.position);
