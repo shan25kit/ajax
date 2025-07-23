@@ -5,7 +5,7 @@ export class CharacterRenderModule {
 		this.loader = null;
 		this.playerCharacters = new Map();
 		this.myCharacter = null;
-		// ✅ 애니메이션 관련 (내 캐릭터만)
+		// 애니메이션 관련 (내 캐릭터만)
 		this.mixer = null;
 		this.clock = new THREE.Clock();
 		this.walkAction = null;
@@ -113,9 +113,8 @@ export class CharacterRenderModule {
 		const characterScale = characterConfig.SCALE;
 		character.scale.set(characterScale, characterScale, characterScale);
 
-		/*// 위치 설정
-		const worldPosition = this.mapToThreePosition(position);
-		character.position.set(worldPosition.x, 0, worldPosition.z);*/
+		// 위치 설정
+		
 
 		// 회전 설정
 		character.rotation.y = Math.PI / 4;
@@ -170,19 +169,7 @@ export class CharacterRenderModule {
 		}
 	}
 
-	// ===== 맵 좌표를 3D 좌표로 변환 =====
-	mapToThreePosition(mapPosition) {
-		const mapConfig = this.gameClient.getMapConfig();
-		const mapCenterX = mapConfig.IMAGE_WIDTH / 2;
-		const mapCenterY = mapConfig.IMAGE_HEIGHT / 2;
-		const scale = 0.1;
-
-		return {
-			x: (mapPosition.x - mapCenterX) * scale,
-			y: 0,
-			z: (mapPosition.y - mapCenterY) * scale
-		};
-	}
+	
 	// ===== 캐릭터 파츠 로딩 =====
 	loadCharacterParts(character, parts, nickName) {
 		console.log('캐릭터 파츠 로딩 시작:', nickName, parts);

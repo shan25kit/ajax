@@ -358,6 +358,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 	        chatMessage.put("nickName", sender.getNickName());
 	        chatMessage.put("message", message);
 	        chatMessage.put("memberId", sender.getMemberId());
+	        chatMessage.put("sessionId", sender.getSessionId());
 	        chatMessage.put("timestamp", System.currentTimeMillis());
 	        
 	        // global일 때는 mapName 없이, map일 때만 추가

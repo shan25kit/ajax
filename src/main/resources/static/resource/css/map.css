@@ -1,12 +1,10 @@
-/* @charset "UTF-8";
-
 html, body {
   margin: 0;
   padding: 0;
   overflow: hidden;
   width: 100%;
   height: 100%;
-
+}
 
 .map-container {
   position: relative;
@@ -21,16 +19,17 @@ html, body {
   top: 0;
   left: 0;
   transform-origin: top left;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 #mapCanvas {
   z-index: 10;
   pointer-events: none;
-  background-color: rgba(0, 0, 0, 0.5);
 }
 
 
-오브젝트 영역
+/*오브젝트 영역*/
 
 
 #portalLayer {
@@ -43,7 +42,7 @@ html, body {
   pointer-events: none;
 }
 
-포탈
+/*포탈 */
 .portal_1,
 .portal_2,
 .portal_3 {
@@ -51,10 +50,10 @@ html, body {
   display: block;
   z-index: 999;
   pointer-events: none;
-  transform-origin: top left; 반드시 유지
+  transform-origin: top left; /* 반드시 유지 */
 }
 
-포탈 내부 이미지 공통
+/* 포탈 내부 이미지 공통 */
 .portal_1 img,
 .portal_2 img,
 .portal_3 img,
@@ -67,7 +66,7 @@ html, body {
 
 
 
-포탈 1
+/* 포탈 1 */
 
 
 .portal_1 .portal_back {
@@ -91,7 +90,7 @@ html, body {
   mix-blend-mode: hard-light;
 }
 
-포탈 2
+/* 포탈 2 */
 .portal_2 .portal_back {
   width: 390px;
   transform: translate(-200px, 5px);
@@ -114,7 +113,7 @@ html, body {
 }
 
 
-포탈 3
+/* 포탈 3 */
 
 
 .portal_3 .portal_back {
@@ -138,7 +137,7 @@ html, body {
   mix-blend-mode: hard-light;
 }
 
-포탈 4
+/* 포탈 4 */
 
 .portal_4 .portal_back {
   width: 300px;
@@ -161,7 +160,7 @@ html, body {
   mix-blend-mode: hard-light;
 }
 
-포탈 5
+/* 포탈 5 */
 
 .portal_5 .portal_back {
   width: 580px;
@@ -181,4 +180,37 @@ html, body {
   z-index: 2;
   opacity: 0.7;
   mix-blend-mode: hard-light;
-} */
+}
+
+
+
+/*캐릭터 영역*/
+.character-container {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  z-index: 9999 !important;
+  transform-origin: top left; /* center bottom → top left로 변경 */
+    pointer-events: none;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.character-3d {
+	position: relative;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  z-index: 9999;
+}
+
+.character-3d canvas {
+  position: absolute;
+  height: 220px !important;
+  width: auto !important;
+  transform-origin: center bottom;
+  z-index: 9999;
+  will-change: transform;
+  transform: translateZ(0);
+}

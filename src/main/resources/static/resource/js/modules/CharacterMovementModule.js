@@ -323,7 +323,7 @@ export class CharacterMovementModule {
         }
         
         const moveMessage = {
-            type: 'player-move',
+            type: 'player-moved',
             position: {
                 x: myCharacter.position.x,
                 y: myCharacter.position.y,
