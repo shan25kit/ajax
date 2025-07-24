@@ -113,9 +113,6 @@ export class CharacterRenderModule {
 		const characterScale = characterConfig.SCALE;
 		character.scale.set(characterScale, characterScale, characterScale);
 
-		// 위치 설정
-		
-
 		// 회전 설정
 		character.rotation.y = Math.PI / 4;
 		character.rotation.x = -Math.PI / 6;
@@ -253,7 +250,7 @@ export class CharacterRenderModule {
 			case 'dress':
 			case 'top':
 				model.scale.set(baseScale * 1.6, baseScale * 1.6, baseScale * 1.6);
-				model.position.set(0, 5, 0);
+				model.position.set(0, -1, 0);
 				break;
 
 			case 'bottom':

@@ -95,9 +95,9 @@ public class WebSocketHandler extends TextWebSocketHandler {
 		player.setCurrentMap(currentMap);
 
 		Map<String, Double> initialPosition = new HashMap<>();
-		initialPosition.put("x", 0.0);
-		initialPosition.put("y", 1.0);
-		initialPosition.put("z", 0.0);
+		initialPosition.put("x", 2400.0);
+		initialPosition.put("y", 0.0);
+		initialPosition.put("z", 1800.0);
 
 		player.setPosition(initialPosition);
 

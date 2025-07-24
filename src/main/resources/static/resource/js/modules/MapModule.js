@@ -31,11 +31,8 @@ export class MapModule {
 		this.restrictedEllipse = null;
 		this.initializeMaskingAreas();
 
-		// ===== 캐릭터 DOM관련 =====
-		this.characterContainer = null;
-		this.lastCharacterScreenX = null;
-		this.lastCharacterScreenY = null;
-		this.lastCharacterScale = null;
+		// ===== Three DOM관련 =====
+		this.threeContainer = null;
 
 		console.log('🗺️ MapModule 생성됨');
 	}
@@ -101,7 +98,7 @@ export class MapModule {
 		this.container = document.getElementById('mapContainer');
 		this.mapImage = document.getElementById('mapImage');
 		this.mapCanvas = document.getElementById('mapCanvas');
-		this.characterContainer = document.getElementById('characterContainer');
+		this.threeContainer = document.getElementById('threeContainer');
 		/*	this.clouds = document.querySelector('.clouds'); */
 
 		if (!this.container) {
@@ -114,7 +111,7 @@ export class MapModule {
 		this.container.addEventListener('pointerdown', this.handlePointerDown.bind(this));
 		this.container.addEventListener('pointermove', this.handlePointerMove.bind(this));
 		this.container.addEventListener('pointerup', this.handlePointerUp.bind(this));
-		
+
 		window.addEventListener('resize', this.handleResize.bind(this));
 		// 오프셋 동적 처리
 		const containerWidth = this.container?.clientWidth || window.innerWidth;
@@ -208,10 +205,8 @@ export class MapModule {
 	// ===== 이동 가능 여부 검사 =====
 	isMovementAllowed(position3D) {
 		if (!position3D) return true;
-console.log(position3D);
 		// 3D 좌표를 2D 이미지 좌표로 변환
 		const imageCoord = this.worldToImageCoordinates(position3D.x, position3D.z);
-		console.log(imageCoord);
 		// 1. 다각형 내부에 있는지 검사 (이동 가능 영역)
 		if (this.isPointInPolygon(imageCoord, this.maskingPolygon)) {
 			// 2. 타원 내부에 있는지 검사 (이동 불가능 구멍)
@@ -403,15 +398,18 @@ console.log(position3D);
 		if (this.mapCanvas) this.mapCanvas.style.transform = transform;
 		/*	if (clouds) clouds.style.transform = transform;*/
 
+		const threeContainer = document.getElementById('three-container');
+		if (threeContainer) {
+			threeContainer.style.transform = transform;
+			threeContainer.style.transformOrigin = 'top left';
+		}
+
 
 		// 마스킹 영역 다시 그리기
 		this.drawMaskArea();
 
 		// 포털 위치 업데이트
 		this.updatePortals();
-
-		// 캐릭터 위치 업데이트
-		this.updateCharacterDOM();
 
 		// Three.js 씬 동기화
 		this.updateSceneTransform();
@@ -453,61 +451,7 @@ console.log(position3D);
 			camera.lookAt(worldX, 0, worldZ);
 		}
 	}
-	updateCharacterDOM() {
-		try {
-			if (!this.characterContainer) {
-				console.warn('⚠️ characterContainer를 찾을 수 없습니다.');
-				return;
-			}
 
-			const characterRenderModule = this.gameClient.getCharacterRenderModule();
-			const myCharacter = characterRenderModule?.getMyCharacter();
-
-			if (!myCharacter) {
-				// 캐릭터가 아직 로드되지 않았으면 숨김
-				characterContainer.style.display = 'none';
-				return;
-			}
-
-			// 캐릭터가 있으면 표시
-			characterContainer.style.display = 'block';
-
-			// 🔥 3D 캐릭터 위치를 2D 이미지 좌표로 변환
-			const imageCoord = this.worldToImageCoordinates(
-				myCharacter.position.x,
-				myCharacter.position.z
-			);
-
-			// 🔥 맵 변환을 적용한 화면 좌표 계산 
-			const screenX = imageCoord.x * this.scale + this.posX;
-			const screenY = imageCoord.y * this.scale + this.posY;
-
-			// 🔥 성능 최적화: 위치가 실제로 변경되었을 때만 DOM 업데이트
-			if (this.lastCharacterScreenX !== screenX ||
-				this.lastCharacterScreenY !== screenY ||
-				this.lastCharacterScale !== this.scale) {
-
-				this.lastCharacterScreenX = screenX;
-				this.lastCharacterScreenY = screenY;
-				this.lastCharacterScale = this.scale;
-
-				// 🔥 JSP와 동일한 위치 계산 (중앙/하단 정렬)
-				characterContainer.style.position = 'absolute';
-				characterContainer.style.left = (screenX - 100) + 'px';  // 중앙 정렬 보정
-				characterContainer.style.top = (screenY - 180) + 'px';   // 하단 정렬 보정
-				characterContainer.style.transform = `scale(${this.scale})`;
-				characterContainer.style.transformOrigin = 'center bottom';
-				characterContainer.style.zIndex = '9999';
-				characterContainer.style.pointerEvents = 'none';
-
-				// 🔥 디버그 로그 (필요시)
-				// console.log(`👤 캐릭터 DOM 위치: screen(${screenX.toFixed(1)}, ${screenY.toFixed(1)}) scale(${this.scale})`);
-			}
-
-		} catch (error) {
-			console.error('❌ 캐릭터 DOM 위치 업데이트 에러:', error);
-		}
-	}
 	// ===== 포털 충돌 검사 (3D 캐릭터 vs 2D 포털) =====
 	checkPortalCollision(characterPosition) {
 		if (!characterPosition || this.portalCollisionAreas.length === 0) return null;

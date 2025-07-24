@@ -177,7 +177,7 @@ export class WebsocketChatModule {
 			: message.player.avatarInfo;
 
 		const defaultPosition = message.player.position;
-
+		console.log(defaultPosition)
 		await characterRenderModule.loadCharacter(
 			avatarInfo,
 			defaultPosition,
@@ -633,7 +633,7 @@ class ChatSystem {
 		});
 
 		const typeIcon = {
-			'map': '🗺️',
+			'map': '',
 			'global': '📢',
 			'system': '⚙️'
 		};
