@@ -278,8 +278,8 @@ export class WebsocketChatModule {
 	createChatBubble(playerId, message) {
 		// 기존 버블 제거
 		this.removeChatBubble(playerId);
-
 		const characterRenderModule = this.gameClient.getCharacterRenderModule();
+		const mapModule = this.gameClient.getMapModule();
 		let playerMesh = null;
 
 		// 내 캐릭터인지 확인
@@ -294,28 +294,36 @@ export class WebsocketChatModule {
 			return;
 		}
 
-		// 화면 좌표 계산
-		const camera = this.gameClient.getCamera();
-		const renderer = this.gameClient.getRenderer();
-		const vector = playerMesh.position.clone();
-		vector.project(camera);
+		// 🔥 MapModule로 3D → 2D → 화면 좌표 변환
+		const imageCoord = mapModule.worldToImageCoordinates(
+			playerMesh.position.x,
+			playerMesh.position.z
+		);
 
-		const x = (vector.x * 0.5 + 0.5) * renderer.domElement.clientWidth;
-		const y = (vector.y * -0.5 + 0.5) * renderer.domElement.clientHeight;
+		const mapTransform = mapModule.getTransform();
+		const screenX = imageCoord.x * mapTransform.scale + mapTransform.posX;
+		const screenY = imageCoord.y * mapTransform.scale + mapTransform.posY;
 
+		console.log('버블 위치 계산:', {
+			playerId,
+			world3D: { x: playerMesh.position.x, z: playerMesh.position.z },
+			image2D: imageCoord,
+			mapTransform,
+			screen2D: { x: screenX, y: screenY }
+		});
 		// 버블 생성
 		const bubble = document.createElement('div');
 		bubble.textContent = message;
 		bubble.style.cssText = `
-	        position: fixed;
-	        left: ${x + 5}px;
-	        top: ${y - 140}px;
+	        position: absolute;
+	        left: ${screenX + 15}px;
+	        top: ${screenY - 85}px;
 	        background: white;
 	        color: black;
-			border: 1px solid black;
-	        padding: 8px 12px;
-	        border-radius: 15px;
-	        font-size: 14px;
+			border: 0.5px solid black;
+	        padding: 8px 10px;
+	        border-radius: 10px;
+	        font-size: 10px;
 	        max-width: 200px;
 			max-height: 100px;
 			word-wrap: break-word;
@@ -326,18 +334,19 @@ export class WebsocketChatModule {
 	        pointer-events: none;
 			box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 	    `;
-
-		document.body.appendChild(bubble);
+		const mapContainer = document.getElementById('mapContainer');
+		mapContainer.appendChild(bubble);
 		this.activeBubbles.set(playerId, bubble);
 
-		// 4초 후 제거
-		setTimeout(() => this.removeChatBubble(playerId), 4000);
+		// 1초 후 제거
+		setTimeout(() => this.removeChatBubble(playerId), 1000);
 	}
 
 	removeChatBubble(playerId) {
 		const bubble = this.activeBubbles.get(playerId);
 		if (bubble) {
-			document.body.removeChild(bubble);
+			const mapContainer = document.getElementById('mapContainer');
+					mapContainer.removeChild(bubble);
 			this.activeBubbles.delete(playerId);
 		}
 	}

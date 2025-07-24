@@ -160,8 +160,8 @@ export class MapModule {
 
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-		this.ctx.fillStyle = 'rgba(255, 0, 0, 0.4)';
-		this.ctx.strokeStyle = 'rgba(255, 0, 0, 0.8)';
+		this.ctx.fillStyle = 'rgba(255, 0, 0, 0)';
+		this.ctx.strokeStyle = 'rgba(255, 0, 0, 0)';
 		this.ctx.lineWidth = 2.3;
 
 		const scale = 1;
@@ -208,20 +208,20 @@ export class MapModule {
 	// ===== 이동 가능 여부 검사 =====
 	isMovementAllowed(position3D) {
 		if (!position3D) return true;
-
+console.log(position3D);
 		// 3D 좌표를 2D 이미지 좌표로 변환
 		const imageCoord = this.worldToImageCoordinates(position3D.x, position3D.z);
-
-		// 1. 다각형 내부에 있는지 검사 (이동 불가 영역)
+		console.log(imageCoord);
+		// 1. 다각형 내부에 있는지 검사 (이동 가능 영역)
 		if (this.isPointInPolygon(imageCoord, this.maskingPolygon)) {
-			// 2. 타원 내부에 있는지 검사 (이동 가능 구멍)
+			// 2. 타원 내부에 있는지 검사 (이동 불가능 구멍)
 			if (this.isPointInEllipse(imageCoord, this.restrictedEllipse)) {
-				return true; // 타원 내부는 이동 가능
+				return false; // 타원 내부는 이동 불가능
 			}
-			return false; // 다각형 내부이지만 타원 밖은 이동 불가
+			return true; // 다각형 내부이지만 타원 밖은 이동 가능
 		}
 
-		return true; // 다각형 밖은 이동 가능
+		return false; // 다각형 밖은 이동 불가능
 	}
 
 	// ===== 점이 다각형 내부에 있는지 검사 (Ray casting algorithm) =====
