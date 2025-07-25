@@ -57,6 +57,11 @@
         
         <div id="object" class="object">
             <img class="fountain" src="/resource/img/fountain.png" />
+			<div class="benchs">
+	            <img class="bench" src="/resource/img/bench.png" />
+	            <img class="bench1" src="/resource/img/bench1.png" />
+	            <img class="bench2" src="/resource/img/bench2.png" />
+			</div>            
         </div>
     </div>
 

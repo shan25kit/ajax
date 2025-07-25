@@ -137,8 +137,8 @@ export class MapModule {
         
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
-        this.ctx.fillStyle = 'rgba(255, 0, 0, 0.4)';
-        this.ctx.strokeStyle = 'rgba(255, 0, 0, 0.8)';
+        this.ctx.fillStyle = 'rgba(255, 0, 0, 0)';
+        this.ctx.strokeStyle = 'rgba(255, 0, 0, 0)';
         this.ctx.lineWidth = 2.3;
         
         const scale = 1;
