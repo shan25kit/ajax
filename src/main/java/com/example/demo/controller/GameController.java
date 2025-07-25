@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,15 +50,52 @@ public class GameController {
 		return "usr/game/chatBot";
 	}
 	
-	@GetMapping("/usr/game/testMap")
-	public String testMap(Model model) {
+	@GetMapping("/usr/game/happyMap")
+	public String happyMap(Model model) {
 		System.out.println("=== websocket() 메서드 호출됨 ===");
 		int memberId = this.req.getLoginedMember().getId();
-		System.out.println(memberId);
 		Player player = this.gameService.selectPlayerByMemberId(memberId);
 		System.out.println(player);
+		CustomCharacter character = this.characterService.getCharacter(memberId);
+		System.out.println(character);
+		JsonNode avatarInfo = this.characterService.convertCharacterToJson(character);
+		System.out.println(avatarInfo);
+		player.setAvatarInfo(avatarInfo);
+		System.out.println(player);
 		model.addAttribute("player", player);
-		return "usr/game/testMap";
+		return "usr/game/happyMap";
+	}
+	
+	@GetMapping("/usr/game/zenMap")
+	public String zenMap(Model model) {
+		System.out.println("=== websocket() 메서드 호출됨 ===");
+		int memberId = this.req.getLoginedMember().getId();
+		Player player = this.gameService.selectPlayerByMemberId(memberId);
+		System.out.println(player);
+		CustomCharacter character = this.characterService.getCharacter(memberId);
+		System.out.println(character);
+		JsonNode avatarInfo = this.characterService.convertCharacterToJson(character);
+		System.out.println(avatarInfo);
+		player.setAvatarInfo(avatarInfo);
+		System.out.println(player);
+		model.addAttribute("player", player);
+		return "usr/game/zenMap";
+	}
+	
+	@GetMapping("/usr/game/angerMap")
+	public String angerMap(Model model) {
+		System.out.println("=== websocket() 메서드 호출됨 ===");
+		int memberId = this.req.getLoginedMember().getId();
+		Player player = this.gameService.selectPlayerByMemberId(memberId);
+		System.out.println(player);
+		CustomCharacter character = this.characterService.getCharacter(memberId);
+		System.out.println(character);
+		JsonNode avatarInfo = this.characterService.convertCharacterToJson(character);
+		System.out.println(avatarInfo);
+		player.setAvatarInfo(avatarInfo);
+		System.out.println(player);
+		model.addAttribute("player", player);
+		return "usr/game/angerMap";
 	}
 	
 	// 테스트용 엔드포인트

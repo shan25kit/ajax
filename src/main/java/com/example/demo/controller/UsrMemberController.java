@@ -195,9 +195,9 @@ public class UsrMemberController {
 		
 		System.out.println(customCharacterService.exists(member.getId()));
 		
-		if (customCharacterService.exists(member.getId())) {
-			return Util.jsReplace("환영합니다", "/usr/game/startMap");
-		}
+//		if (customCharacterService.exists(member.getId())) {
+//			return Util.jsReplace("환영합니다", "/usr/game/startMap");
+//		}
 
 		return Util.jsReplace("환영합니다", "/usr/member/customPageTest");
 	}

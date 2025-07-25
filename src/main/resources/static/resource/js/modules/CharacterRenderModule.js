@@ -118,7 +118,7 @@ export class CharacterRenderModule {
 		character.position.set(worldPosition.x, 0, worldPosition.z);*/
 
 		// 회전 설정
-		character.rotation.y = Math.PI / 4;
+		character.rotation.y = 0;
 		character.rotation.x = -Math.PI / 6;
 
 		// 사용자 데이터 저장
@@ -247,7 +247,7 @@ export class CharacterRenderModule {
 		switch (partType) {
 			case 'hair':
 				model.scale.set(baseScale * 1.6, baseScale * 1.6, baseScale * 1.6);
-				model.position.set(0, -13, 0);
+				model.position.set(0, -12, 0);
 				break;
 
 			case 'accessory':
@@ -265,8 +265,8 @@ export class CharacterRenderModule {
 
 			case 'dress':
 			case 'top':
-				model.scale.set(baseScale * 1.6, baseScale * 1.6, baseScale * 1.6);
-				model.position.set(0, 5, 0);
+				model.scale.set(baseScale * 1.2, baseScale * 1.2, baseScale * 1.5);
+				model.position.set(0, -5.5, 0);
 				break;
 
 			case 'bottom':
