@@ -20,12 +20,13 @@ html, body {
   top: 0;
   left: 0;
   transform-origin: top left;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 #mapCanvas {
   z-index: 10;
   pointer-events: none;
-/*   background-color: rgba(0, 0, 0, 0.5); */
 }
 
 
@@ -174,61 +175,6 @@ html, body {
     z-index: 16;
 }
 
-.benchs {
-	position: relative;
-}
-
-.benchs .bench {
-	width: 390px;
-	position: absolute;
-	right: 0px;
-	top: -295px;
-}
-
-.benchs .bench1 {
-	width: 350px;
-	position: absolute;
-	right: 215px;
-	top: -375px;
-}
-
-.benchs .bench2 {
-	width: 350px;
-	position: absolute;
-	right: -170px;
-	top: -375px;
-}
-
-.chair {
-	width: 1000px;
-	top: -450px;
-	left: 300px;
-	position: absolute;
-}
-
-.candy {
-	position: relative;
-}
-
-.candy .candy1 {
-	width: 1000px;
-	top: -220px;
-	right: -100px;
-	position: absolute;
-	
-}
-
-.candy .candy2 {
-	width: 1000px;
-	top: 70px;
-	left: 125px;
-	position: absolute;
-	
-}
-
-.fire {
-	position: absolute;
-}
 
 .clouds {
     position: absolute; 
@@ -266,6 +212,36 @@ html, body {
     z-index: 8;
 }
 
+/*캐릭터 영역*/
+.character-container {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  z-index: 9999 !important;
+  transform-origin: top left; /* center bottom → top left로 변경 */
+    pointer-events: none;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.character-3d {
+	position: relative;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  z-index: 9999;
+}
+
+.character-3d canvas {
+  position: absolute;
+  height: 250px !important;
+  width: auto !important;
+  transform-origin: center bottom;
+  z-index: 9999;
+  will-change: transform;
+  transform: translateZ(0);
+}
 
 .player-chat-container {
     position: fixed;

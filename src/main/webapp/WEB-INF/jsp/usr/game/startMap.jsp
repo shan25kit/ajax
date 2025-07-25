@@ -4,94 +4,97 @@
 <c:set var="pageTitle" value="StartMap" />
 <%@ include file="/WEB-INF/jsp/common/header.jsp"%>
 
-  <!-- 맵 컨테이너 -->
-    <div class="map-container" id="mapContainer">
-       
-            <!-- 배경 이미지 -->
-            <img id="mapImage" src="/resource/img/background-1.png" alt="map" />
-            
-            <!-- 마스킹 캔버스 -->
-            <canvas id="mapCanvas" width="5055" height="3904"></canvas>
-            <canvas id="threeCanvas" style="position:absolute; top:0; left:0; z-index:20; pointer-events:none;"></canvas>
+<!-- 맵 컨테이너 -->
+<div class="map-container" id="mapContainer">
 
-            <!-- 구름 애니메이션 -->
-            <div class="clouds">
-                <img class="first_cloud" src="/resource/img/cloud1.png" alt="구름1" />
-                <img class="second_cloud" src="/resource/img/cloud2.png" alt="구름2" />
-                <img class="third_cloud" src="/resource/img/cloud3.png" alt="구름3" />
-            </div>
-    
-    </div>
+	<!-- 배경 이미지 -->
+	<img id="mapImage" src="/resource/img/background-1.png" alt="map" />
 
-    <!-- 포털 레이어 -->
-    <div id="portalLayer">
-        <div id="portal_1" class="portal_1">
-            <img class="portal_back" src="/resource/img/portal_back.png" />
-            <img class="portal_center" src="/resource/img/portal_cneter.png" />
-            <img class="portal_inside" src="/resource/img/portal_inside_center.gif" />
-        </div>
+	<!-- 마스킹 캔버스 -->
+	<canvas id="mapCanvas" width="5055" height="3904"></canvas>
 
-        <div id="portal_2" class="portal_2">
-            <img class="portal_back" src="/resource/img/portal_right-back.png" />
-            <img class="portal_center" src="/resource/img/portal_right1.png" />
-            <img class="portal_inside" src="/resource/img/portal_inside_right.gif" />
-        </div>
-        
-        <div id="portal_3" class="portal_3">
-            <img class="portal_back" src="/resource/img/portal_right-back2.png" />
-            <img class="portal_center" src="/resource/img/portal_right2.png" />
-            <img class="portal_inside" src="/resource/img/portal_inside_right2.gif" />
-        </div>
-        
-        <div id="portal_4" class="portal_4">
-            <img class="portal_back" src="/resource/img/portal_right-back.png" />
-            <img class="portal_center" src="/resource/img/portal_left1.png" />
-            <img class="portal_inside" src="/resource/img/portal_inside_right.gif"/>
-        </div>
-        
-        <div id="portal_5" class="portal_5">
-            <img class="portal_back" src="/resource/img/portal_right-back2.png" />
-            <img class="portal_center" src="/resource/img/portal_left2.png" />
-            <img class="portal_inside" src="/resource/img/portal_inside_right2.gif"/>
-        </div>
-        
-        <div id="object" class="object">
-            <img class="fountain" src="/resource/img/fountain.png" />
-			<div class="benchs">
-	            <img class="bench" src="/resource/img/bench.png" />
-	            <img class="bench1" src="/resource/img/bench1.png" />
-	            <img class="bench2" src="/resource/img/bench2.png" />
-			</div>            
-        </div>
-    </div>
 
-    <!-- 채팅 시스템 -->
-    <div class="player-chat-container" id="chatContainer">
-        <div class="player-chat-header">
-            <div class="player-chat-title-wrapper">
-                <div class="player-chat-icon">💬</div>
-                <span class="player-chat-title">대화</span>
-            </div>
-            <button class="player-chat-toggle" id="chatToggle">−</button>
-        </div>
-        <div class="player-chat-messages" id="chatMessages">
-            <!-- 채팅 메시지들이 여기에 추가됩니다 -->
-        </div>
-        <div class="player-chat-input-area">
-            <div class="player-input-wrapper">
-                <input type="text" id="chatInput" class="player-input"
-                    placeholder="메시지를 입력하세요..." maxlength="200">
-                <button id="chatSend" class="player-send-button">
-                    <span class="player-send-icon">↗</span>
-                </button>
-            </div>
-            <!-- 메시지 종류 선택 버튼 숨김 -->
-            <input type="hidden" id="chatType" value="MAP">
-        </div>
-    </div>
+	<!-- 캐릭터 컨테이너 (2D 좌표로 이동) -->
+	<div class="character-container" id="characterContainer">
+		<div class="character-3d" id="character3D"></div>
+	</div>
+	<%--    <canvas id="threeCanvas" style="position:absolute; top:0; left:0; z-index:20; pointer-events:none;"></canvas> --%>
 
-    <!-- 메인 스크립트 -->
-    <script type="module">
+
+</div>
+
+<!-- 구름 애니메이션 -->
+<div class="clouds">
+	<img class="first_cloud" src="/resource/img/cloud1.png" alt="구름1" /> <img
+		class="second_cloud" src="/resource/img/cloud2.png" alt="구름2" /> <img
+		class="third_cloud" src="/resource/img/cloud3.png" alt="구름3" />
+</div>
+
+
+<!-- 포털 레이어 -->
+<div id="portalLayer">
+	<div id="portal_1" class="portal_1">
+		<img class="portal_back" src="/resource/img/portal_back.png" /> <img
+			class="portal_center" src="/resource/img/portal_cneter.png" /> <img
+			class="portal_inside" src="/resource/img/portal_inside_center.gif" />
+	</div>
+
+	<div id="portal_2" class="portal_2">
+		<img class="portal_back" src="/resource/img/portal_right-back.png" />
+		<img class="portal_center" src="/resource/img/portal_right1.png" /> <img
+			class="portal_inside" src="/resource/img/portal_inside_right.gif" />
+	</div>
+
+	<div id="portal_3" class="portal_3">
+		<img class="portal_back" src="/resource/img/portal_right-back2.png" />
+		<img class="portal_center" src="/resource/img/portal_right2.png" /> <img
+			class="portal_inside" src="/resource/img/portal_inside_right2.gif" />
+	</div>
+
+	<div id="portal_4" class="portal_4">
+		<img class="portal_back" src="/resource/img/portal_right-back.png" />
+		<img class="portal_center" src="/resource/img/portal_left1.png" /> <img
+			class="portal_inside" src="/resource/img/portal_inside_right.gif" />
+	</div>
+
+	<div id="portal_5" class="portal_5">
+		<img class="portal_back" src="/resource/img/portal_right-back2.png" />
+		<img class="portal_center" src="/resource/img/portal_left2.png" /> <img
+			class="portal_inside" src="/resource/img/portal_inside_right2.gif" />
+	</div>
+
+	<div id="object" class="object">
+		<img class="fountain" src="/resource/img/fountain.png" />
+	</div>
+</div>
+
+<!-- 채팅 시스템 -->
+<div class="player-chat-container" id="chatContainer">
+	<div class="player-chat-header">
+		<div class="player-chat-title-wrapper">
+			<div class="player-chat-icon">💬</div>
+			<span class="player-chat-title">대화</span>
+		</div>
+		<button class="player-chat-toggle" id="chatToggle">−</button>
+	</div>
+	<div class="player-chat-messages" id="chatMessages">
+		<!-- 채팅 메시지들이 여기에 추가됩니다 -->
+	</div>
+	<div class="player-chat-input-area">
+		<div class="player-input-wrapper">
+			<input type="text" id="chatInput" class="player-input"
+				placeholder="메시지를 입력하세요..." maxlength="200">
+			<button id="chatSend" class="player-send-button">
+				<span class="player-send-icon">↗</span>
+			</button>
+		</div>
+		<!-- 메시지 종류 선택 버튼 숨김 -->
+		<input type="hidden" id="chatType" value="MAP">
+	</div>
+</div>
+
+<!-- 메인 스크립트 -->
+<script type="module">
     import { GameClient } from '/resource/js/core/GameClient.js';
 		
 	console.log('=== 서버 데이터 원본 ===');

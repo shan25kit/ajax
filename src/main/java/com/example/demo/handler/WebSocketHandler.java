@@ -95,9 +95,9 @@ public class WebSocketHandler extends TextWebSocketHandler {
 		player.setCurrentMap(currentMap);
 
 		Map<String, Double> initialPosition = new HashMap<>();
-		initialPosition.put("x", 0.0);
-		initialPosition.put("y", 1.0);
-		initialPosition.put("z", 0.0);
+		initialPosition.put("x", 2400.0);
+		initialPosition.put("y", 0.0);
+		initialPosition.put("z", 1800.0);
 
 		player.setPosition(initialPosition);
 
@@ -290,7 +290,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 	private String createPlayerMovedMessage(String sessionId, Player player) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
 		Map<String, Object> message = new HashMap<>();
-		message.put("type", "player-moved");
+		message.put("type", "player-move");
 		message.put("sessionId", sessionId);
 		message.put("position", player.getPositionForBroadcast());
 		return mapper.writeValueAsString(message);
@@ -358,6 +358,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 	        chatMessage.put("nickName", sender.getNickName());
 	        chatMessage.put("message", message);
 	        chatMessage.put("memberId", sender.getMemberId());
+	        chatMessage.put("sessionId", sender.getSessionId());
 	        chatMessage.put("timestamp", System.currentTimeMillis());
 	        
 	        // global일 때는 mapName 없이, map일 때만 추가

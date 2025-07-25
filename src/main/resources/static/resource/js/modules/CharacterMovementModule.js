@@ -120,9 +120,131 @@ export class CharacterMovementModule {
         
         console.log('✅ 키보드 컨트롤 설정 완료');
     }
-    
+	updateMovement() {
+	    if (!this.myCharacter) {
+	        const characterRenderModule = this.gameClient.getCharacterRenderModule();
+	        this.myCharacter = characterRenderModule?.getMyCharacter();
+
+	        if (!this.myCharacter) {
+	            console.warn('🚨 myCharacter가 아직 정의되지 않았습니다!');
+	            return;
+	        } else {
+	            console.log('✅ myCharacter 할당 성공:', this.myCharacter);
+	            this.initializeCharacterPosition();
+	        }
+	    }
+
+	    if (!this.keys) return;
+
+
+	    // 애니메이션 업데이트
+	    if (this.mixer && this.clock) {
+	        const delta = this.clock.getDelta();
+	        this.mixer.update(delta);
+	    }
+
+	    // 내 캐릭터 이동 처리
+	    if (this.myCharacter && this.keys) {
+	        // 🔥 이동 입력 감지 및 새 위치 계산
+	        let deltaX = 0;
+	        let deltaZ = 0;
+	        let moved = false;
+
+	        if (this.keys['ArrowUp'] || this.keys['w'] || this.keys['W']) {
+	            deltaZ -= this.speed;
+	            moved = true;
+	        }
+	        if (this.keys['ArrowDown'] || this.keys['s'] || this.keys['S']) {
+	            deltaZ += this.speed;
+	            moved = true;
+	        }
+	        if (this.keys['ArrowLeft'] || this.keys['a'] || this.keys['A']) {
+	            deltaX -= this.speed;
+	            moved = true;
+	        }
+	        if (this.keys['ArrowRight'] || this.keys['d'] || this.keys['D']) {
+	            deltaX += this.speed;
+	            moved = true;
+	        }
+	        if (moved) {
+	            // 🔥 새 위치 계산
+	            const newPosition = {
+	                x: this.myCharacter.position.x + deltaX,
+	                y: 0,
+	                z: this.myCharacter.position.z + deltaZ
+	            };
+
+	            // 🔥 이동 가능 여부 체크
+	            const mapModule = this.gameClient.getMapModule();
+	            const isAllowed = mapModule.isMovementAllowed(newPosition);
+
+	            console.log('이동 시도:', {
+	                current: {
+	                    x: this.myCharacter.position.x.toFixed(2),
+	                    z: this.myCharacter.position.z.toFixed(2)
+	                },
+	                new: {
+	                    x: newPosition.x.toFixed(2),
+	                    z: newPosition.z.toFixed(2)
+	                },
+	                delta: { x: deltaX, z: deltaZ },
+	                allowed: isAllowed
+	            });
+
+	            if (isAllowed) {
+	                // ✅ 이동 허용 - 위치 업데이트
+	                console.log('✅ 이동 허용');
+	                this.myCharacter.position.set(newPosition.x, newPosition.y, newPosition.z);
+
+	                // ✅ 이동 방향에 따라 회전
+	                if (deltaX !== 0 || deltaZ !== 0) {
+	                    const angle = Math.atan2(deltaX, deltaZ);
+	                    this.myCharacter.rotation.y = angle;
+	                }
+
+	                // ✅ 걷기 애니메이션 시작
+	                if (this.walkAction && !this.walkAction.isRunning()) {
+	                    this.walkAction.reset().play();
+	                    console.log('🚶‍♀️ 걷기 애니메이션 시작!');
+	                }
+
+	                // ✅ 카메라 따라가기 (일단 유지, 나중에 제거 예정)
+	                this.camera.position.set(
+	                    this.myCharacter.position.x,
+	                    this.myCharacter.position.y + 25,
+	                    this.myCharacter.position.z + this.followZOffset
+	                );
+	                this.camera.lookAt(this.myCharacter.position);
+
+	                // ✅ 서버 전송 및 맵 업데이트
+	                this.sendPositionUpdateThrottled();
+	                this.updateMapToFollowCharacter(this.myCharacter);
+
+	            } else {
+	                // ❌ 이동 차단
+	                console.log('❌ 마스킹 영역: 이동 불가');
+	                
+	                // 애니메이션 정지 (이동하지 않으므로)
+	                if (this.walkAction && this.walkAction.isRunning()) {
+	                    this.walkAction.stop();
+	                    console.log('⏹️ 이동 차단으로 애니메이션 정지');
+	                }
+	            }
+
+	        } else {
+	            // 입력이 없으면 애니메이션 정지
+	            if (this.walkAction && this.walkAction.isRunning()) {
+	                this.walkAction.stop();
+	                console.log('⏹️ 입력 없음 - 애니메이션 정지');
+	            }
+	        }
+
+	        // 포털 충돌 검사 (현재 위치 기준)
+	        this.checkPortalCollision(this.myCharacter);
+	    }
+	}
     // ===== 이동 업데이트 (애니메이션 루프에서 호출) =====
-    updateMovement() {
+   /* updateMovement() {
 		if (!this.myCharacter) {
 		        const characterRenderModule = this.gameClient.getCharacterRenderModule();
 		        this.myCharacter = characterRenderModule?.getMyCharacter();
@@ -133,14 +255,14 @@ export class CharacterMovementModule {
 		            return;
 		        } else {
 		            console.log('✅ myCharacter 할당 성공:', this.myCharacter);
+					this.initializeCharacterPosition();
 		        }
 		    }
 
 		    if (!this.keys) return;
 		
-		// ✅ 항상 스케일과 높이 고정 (혹시라도 애니메이션에 의해 덮어씌워질 경우 방지)
+		// ✅ 항상 높이 고정 
         if (this.myCharacter) {
-            this.myCharacter.scale.set(0.3, 0.3, 0.3);
             this.myCharacter.position.y = 0;
         }
         
@@ -152,6 +274,7 @@ export class CharacterMovementModule {
 
         // 내 캐릭터 이동 처리
         if (this.myCharacter && this.keys) {
+			
             let moved = false;
 
             if (this.keys['ArrowUp'] || this.keys['w'] || this.keys['W']) {
@@ -210,13 +333,6 @@ export class CharacterMovementModule {
 			}
 
             if (moved) {
-                // 카메라 따라가기
-                this.camera.position.set(
-                    this.myCharacter.position.x,
-                    this.myCharacter.position.y + 25,
-                    this.myCharacter.position.z + this.followZOffset
-                );
-                this.camera.lookAt(this.myCharacter.position);
 
                 this.sendPositionUpdateThrottled();
                 this.updateMapToFollowCharacter(this.myCharacter);
@@ -226,7 +342,40 @@ export class CharacterMovementModule {
             this.checkPortalCollision(this.myCharacter);
         }
 
-    }
+    }*/
+	initializeCharacterPosition() {
+	        const config = this.gameClient.getCharacterConfig();
+	        
+	        if (!this.myCharacter) {
+	            console.warn('⚠️ myCharacter가 없어서 초기 위치 설정을 건너뜁니다.');
+	            return;
+	        }
+	        
+	        // 2D 맵 좌표를 3D 월드 좌표로 변환
+	        const worldPos = this.imageToWorldCoordinates(
+	            config.MAP_POSITION.x, 
+	            config.MAP_POSITION.y
+	        );
+	        
+	        // 캐릭터를 계산된 위치로 배치
+	        this.myCharacter.position.set(worldPos.x, 0, worldPos.z);
+	        console.log(`🎯 캐릭터 초기 위치 설정: 3D(${worldPos.x}, 0, ${worldPos.z}) <- 2D(${config.MAP_POSITION.x}, ${config.MAP_POSITION.y})`);
+	        
+	        // 초기 카메라 위치도 설정
+	        this.updateCameraPosition();
+	    }
+	    
+	    // 🔥 카메라 위치 업데이트 메서드
+	    updateCameraPosition() {
+	        if (!this.myCharacter || !this.camera) return;
+	        
+	        this.camera.position.set(
+	            this.myCharacter.position.x,
+	            this.myCharacter.position.y + 25,
+	            this.myCharacter.position.z + this.followZOffset
+	        );
+	        this.camera.lookAt(this.myCharacter.position);
+	    }
 	
     // ===== 카메라가 캐릭터를 따라다니도록 업데이트 =====
     updateCameraToFollowCharacter(character) {

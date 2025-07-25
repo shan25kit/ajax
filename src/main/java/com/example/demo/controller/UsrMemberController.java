@@ -199,7 +199,7 @@ public class UsrMemberController {
 //			return Util.jsReplace("환영합니다", "/usr/game/startMap");
 //		}
 
-		return Util.jsReplace("환영합니다", "/usr/member/customPageTest");
+		return Util.jsReplace("환영합니다", "/usr/member/customCharacterPage");
 	}
 	
 	@GetMapping("/usr/member/logout")
@@ -288,7 +288,7 @@ public class UsrMemberController {
 		
 		this.memberService.insertNickName(memberId, nickName);
 		
-		return Util.jsReplace("닉네임 등록이 완료되었습니다", "/usr/member/customPageTest");
+		return Util.jsReplace("닉네임 등록이 완료되었습니다", "/usr/member/customCharacterPage");
 	}
 	
 	@GetMapping("/usr/member/nickNameDupChk")
@@ -322,15 +322,15 @@ public class UsrMemberController {
     }
 	
 
-	@GetMapping("/usr/member/customPageTest")
-	public String customPageTest(Model model) {
+	@GetMapping("/usr/member/customCharacterPage")
+	public String customCharacterPage(Model model) {
 		int id = req.getLoginedMember().getId();
 		
 		Member member = this.memberService.getMemberById(id);
 		
 		model.addAttribute("member", member);
 		
-		return "usr/member/customPageTest";
+		return "usr/member/customCharacterPage";
 	}
 	
 	

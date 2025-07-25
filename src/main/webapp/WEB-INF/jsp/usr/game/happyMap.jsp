@@ -4,56 +4,57 @@
 <c:set var="pageTitle" value="happyMap" />
 <%@ include file="/WEB-INF/jsp/common/header.jsp"%>
 
-  <!-- 맵 컨테이너 -->
-    <div class="map-container" id="mapContainer">
-       
-            <!-- 배경 이미지 -->
-            <img id="mapImage" src="/resource/img/기쁨의맵.png" alt="map" />
-            
-            <!-- 마스킹 캔버스 -->
-            <canvas id="mapCanvas" width="5055" height="3904"></canvas>
-            <canvas id="threeCanvas" style="position:absolute; top:0; left:0; z-index:20; pointer-events:none;"></canvas>
-    
-    </div>
+<!-- 맵 컨테이너 -->
+<div class="map-container" id="mapContainer">
 
-    <!-- 오브젝트 -->
-    <div id="portalLayer">
-        <div id="object" class="object">
-            <img class="chair" src="/resource/img/기쁨의맵chair.png" />
-			<div class="candy">
-	            <img class="candy1" src="/resource/img/기쁨의맵object1.png" />
-	            <img class="candy2" src="/resource/img/기쁨의맵object2.png" />
-			</div>            
-        </div>
-    </div>
+	<!-- 배경 이미지 -->
+	<img id="mapImage" src="/resource/img/기쁨의맵.png" alt="map" />
 
-    <!-- 채팅 시스템 -->
-    <div class="player-chat-container" id="chatContainer">
-        <div class="player-chat-header">
-            <div class="player-chat-title-wrapper">
-                <div class="player-chat-icon">💬</div>
-                <span class="player-chat-title">대화</span>
-            </div>
-            <button class="player-chat-toggle" id="chatToggle">−</button>
-        </div>
-        <div class="player-chat-messages" id="chatMessages">
-            <!-- 채팅 메시지들이 여기에 추가됩니다 -->
-        </div>
-        <div class="player-chat-input-area">
-            <div class="player-input-wrapper">
-                <input type="text" id="chatInput" class="player-input"
-                    placeholder="메시지를 입력하세요..." maxlength="200">
-                <button id="chatSend" class="player-send-button">
-                    <span class="player-send-icon">↗</span>
-                </button>
-            </div>
-            <!-- 메시지 종류 선택 버튼 숨김 -->
-            <input type="hidden" id="chatType" value="MAP">
-        </div>
-    </div>
+	<!-- 마스킹 캔버스 -->
+	<canvas id="mapCanvas" width="5055" height="3904"></canvas>
+	<div class="character-container" id="characterContainer">
+		<div class="character-3d" id="character3D"></div>
+	</div>
+</div>
 
-    <!-- 메인 스크립트 -->
-    <script type="module">
+<!-- 오브젝트 -->
+<div id="portalLayer">
+	<div id="object" class="object">
+		<img class="chair" src="/resource/img/기쁨의맵chair.png" />
+		<div class="candy">
+			<img class="candy1" src="/resource/img/기쁨의맵object1.png" /> <img
+				class="candy2" src="/resource/img/기쁨의맵object2.png" />
+		</div>
+	</div>
+</div>
+
+<!-- 채팅 시스템 -->
+<div class="player-chat-container" id="chatContainer">
+	<div class="player-chat-header">
+		<div class="player-chat-title-wrapper">
+			<div class="player-chat-icon">💬</div>
+			<span class="player-chat-title">대화</span>
+		</div>
+		<button class="player-chat-toggle" id="chatToggle">−</button>
+	</div>
+	<div class="player-chat-messages" id="chatMessages">
+		<!-- 채팅 메시지들이 여기에 추가됩니다 -->
+	</div>
+	<div class="player-chat-input-area">
+		<div class="player-input-wrapper">
+			<input type="text" id="chatInput" class="player-input"
+				placeholder="메시지를 입력하세요..." maxlength="200">
+			<button id="chatSend" class="player-send-button">
+				<span class="player-send-icon">↗</span>
+			</button>
+		</div>
+		<!-- 메시지 종류 선택 버튼 숨김 -->
+		<input type="hidden" id="chatType" value="MAP">
+	</div>
+</div>
+
+<!-- 메인 스크립트 -->
+<script type="module">
     import { GameClient } from '/resource/js/core/GameClient.js';
 		
 	console.log('=== 서버 데이터 원본 ===');
