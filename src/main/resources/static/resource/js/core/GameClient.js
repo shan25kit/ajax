@@ -12,7 +12,7 @@ export class GameClient {
 			WEBSOCKET_URL: 'ws://localhost:8081/game',
 
 			// 게임플레이 설정
-			MOVEMENT_SPEED: 0.15,
+			MOVEMENT_SPEED: 0.1,
 
 			// 맵 설정
 			MIN_SCALE: 0.5,
@@ -23,7 +23,7 @@ export class GameClient {
 
 			// 캐릭터 설정
 			CHARACTER: {
-				SCALE: 0.3,
+				SCALE: 1.6,
 				DEFAULT_SKIN_COLOR: 0xffe0bd,
 				COLLISION_RADIUS: 2,
 				MAP_POSITION: { x: 2400, y: 1800 }
@@ -67,7 +67,7 @@ export class GameClient {
 
 			// 1. ThreeJS 코어 초기화
 			console.log('1. ThreeJS 코어 초기화');
-			this.threeInit = new ThreeInit(this);
+			this.threeInit = new ThreeInit();
 
 			if (!this.threeInit.isReady()) {
 				throw new Error('ThreeJS 코어 초기화 실패');
@@ -235,7 +235,10 @@ export class GameClient {
 				if (this.mapModule?.updatePortals) {
 					this.mapModule.updatePortals();
 				}
-				
+				// 캐릭터 DOM 동기화 (JSP의 updateCharacterPosition 역할)
+				if (this.mapModule?.updateCharacterDOM) {
+					this.mapModule.updateCharacterDOM();
+				}
 				// Three.js 렌더링
 				this.threeInit.render();
 

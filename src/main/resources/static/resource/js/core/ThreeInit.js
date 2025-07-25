@@ -22,12 +22,12 @@ export class ThreeInit {
 
 			// 카메라 설정
 			this.camera = new THREE.OrthographicCamera(
-				-35, 35,  // left, right
-				35, -35,  // top, bottom
-				0.1, 1000 // near, far
+			    -30, 30,  // left, right
+			    30, -30,  // top, bottom
+			    0.1, 1000 // near, far
 			);
-			this.camera.position.set(25, 45, 25);
-			this.camera.lookAt(0, 0, 0);
+			this.camera.position.set(0, 25, 45);
+			this.camera.lookAt(0, -5, 0);
 
 			// 렌더러 설정
 			this.renderer = new THREE.WebGLRenderer({
@@ -38,11 +38,11 @@ export class ThreeInit {
 
 			this.renderer.setSize(200, 200);
 			this.renderer.setClearColor(0x000000, 0); // 투명 배경
-
+			
 			// 🔥 그림자 설정 추가
 			this.renderer.shadowMap.enabled = true;
 			this.renderer.shadowMap.type = THREE.BasicShadowMap;
-
+			
 			// 색상 공간 설정
 			if (this.renderer.outputColorSpace !== undefined) {
 				this.renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -71,18 +71,17 @@ export class ThreeInit {
 	// ===== 캔버스 설정 =====
 	setupCanvas() {
 		// ✅ 별도의 Three.js 캔버스 사용
-		const threeContainer = document.getElementById('threeContainer');
-		if (!threeContainer) {
-			console.warn('three 컨테이너를 찾을 수 없습니다.');
+		const character3D = document.getElementById('character3D');
+		if (!character3D) {
+			console.warn('character3D 컨테이너를 찾을 수 없습니다.');
 			return;
 		}
-		const width = threeContainer.clientWidth;
-		const height = threeContainer.clientHeight;
+		character3D.innerHTML = '';
+		character3D.appendChild(this.renderer.domElement);
 
-		this.renderer.setSize(width, height);
-		this.renderer.setPixelRatio(window.devicePixelRatio || 1);
+		this.renderer.domElement.style.zIndex = '9999';
+		this.renderer.domElement.style.position = 'relative';
 
-		threeContainer.appendChild(this.renderer.domElement);
 	}
 
 	// ===== 조명 설정 =====
@@ -103,8 +102,8 @@ export class ThreeInit {
 	// ===== 이벤트 리스너 설정 =====
 	setupEventListeners() {
 		// 윈도우 리사이즈 처리
-		window.addEventListener('resize', () => this.onWindowResize());
-
+	/*	window.addEventListener('resize', () => this.onWindowResize());
+*/
 		// 페이지 언로드 시 정리
 		window.addEventListener('beforeunload', () => this.dispose());
 	}

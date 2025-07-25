@@ -13,8 +13,13 @@
 	<!-- 마스킹 캔버스 -->
 	<canvas id="mapCanvas" width="5055" height="3904"></canvas>
 
-	<!-- three 컨테이너 -->
-	<div class="three-container" id="threeContainer"></div>
+
+	<!-- 캐릭터 컨테이너 (2D 좌표로 이동) -->
+	<div class="character-container" id="characterContainer">
+		<div class="character-3d" id="character3D"></div>
+	</div>
+	<%--    <canvas id="threeCanvas" style="position:absolute; top:0; left:0; z-index:20; pointer-events:none;"></canvas> --%>
+
 
 </div>
 

@@ -1,4 +1,5 @@
 
+
 export class CharacterRenderModule {
 	constructor(gameClient) {
 		this.gameClient = gameClient;
@@ -113,8 +114,11 @@ export class CharacterRenderModule {
 		const characterScale = characterConfig.SCALE;
 		character.scale.set(characterScale, characterScale, characterScale);
 
+		// 위치 설정
+		
+
 		// 회전 설정
-		character.rotation.y = 0;
+		character.rotation.y = Math.PI / 4;
 		character.rotation.x = -Math.PI / 6;
 
 		// 사용자 데이터 저장
@@ -231,7 +235,7 @@ export class CharacterRenderModule {
 		switch (partType) {
 			case 'hair':
 				model.scale.set(baseScale * 1.6, baseScale * 1.6, baseScale * 1.6);
-				model.position.set(0, -12, 0);
+				model.position.set(0, -13, 0);
 				break;
 
 			case 'accessory':
@@ -250,7 +254,7 @@ export class CharacterRenderModule {
 			case 'dress':
 			case 'top':
 				model.scale.set(baseScale * 1.6, baseScale * 1.6, baseScale * 1.6);
-				model.position.set(0, -1, 0);
+				model.position.set(0, 5, 0);
 				break;
 
 			case 'bottom':
