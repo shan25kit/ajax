@@ -1,11 +1,11 @@
 export class ThreeInit {
-	constructor() {
+	constructor(existingCanvas = null) {
 		// Three.js 핵심 객체들
 		this.scene = null;
 		this.camera = null;
 		this.renderer = null;
 		this.sceneGroups = new Map();
-
+		this.existingCanvas = existingCanvas;
 		// 렌더링 상태
 		this.isInitialized = false;
 
@@ -19,42 +19,17 @@ export class ThreeInit {
 		try {
 			// 씬 생성
 			this.scene = new THREE.Scene();
+			// 카메라 설정 (공통 메서드 사용)
+			this.camera = this.createCamera();
 
-			// 카메라 설정
-			this.camera = new THREE.OrthographicCamera(
-			    -30, 30,  // left, right
-			    30, -30,  // top, bottom
-			    0.1, 1000 // near, far
-			);
-			this.camera.position.set(0, 25, 45);
-			this.camera.lookAt(0, -5, 0);
-
-			// 렌더러 설정
-			this.renderer = new THREE.WebGLRenderer({
-				antialias: true,
-				alpha: true,
-				powerPreference: "high-performance"
-			});
-
-			this.renderer.setSize(200, 200);
-			this.renderer.setClearColor(0x000000, 0); // 투명 배경
-			
-			// 🔥 그림자 설정 추가
-			this.renderer.shadowMap.enabled = true;
-			this.renderer.shadowMap.type = THREE.BasicShadowMap;
-			
-			// 색상 공간 설정
-			if (this.renderer.outputColorSpace !== undefined) {
-				this.renderer.outputColorSpace = THREE.SRGBColorSpace;
-			} else if (this.renderer.outputEncoding !== undefined) {
-				this.renderer.outputEncoding = THREE.sRGBEncoding;
-			}
+			// 렌더러 설정 (공통 메서드 사용)
+			this.renderer = this.createRenderer();
 
 			// DOM에 캔버스 추가
 			this.setupCanvas();
 
 			// 조명 설정
-			this.setupLighting();
+			this.setupLighting()
 
 			// 이벤트 리스너 등록
 			this.setupEventListeners();
@@ -70,20 +45,63 @@ export class ThreeInit {
 
 	// ===== 캔버스 설정 =====
 	setupCanvas() {
-		// ✅ 별도의 Three.js 캔버스 사용
-		const character3D = document.getElementById('character3D');
-		if (!character3D) {
-			console.warn('character3D 컨테이너를 찾을 수 없습니다.');
-			return;
+		if (this.existingCanvas) {
+			// 전달받은 캔버스 사용 (이미 DOM에 추가됨)
+			console.log('✅ 기존 캔버스 사용:', this.existingCanvas.id);
+		} else {
+			const character3D = document.getElementById('character3D');
+			if (!character3D) {
+				console.warn('character3D 컨테이너를 찾을 수 없습니다.');
+				return;
+			}
+			/*		character3D.innerHTML = '';*/
+			character3D.appendChild(this.renderer.domElement);
+
+			this.renderer.domElement.style.zIndex = '9999';
+			this.renderer.domElement.style.position = 'relative';
 		}
-		character3D.innerHTML = '';
-		character3D.appendChild(this.renderer.domElement);
-
-		this.renderer.domElement.style.zIndex = '9999';
-		this.renderer.domElement.style.position = 'relative';
-
+	}
+	// ===== 공통 렌더러 설정 메서드 =====
+	createRenderer() {
+		const rendererConfig = {
+			antialias: true,
+			alpha: true,
+			powerPreference: "high-performance"
+		};
+		if (this.existingCanvas) {
+			rendererConfig.canvas = this.existingCanvas;
+			console.log('✅ 기존 캔버스 사용');
+		} else {
+			console.log('⚠️ 캔버스 없음, WebGLRenderer가 자동 생성');
+		}
+		const renderer = new THREE.WebGLRenderer(rendererConfig);
+		renderer.setSize(500, 500);
+		renderer.setClearColor(0x000000, 0);
+		
+		// 그림자 설정
+		renderer.shadowMap.enabled = true;
+		renderer.shadowMap.type = THREE.BasicShadowMap;
+		// 색상 공간 설정
+		if (renderer.outputColorSpace !== undefined) {
+			renderer.outputColorSpace = THREE.SRGBColorSpace;
+		} else if (renderer.outputEncoding !== undefined) {
+			renderer.outputEncoding = THREE.sRGBEncoding;
+		}
+		return renderer;
 	}
 
+	// ===== 공통 카메라 설정 메서드 =====
+	createCamera() {
+		const camera = new THREE.OrthographicCamera(
+			-35, 35,  // left, right
+			35, -35,  // top, bottom
+			0.1, 1000 // near, far
+		);
+		camera.position.set(0, 30, 50);
+		camera.lookAt(0, 0, 0);
+
+		return camera;
+	}
 	// ===== 조명 설정 =====
 	setupLighting() {
 		// 환경광 (전체적으로 부드러운 조명)
@@ -96,33 +114,13 @@ export class ThreeInit {
 		directionalLight.castShadow = true;
 		this.scene.add(directionalLight);
 
-		console.log('조명 설정 완료');
 	}
 
 	// ===== 이벤트 리스너 설정 =====
 	setupEventListeners() {
-		// 윈도우 리사이즈 처리
-	/*	window.addEventListener('resize', () => this.onWindowResize());
-*/
+
 		// 페이지 언로드 시 정리
 		window.addEventListener('beforeunload', () => this.dispose());
-	}
-
-	// ===== 윈도우 리사이즈 처리 =====
-	onWindowResize() {
-		if (!this.isInitialized) return;
-
-		const width = window.innerWidth;
-		const height = window.innerHeight;
-
-		// 카메라 비율 업데이트
-		this.camera.aspect = width / height;
-		this.camera.updateProjectionMatrix();
-
-		// 렌더러 크기 업데이트
-		this.renderer.setSize(width, height);
-
-		console.log('화면 크기 업데이트:', { width, height });
 	}
 
 	// ===== 씬 그룹 관리 =====

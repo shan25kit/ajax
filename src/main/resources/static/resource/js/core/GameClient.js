@@ -31,11 +31,11 @@ export class GameClient {
 
 			// 포털 위치 설정
 			PORTAL_POSITIONS: [
-				{ id: 'portal_1', x: 2200, y: 900, targetMap: '/testMap' },
-				{ id: 'portal_2', x: 2978, y: 1150, targetMap: '/testMap' },
-				{ id: 'portal_3', x: 2795, y: 1350, targetMap: '/emotionMap' },
-				{ id: 'portal_4', x: 1875, y: 1200, targetMap: '/happyMap' },
-				{ id: 'portal_5', x: 1538, y: 1370, targetMap: '/sadMap' },
+				{ id: 'portal_1', x: 2200, y: 900, targetMap: '/angerMap' },
+				{ id: 'portal_2', x: 2978, y: 1150, targetMap: '/zenMap' },
+				{ id: 'portal_3', x: 2795, y: 1350, targetMap: '/happyMap' },
+				{ id: 'portal_4', x: 1875, y: 1200, targetMap: '/sadMap' },
+				{ id: 'portal_5', x: 1538, y: 1370, targetMap: '/anxietyMap' },
 				{ id: 'object', x: 2260, y: 1550, type: 'fountain' }
 			]
 		};
@@ -45,6 +45,10 @@ export class GameClient {
 		this.isInitialized = false;
 		this.isConnected = false;
 		this.isRunning = false;
+
+		// ===== 통합 애니메이션 관리 =====
+		this.animationLoopActive = false;
+		this.globalClock = new THREE.Clock();
 
 		// ===== 코어 시스템 =====
 		this.ThreeInit = null;
@@ -217,31 +221,43 @@ export class GameClient {
 
 	// ===== 애니메이션 루프 =====
 	startAnimationLoop() {
+		if (this.animationLoopActive) {
+			console.log('⚠️ 애니메이션 루프가 이미 실행 중입니다.');
+			return;
+		}
 		console.log('애니메이션 루프 시작');
-
+		this.animationLoopActive = true;
 		const animate = () => {
-			if (!this.isRunning) return;
+			if (!this.isRunning || !this.animationLoopActive) {
+				console.log('🛑 애니메이션 루프 중지');
+				this.animationLoopActive = false;
+				return;
+			};
 
 			requestAnimationFrame(animate);
 
 			try {
-				// 각 모듈 업데이트
-				if (this.characterMovementModule?.updateMovement) {
-					this.characterMovementModule.updateMovement();
-				}
-				if (this.characterRenderModule) {
-					this.characterRenderModule.updateAnimations();
-				}
-				if (this.mapModule?.updatePortals) {
-					this.mapModule.updatePortals();
-				}
-				// 캐릭터 DOM 동기화 (JSP의 updateCharacterPosition 역할)
-				if (this.mapModule?.updateCharacterDOM) {
-					this.mapModule.updateCharacterDOM();
+				const delta = this.globalClock.getDelta();
+				if (this.isRunning) {
+
+					if (this.characterRenderModule) {
+						this.characterRenderModule.updateAllPlayersAnimation(delta);
+					}
+					if (this.characterMovementModule?.updateMovement) {
+						this.characterMovementModule.updateMovement();
+					}
+				
+					if (this.mapModule?.updatePortals) {
+						this.mapModule.updatePortals();
+					}
+					if (this.mapModule?.updateCharacterDOM) {
+						this.mapModule.updateCharacterDOM();
+					}
 				}
 				// Three.js 렌더링
-				this.threeInit.render();
-
+				if (this.threeInit) {
+					this.threeInit.render();
+				}
 			} catch (error) {
 				console.error('애니메이션 루프 오류:', error);
 			}
@@ -251,6 +267,10 @@ export class GameClient {
 	}
 
 	// ===== 게임 일시정지/재개 =====
+	stopAnimationLoop() {
+		this.animationLoopActive = false;
+		console.log('🛑 애니메이션 루프 중지 요청');
+	}
 	pauseGame() {
 		this.isRunning = false;
 		console.log('게임 일시정지');
@@ -259,7 +279,10 @@ export class GameClient {
 	resumeGame() {
 		if (this.isInitialized && this.isConnected) {
 			this.isRunning = true;
-			this.startAnimationLoop();
+			// 애니메이션 루프가 중지되었다면 재시작
+			if (!this.animationLoopActive) {
+				this.startAnimationLoop();
+			}
 			console.log('게임 재개');
 		}
 	}
@@ -383,7 +406,7 @@ export class GameClient {
 
 		// 게임 루프 중지
 		this.isRunning = false;
-
+		this.stopAnimationLoop();
 		// 웹소켓 연결 종료
 		if (this.websocketChatModule) {
 			this.websocketChatModule.disconnect?.();

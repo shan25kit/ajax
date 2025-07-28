@@ -1,12 +1,13 @@
 
-
+import { ThreeInit } from '../core/ThreeInit.js';
 export class CharacterRenderModule {
 	constructor(gameClient) {
 		this.gameClient = gameClient;
 		this.loader = null;
 		this.playerCharacters = new Map();
+		this.playerRenderInstances = new Map();
 		this.myCharacter = null;
-		// 애니메이션 관련 (내 캐릭터만)
+		// 애니메이션 관련 
 		this.mixer = null;
 		this.clock = new THREE.Clock();
 		this.walkAction = null;
@@ -50,25 +51,41 @@ export class CharacterRenderModule {
 
 	// ===== 캐릭터 로딩 =====
 	async loadCharacter(avatarInfo, position, memberId, sessionId, nickName) {
+
+		let threeInstance;
+
+		const character3D = document.getElementById('character3D');
+		if (!character3D) {
+			console.error('❌ character3D 컨테이너를 찾을 수 없습니다.');
+			return null;
+		}
+		const canvas = document.createElement('canvas');
+		canvas.id = `canvas-${sessionId}`;
+
+		character3D.appendChild(canvas);
+
+		threeInstance = new ThreeInit(canvas);
+		
+		const canvasElement = threeInstance.getCanvas();
+		if (canvasElement) {
+			canvasElement.setAttribute('data-player-id', sessionId);
+			canvasElement.setAttribute('data-player-nickname', nickName);
+			canvasElement.setAttribute('data-is-my-character',
+				memberId === this.gameClient.player.memberId ? 'true' : 'false');
+			console.log(`🏷️ 캔버스 태그 설정 완료: ${nickName} (${sessionId})`);
+		}
 		return new Promise((resolve, reject) => {
-			console.log('=== 캐릭터 로딩 시작 ===');
-			console.log('닉네임:', nickName);
-			console.log('멤버ID:', memberId);
-			console.log('세션ID:', sessionId);
-			console.log('위치:', position);
-			console.log('아바타 정보:', avatarInfo);
 
 			this.loader.load(
 				'/resource/model/body_anim.glb',
 				(gltf) => {
-					console.log('✓ 베이스 모델 로드 성공:', nickName);
 					const character = gltf.scene;
 
 					// 베이스 캐릭터 설정
 					this.setupBaseCharacter(character, avatarInfo, position, memberId, sessionId);
 
 					// 씬에 추가
-					const scene = this.gameClient.getScene();
+					const scene = threeInstance.getScene();
 					scene.add(character);
 
 					// 캐릭터 맵에 저장
@@ -77,25 +94,16 @@ export class CharacterRenderModule {
 					// 내 캐릭터인 경우 별도 저장
 					if (memberId === this.gameClient.player.memberId) {
 						this.myCharacter = character;
-						this.setupMyCharacterAnimations(character, gltf);
-						console.log('✓ 내 캐릭터 설정 완료');
 					}
-
+					this.setupCharacterAnimations(character, gltf, sessionId, memberId === this.gameClient.player.memberId);
+					this.addPlayerToRenderData(sessionId, threeInstance, memberId === this.gameClient.player.memberId);
 					// 파츠 로딩
 					if (avatarInfo.parts) {
 						this.loadCharacterParts(character, avatarInfo.parts, nickName);
 					}
-
 					resolve(character);
-				},
-				(progress) => {
-					// 로딩 진행률 (필요시 사용)
-				},
-				(error) => {
-					console.error('❌ GLTF 모델 로드 실패:', nickName, error);
-					reject(error);
-				}
-			);
+				}, undefined, reject);
+
 		});
 	}
 
@@ -113,11 +121,8 @@ export class CharacterRenderModule {
 		const characterConfig = this.gameClient.getCharacterConfig();
 		const characterScale = characterConfig.SCALE;
 		character.scale.set(characterScale, characterScale, characterScale);
-
-		// 위치 설정
-		
-
-		// 회전 설정
+	
+			// 회전 설정
 		character.rotation.y = Math.PI / 4;
 		character.rotation.x = -Math.PI / 6;
 
@@ -128,49 +133,102 @@ export class CharacterRenderModule {
 			avatarInfo: avatarInfo
 		};
 	}
-	// ✅ 내 캐릭터 애니메이션 설정 (RenderModule 역할)
-	setupMyCharacterAnimations(character, gltf) {
-		console.log('🎬 내 캐릭터 애니메이션 설정 시작');
+
+	setupCharacterAnimations(character, gltf, sessionId, isMyCharacter) {
+		console.log(`🎬 캐릭터 애니메이션 설정: ${sessionId} (내 캐릭터: ${isMyCharacter})`);
+
+		// 렌더 인스턴스 데이터 초기화
+		if (!this.playerRenderInstances.has(sessionId)) {
+			this.playerRenderInstances.set(sessionId, {
+				threeInstance: null,
+				canvas: null,
+				isMyCharacter,
+				mixer: null,
+				clock: new THREE.Clock(),
+				walkAction: null
+			});
+		}
+
+		const instance = this.playerRenderInstances.get(sessionId);
 
 		// Mixer 설정
-		this.mixer = new THREE.AnimationMixer(character);
+		instance.mixer = new THREE.AnimationMixer(character);
 
 		if (gltf.animations && gltf.animations.length > 0) {
 			console.log('📋 애니메이션 클립들:', gltf.animations.map(c => c.name));
 
-			// Walk 애니메이션 찾기
 			const walkClip = gltf.animations.find(clip =>
 				clip.name === "Armature|mixamo.com|Layer0"
 			);
 
 			if (walkClip) {
-				this.walkAction = this.mixer.clipAction(walkClip);
-				this.walkAction.loop = THREE.LoopRepeat;
-				this.walkAction.enabled = true;
-				// 💥 반드시 추가!
-				//                         this.walkAction.play();
-				this.walkAction.paused = true;
+				instance.walkAction = instance.mixer.clipAction(walkClip);
+				instance.walkAction.loop = THREE.LoopRepeat;
+				instance.walkAction.enabled = true;
+				instance.walkAction.paused = true;
+
+				console.log(`✅ ${sessionId} 애니메이션 설정 완료`);
 			}
 		}
 
-		// ✅ MovementModule에 애니메이션 전달
-		const movementModule = this.gameClient.getCharacterMovementModule();
-		if (movementModule) {
-			movementModule.setAnimationActions(this.walkAction);
-		}
+		// ✅ 내 캐릭터인 경우 추가 처리 (호환성 유지)
+		if (isMyCharacter) {
+			// 기존 방식 호환성을 위해 클래스 변수에도 저장
+			this.mixer = instance.mixer;
+			this.walkAction = instance.walkAction;
 
-		console.log('✅ 애니메이션 설정 완료');
+			// MovementModule에 애니메이션 액션 전달
+			const movementModule = this.gameClient.getCharacterMovementModule();
+			if (movementModule) {
+				movementModule.setMyCharacter(character);
+				movementModule.setAnimationActions(instance.walkAction);
+			}
+
+			console.log('✅ 내 캐릭터 추가 설정 완료');
+		}
 	}
 
-	// ✅ 애니메이션 업데이트 (RenderModule 역할)
-	updateAnimations() {
-		if (this.mixer && this.clock) {
-			const delta = this.clock.getDelta();
-			this.mixer.update(delta);
+	addPlayerToRenderData(sessionId, threeInstance, isMyCharacter) {
+		const instance = this.playerRenderInstances.get(sessionId);
+		if (instance) {
+			instance.threeInstance = threeInstance;
+			instance.canvas = threeInstance.getCanvas();
+		}
+
+		console.log(`➕ 플레이어 렌더 데이터에 추가: ${sessionId} (내 캐릭터: ${isMyCharacter})`);
+
+	}
+
+	updateAllPlayersAnimation(delta) {
+		// 모든 플레이어 순회 처리
+		this.playerRenderInstances.forEach((data, sessionId) => {
+			// 🎬 애니메이션 업데이트
+			if (data.mixer) {
+				data.mixer.update(delta);
+			}
+
+			// 🖼️ 렌더링
+			if (data.threeInstance) {
+				data.threeInstance.render();
+			}
+		});
+	}
+
+	startPlayerWalkAnimation(sessionId) {
+		const instance = this.playerRenderInstances.get(sessionId);
+		if (instance?.walkAction && !instance.walkAction.isRunning()) {
+			instance.walkAction.reset().play();
+			console.log(`🚶‍♀️ ${sessionId} 걷기 애니메이션 시작`);
 		}
 	}
 
-	
+	stopPlayerWalkAnimation(sessionId) {
+		const instance = this.playerRenderInstances.get(sessionId);
+		if (instance?.walkAction && instance.walkAction.isRunning()) {
+			instance.walkAction.stop();
+			console.log(`⏹️ ${sessionId} 걷기 애니메이션 정지`);
+		}
+	}
 	// ===== 캐릭터 파츠 로딩 =====
 	loadCharacterParts(character, parts, nickName) {
 		console.log('캐릭터 파츠 로딩 시작:', nickName, parts);
@@ -260,7 +318,7 @@ export class CharacterRenderModule {
 			case 'bottom':
 			case 'shoes':
 			default:
-				model.scale.set(baseScale* 0.3, baseScale* 0.2, baseScale* 0.2);
+				model.scale.set(baseScale * 0.3, baseScale * 0.2, baseScale * 0.2);
 				model.position.set(0, -4, 0);
 				break;
 		}
@@ -286,21 +344,48 @@ export class CharacterRenderModule {
 			console.log('playerCharacters 목록:', this.playerCharacters);
 		}
 	}
+	clearAllRenderInstances() {
+		console.log('🧹 모든 렌더 인스턴스 정리 (맵 변경)');
 
+		this.playerRenderInstances.forEach((instance, sessionId) => {
+			if (instance.threeInstance) {
+				instance.threeInstance.dispose();
+			}
+			if (instance.canvas && instance.canvas.parentNode) {
+				instance.canvas.parentNode.removeChild(instance.canvas);
+			}
+		});
+
+		// 캐릭터 데이터만 정리 (loader는 유지)
+		this.playerRenderInstances.clear();
+		this.playerCharacters.clear();
+		this.myCharacter = null;
+		this.mixer = null;
+		this.walkAction = null;
+
+		console.log('✅ 렌더 인스턴스 정리 완료 (맵 변경)');
+	}
 	// ===== 플레이어 제거 =====
 	removePlayer(sessionId) {
 		const character = this.playerCharacters.get(sessionId);
 		if (character) {
-			const scene = this.gameClient.getScene();
-			scene.remove(character);
 			this.playerCharacters.delete(sessionId);
 
-			// 내 캐릭터였다면 null로 설정
 			if (this.myCharacter === character) {
 				this.myCharacter = null;
 			}
+		}
 
-			console.log('플레이어 제거 완료:', sessionId);
+		// 🆕 렌더 인스턴스 제거
+		const instance = this.playerRenderInstances.get(sessionId);
+		if (instance) {
+			if (instance.canvas && instance.canvas.parentNode) {
+				instance.canvas.parentNode.removeChild(instance.canvas);
+			}
+			if (instance.threeInstance) {
+				instance.threeInstance.dispose();
+			}
+			this.playerRenderInstances.delete(sessionId);
 		}
 	}
 
@@ -323,15 +408,22 @@ export class CharacterRenderModule {
 	dispose() {
 		console.log('🧹 캐릭터 렌더링 모듈 정리');
 
-		// 모든 캐릭터 제거
-		const scene = this.gameClient.getScene();
-		this.playerCharacters.forEach((character) => {
-			scene.remove(character);
+		// 🆕 모든 렌더 인스턴스 정리
+		this.playerRenderInstances.forEach((instance, sessionId) => {
+			if (instance.threeInstance) {
+				instance.threeInstance.dispose();
+			}
+			if (instance.canvas && instance.canvas.parentNode) {
+				instance.canvas.parentNode.removeChild(instance.canvas);
+			}
 		});
 
 		// 맵 정리
 		this.playerCharacters.clear();
+		this.playerRenderInstances.clear(); // 🆕 추가
 		this.myCharacter = null;
+		this.mixer = null;        // 🆕 추가
+		this.walkAction = null;   // 🆕 추가
 		this.loader = null;
 
 		console.log('✅ 캐릭터 렌더링 모듈 정리 완료');
