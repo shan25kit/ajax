@@ -57,14 +57,14 @@ export class GameClient {
 	}
 
 	// ===== 게임 클라이언트 초기화 =====
-	async initialize(player) {
+	async initialize(player,currentMapName) {
 		try {
 			console.log('=== 게임 클라이언트 초기화 시작 ===');
 			console.log('플레이어 정보:', player);
-
+			console.log('맵 정보:', currentMapName);
 			// 플레이어 정보 저장
 			this.player = player;
-
+			this.currentMapName = currentMapName;
 			// 1. ThreeJS 코어 초기화
 			console.log('1. ThreeJS 코어 초기화');
 			this.threeInit = new ThreeInit();
@@ -79,7 +79,7 @@ export class GameClient {
 
 			// 3. 각 모듈 초기화
 			console.log('3. 각 모듈 초기화');
-			await this.initializeModules();
+			await this.initializeModules(currentMapName);
 
 			this.isInitialized = true;
 			console.log('=== 게임 클라이언트 초기화 완료 ===');
@@ -108,11 +108,11 @@ export class GameClient {
 	}
 
 	// ===== 모듈 초기화 =====
-	async initializeModules() {
+	async initializeModules(currentMapName) {
 		try {
 			// 맵 모듈 초기화 (포털, 맵 컨트롤)
 			if (this.mapModule.initialize) {
-				await this.mapModule.initialize();
+				await this.mapModule.initialize(currentMapName);
 			}
 
 			// 캐릭터 이동 모듈 초기화 (키보드 이벤트)
@@ -152,7 +152,7 @@ export class GameClient {
 			throw error;
 		}
 	}
-	/* async connect() {
+	async connect() {
 	 try {
 		 console.log('=== 서버 연결 시작 (테스트 모드) ===');
 		 
@@ -178,7 +178,7 @@ export class GameClient {
 		 console.error('서버 연결 실패:', error);
 		 throw error;
 	 }
- }*/
+ }
 	// ===== 게임 루프 시작 =====
 	async startGame() {
 		if (!this.isInitialized || !this.isConnected) {
@@ -189,6 +189,12 @@ export class GameClient {
 		// 🚫 테스트용: 캐릭터 렌더링 모듈 초기화 (웹소켓 없이)
 		if (this.characterRenderModule && this.characterRenderModule.initialize) {
 			await this.characterRenderModule.initialize();
+		}
+		
+		// ✅ (추가) 맵 마스킹 설정: happyMap
+		if (this.mapModule && this.mapModule.initializeMaskingAreas) {
+			this.mapModule.initializeMaskingAreas('happyMap');
+			console.log('🎈 happyMap 마스킹 적용 완료');
 		}
 
 		// ✅ 캐릭터 렌더링 완료될 때까지 기다리기
