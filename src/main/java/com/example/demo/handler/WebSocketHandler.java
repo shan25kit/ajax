@@ -120,7 +120,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 		Player player = playerSessions.get(sessionId);
 		if (player != null) {
 			JsonNode position = messageNode.get("position");
-
+			JsonNode rotation = messageNode.get("rotation"); 
 			// Map으로 위치 업데이트
 			Map<String, Double> newPosition = new HashMap<>();
 			newPosition.put("x", position.get("x").asDouble());
@@ -128,7 +128,14 @@ public class WebSocketHandler extends TextWebSocketHandler {
 			newPosition.put("z", position.get("z").asDouble());
 
 			player.updatePosition(newPosition);
-
+			 if (rotation != null) {
+		            Map<String, Double> newRotation = new HashMap<>();
+		            newRotation.put("x", rotation.get("x").asDouble());
+		            newRotation.put("y", rotation.get("y").asDouble());
+		            newRotation.put("z", rotation.get("z").asDouble());
+		            
+		            player.updateRotation(newRotation); // Player 클래스에 메서드 추가 필요
+		        }
 			// 다른 플레이어들에게 위치 업데이트 브로드캐스트
 			broadcastToOthers(sessionId, createPlayerMovedMessage(sessionId, player));
 		}
@@ -293,6 +300,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 		message.put("type", "player-move");
 		message.put("sessionId", sessionId);
 		message.put("position", player.getPositionForBroadcast());
+		message.put("rotation", player.getRotationForBroadcast());
 		return mapper.writeValueAsString(message);
 	}
 

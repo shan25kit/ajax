@@ -99,7 +99,7 @@ export class WebsocketChatModule {
 		if (!this.isConnected || !this.socket) {
 			throw new Error('웹소켓이 연결되지 않았습니다.');
 		}
-
+		this.clearCharacterContainer();
 		const joinMessage = {
 			type: 'join-map',
 			memberId: player.memberId,
@@ -119,7 +119,19 @@ export class WebsocketChatModule {
 			throw error;
 		}
 	}
+	clearCharacterContainer() {
+		const character3D = document.getElementById('character3D');
+		if (character3D) {
+			character3D.innerHTML = '';
+			console.log('🧹 캐릭터 컨테이너 초기화 완료');
+		}
 
+		// CharacterRenderModule의 인스턴스들도 정리
+		const characterRenderModule = this.gameClient.getCharacterRenderModule();
+		if (characterRenderModule) {
+			characterRenderModule.clearAllRenderInstances();
+		}
+	}
 	// ===== 메시지 처리 =====
 	async handleMessage(message) {
 		console.log('📨 메시지 수신:', message.type, message);
@@ -169,25 +181,27 @@ export class WebsocketChatModule {
 	// ===== 플레이어 입장 처리 =====
 	async handlePlayerJoined(message) {
 		console.log('👤 새 플레이어 입장:', message.player);
-
 		const characterRenderModule = this.gameClient.getCharacterRenderModule();
-		if (!characterRenderModule) return;
+		if (!characterRenderModule)
+			return;
 
 		const avatarInfo = typeof message.player.avatarInfo === 'string'
 			? JSON.parse(message.player.avatarInfo)
 			: message.player.avatarInfo;
 
-		const defaultPosition = message.player.position;
-
 		await characterRenderModule.loadCharacter(
 			avatarInfo,
-			defaultPosition,
+			message.player.position,
 			message.player.memberId,
 			message.player.sessionId,
 			message.player.nickName
 		);
 
-		console.log('✓ 새 플레이어 캐릭터 로드 완료');
+		if (message.player.memberId === this.gameClient.player.memberId) {
+			console.log('✅ 내 캐릭터 로드 완료');
+		} else {
+			console.log('✅ 다른 플레이어 캐릭터 로드 완료:', message.player.nickName);
+		}
 	}
 
 	// ===== 기존 플레이어들 처리 =====
@@ -196,7 +210,22 @@ export class WebsocketChatModule {
 
 		const characterRenderModule = this.gameClient.getCharacterRenderModule();
 		if (!characterRenderModule) return;
+		// 먼저 내 캐릭터 로드
+		const myPlayer = message.players.find(p => p.memberId === this.gameClient.player.memberId);
+		if (myPlayer) {
+			const avatarInfo = typeof myPlayer.avatarInfo === 'string'
+				? JSON.parse(myPlayer.avatarInfo)
+				: myPlayer.avatarInfo;
 
+			await characterRenderModule.loadCharacter(
+				avatarInfo,
+				myPlayer.position,
+				myPlayer.memberId,
+				myPlayer.sessionId,
+				myPlayer.nickName
+			);
+			console.log('✅ 내 캐릭터 로드 완료');
+		}
 		// 다른 플레이어들 순차적으로 로드
 		for (const player of message.players) {
 			if (player.memberId !== this.gameClient.player.memberId) {
@@ -217,11 +246,22 @@ export class WebsocketChatModule {
 
 	// ===== 플레이어 이동 처리 =====
 	handlePlayerMove(message) {
-		console.log('🚶 플레이어 이동:', message.sessionId, message.position);
+		console.log('🚶 플레이어 이동:', message.sessionId, message.position,message.rotation);
 
 		const characterRenderModule = this.gameClient.getCharacterRenderModule();
 		if (characterRenderModule) {
+			// 🎬 이동 애니메이션 시작 (다른 플레이어도!)
+			characterRenderModule.startPlayerWalkAnimation(message.sessionId);
+			// 일정 시간 후 애니메이션 정지 (서버에서 정지 신호가 없다면)
+			setTimeout(() => {
+				characterRenderModule.stopPlayerWalkAnimation(message.sessionId);
+			}, 1000); // 500ms 후 정지
 			characterRenderModule.updatePlayerPosition(message.sessionId, message.position);
+			// 🆕 회전 업데이트
+			if (message.rotation) {
+				characterRenderModule.updatePlayerRotation(message.sessionId, message.rotation);
+			}
+
 		}
 	}
 
@@ -262,12 +302,7 @@ export class WebsocketChatModule {
 		if (messageType === 'map') {
 			let senderId;
 
-			// 내 메시지인 경우
-			if (messageData.memberId === this.gameClient.player.memberId) {
-				senderId = this.gameClient.player.memberId; // memberId 사용
-			}
-			// 다른 플레이어 메시지인 경우  
-			else if (messageData.sessionId) {
+			if (messageData.sessionId) {
 				senderId = messageData.sessionId; // sessionId 사용
 			}
 
@@ -284,7 +319,7 @@ export class WebsocketChatModule {
 		let playerMesh = null;
 
 		// 내 캐릭터인지 확인
-		if (playerId === this.gameClient.player.memberId) {
+		if (playerId === this.gameClient.player.sessionId) {
 			playerMesh = characterRenderModule.getMyCharacter();
 		} else {
 			playerMesh = characterRenderModule.getCharacter(playerId);
@@ -347,7 +382,7 @@ export class WebsocketChatModule {
 		const bubble = this.activeBubbles.get(playerId);
 		if (bubble) {
 			const mapContainer = document.getElementById('mapContainer');
-					mapContainer.removeChild(bubble);
+			mapContainer.removeChild(bubble);
 			this.activeBubbles.delete(playerId);
 		}
 	}
@@ -361,11 +396,11 @@ export class WebsocketChatModule {
 		let redirectPath;
 
 		switch (targetMap) {
-			case '/testMap':
-				redirectPath = 'game/testMap';
+			case '/angerMap':
+				redirectPath = 'game/angerMap';
 				break;
-			case '/emotionMap':
-				redirectPath = 'game/emotionMap';
+			case '/zenMap':
+				redirectPath = 'game/zenMap';
 				break;
 			case '/happyMap':
 				redirectPath = 'game/happyMap';
@@ -373,8 +408,11 @@ export class WebsocketChatModule {
 			case '/sadMap':
 				redirectPath = 'game/sadMap';
 				break;
+			case '/anxietyMap':
+				redirectPath = 'game/anxietyMap';
+				break;
 			default:
-				redirectPath = 'game/testMap';
+				redirectPath = 'game/startMap';
 		}
 
 		setTimeout(() => {

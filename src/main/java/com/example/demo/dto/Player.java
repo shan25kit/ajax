@@ -21,7 +21,6 @@ public class Player {
 	private JsonNode avatarInfo; // 캐릭터 커스텀 정보
 	private String currentMap = "default-map"; // 현재 맵 정보
 
-
 	// Jackson 직렬화용 - character를 문자열로 변환
 
 	@JsonProperty("avatarInfo")
@@ -90,5 +89,30 @@ public class Player {
 	// 브로드캐스팅용 위치 데이터 (참조 반환)
 	public Map<String, Double> getPositionForBroadcast() {
 		return position; // 직접 참조 (성능상 이유)
+	}
+
+	private Map<String, Double> rotation; // 🆕 회전 정보 추가
+
+	// 생성자에서 초기화
+	public Player(String sessionId, String memberId, String nickName, String avatarInfo) {
+		// 기존 코드...
+		this.rotation = new HashMap<>();
+		this.rotation.put("x", -Math.PI / 6); // 초기값
+		this.rotation.put("y", Math.PI / 4); // 초기값
+		this.rotation.put("z", 0.0); // 초기값
+	}
+
+	// 🆕 회전 업데이트 메서드
+	public void updateRotation(Map<String, Double> newRotation) {
+		this.rotation = newRotation;
+	}
+
+	public Map<String, Double> getRotationForBroadcast() {
+		return this.rotation;
+	}
+
+	// 🆕 회전 정보 반환 메서드
+	public Map<String, Double> getRotation() {
+		return this.rotation;
 	}
 }

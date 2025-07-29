@@ -52,6 +52,7 @@ export class MapModule {
 	}
 
 	// ===== 마스킹 영역 초기화 =====
+
 	initializeMaskingAreas(mapName) {
 		if (mapName === 'startMap') {
 			// 이동 불가 다각형 영역 (기존 JSP의 points 배열)
@@ -165,7 +166,6 @@ export class MapModule {
 		const scaledWidth = mapConfig.IMAGE_WIDTH * this.scale;
 		const scaledHeight = mapConfig.IMAGE_HEIGHT * this.scale;
 
-		// 🔥 JSP와 동일한 로직 적용
 		this.posX = (containerWidth - scaledWidth) / 2;
 		this.posY = (containerHeight - scaledHeight) / 2;
 
@@ -205,7 +205,9 @@ export class MapModule {
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
 		this.ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+
 		this.ctx.strokeStyle = 'rgba(255, 0, 0, 0.3)';
+
 		this.ctx.lineWidth = 2.3;
 
 		const scale = 1;
@@ -501,54 +503,49 @@ export class MapModule {
 	}
 	updateCharacterDOM() {
 		try {
-			if (!this.characterContainer) {
-				console.warn('⚠️ characterContainer를 찾을 수 없습니다.');
-				return;
-			}
-
 			const characterRenderModule = this.gameClient.getCharacterRenderModule();
-			const myCharacter = characterRenderModule?.getMyCharacter();
 
-			if (!myCharacter) {
-				// 캐릭터가 아직 로드되지 않았으면 숨김
-				this.characterContainer.style.display = 'none';
-				return;
-			}
+			if (!characterRenderModule) return;
 
-			// 캐릭터가 있으면 표시
-			this.characterContainer.style.display = 'block';
+			// ✅ 모든 캐릭터의 캔버스 위치 업데이트
+			const allCharacters = characterRenderModule.getAllCharacters();
+			const renderInstances = characterRenderModule.playerRenderInstances;
 
-			// 🔥 3D 캐릭터 위치를 2D 이미지 좌표로 변환
-			const imageCoord = this.worldToImageCoordinates(
-				myCharacter.position.x,
-				myCharacter.position.z
-			);
+			allCharacters.forEach((character, sessionId) => {
+				const instance = renderInstances.get(sessionId);
+				if (!instance || !instance.canvas) return;
 
-			// 🔥 맵 변환을 적용한 화면 좌표 계산 
-			const screenX = imageCoord.x * this.scale + this.posX;
-			const screenY = imageCoord.y * this.scale + this.posY;
+				// 좌표 계산
+				const imageCoord = this.worldToImageCoordinates(
+					character.position.x,
+					character.position.z
+				);
 
-			// 🔥 성능 최적화: 위치가 실제로 변경되었을 때만 DOM 업데이트
-			if (this.lastCharacterScreenX !== screenX ||
-				this.lastCharacterScreenY !== screenY ||
-				this.lastCharacterScale !== this.scale) {
+				const screenX = imageCoord.x * this.scale + this.posX;
+				const screenY = imageCoord.y * this.scale + this.posY;
 
-				this.lastCharacterScreenX = screenX;
-				this.lastCharacterScreenY = screenY;
-				this.lastCharacterScale = this.scale;
+				// ✅ 성능 최적화: 위치나 스케일이 변경되었을 때만 업데이트
+				const lastUpdate = instance.lastDOMUpdate || {};
+				if (lastUpdate.screenX !== screenX ||
+					lastUpdate.screenY !== screenY ||
+					lastUpdate.scale !== this.scale) {
 
-				// 🔥 JSP와 동일한 위치 계산 (중앙/하단 정렬)
-				characterContainer.style.position = 'absolute';
-				characterContainer.style.left = (screenX - 100) + 'px';  // 중앙 정렬 보정
-				characterContainer.style.top = (screenY - 180) + 'px';   // 하단 정렬 보정
-				characterContainer.style.transform = `scale(${this.scale})`;
-				characterContainer.style.transformOrigin = 'center bottom';
-				characterContainer.style.zIndex = '9999';
-				characterContainer.style.pointerEvents = 'none';
+					const canvas = instance.canvas;
+					canvas.style.position = 'absolute';
+					canvas.style.left = (screenX - 180) + 'px';
+					canvas.style.top = (screenY - 180) + 'px';
+					canvas.style.transform = `scale(${this.scale})`;
+					canvas.style.transformOrigin = 'center center';
 
-				// 🔥 디버그 로그 (필요시)
-				// console.log(`👤 캐릭터 DOM 위치: screen(${screenX.toFixed(1)}, ${screenY.toFixed(1)}) scale(${this.scale})`);
-			}
+					// 업데이트 기록
+					instance.lastDOMUpdate = {
+						screenX,
+						screenY,
+						scale: this.scale
+					};
+				}
+			});
+
 
 		} catch (error) {
 			console.error('❌ 캐릭터 DOM 위치 업데이트 에러:', error);
