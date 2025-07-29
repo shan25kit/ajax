@@ -42,7 +42,7 @@ export class MapModule {
 	}
 	// ===== 마스킹 영역 초기화 =====
 	initializeMaskingAreas() {
-		// 이동 불가 다각형 영역 (기존 JSP의 points 배열)
+		// 이동 불가 다각형 영역 
 		this.maskingPolygon = [
 			[0, 410], [114, 506], [82, 535], [193, 598], [196, 625],
 			[299, 659], [371, 704], [573, 705], [579, 741], [670, 766],
@@ -125,7 +125,6 @@ export class MapModule {
 		const scaledWidth = mapConfig.IMAGE_WIDTH * this.scale;
 		const scaledHeight = mapConfig.IMAGE_HEIGHT * this.scale;
 
-		// 🔥 JSP와 동일한 로직 적용
 		this.posX = (containerWidth - scaledWidth) / 2;
 		this.posY = (containerHeight - scaledHeight) / 2;
 
@@ -484,8 +483,8 @@ export class MapModule {
 
 					const canvas = instance.canvas;
 					canvas.style.position = 'absolute';
-					canvas.style.left = (screenX - 100) + 'px';
-					canvas.style.top = (screenY - 125) + 'px';
+					canvas.style.left = (screenX - 180) + 'px';
+					canvas.style.top = (screenY - 180) + 'px';
 					canvas.style.transform = `scale(${this.scale})`;
 					canvas.style.transformOrigin = 'center center';
 

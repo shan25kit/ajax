@@ -65,7 +65,7 @@ export class CharacterRenderModule {
 		character3D.appendChild(canvas);
 
 		threeInstance = new ThreeInit(canvas);
-		
+
 		const canvasElement = threeInstance.getCanvas();
 		if (canvasElement) {
 			canvasElement.setAttribute('data-player-id', sessionId);
@@ -99,7 +99,9 @@ export class CharacterRenderModule {
 					this.addPlayerToRenderData(sessionId, threeInstance, memberId === this.gameClient.player.memberId);
 					// 파츠 로딩
 					if (avatarInfo.parts) {
-						this.loadCharacterParts(character, avatarInfo.parts, nickName);
+						setTimeout(() => {
+							this.loadCharacterParts(character, avatarInfo.parts, nickName);
+						}, 50);
 					}
 					resolve(character);
 				}, undefined, reject);
@@ -109,6 +111,8 @@ export class CharacterRenderModule {
 
 	// ===== 베이스 캐릭터 설정 =====
 	setupBaseCharacter(character, avatarInfo, position, memberId, sessionId) {
+		console.log('=== 베이스 캐릭터 구조 분석 ===');
+		console.log('Character scene:', character);
 		// 스킨 색상 및 재질 설정
 		character.traverse((child) => {
 			if (child.isMesh && child.material && child.material.color) {
@@ -116,16 +120,18 @@ export class CharacterRenderModule {
 				child.material.color = new THREE.Color(avatarInfo.skinColor || 0xffe0bd);
 				child.material.needsUpdate = true;
 			}
+
 		});
+
 		// 스케일 설정
 		const characterConfig = this.gameClient.getCharacterConfig();
 		const characterScale = characterConfig.SCALE;
 		character.scale.set(characterScale, characterScale, characterScale);
-	
-			// 회전 설정
-		character.rotation.y = Math.PI / 4;
-		character.rotation.x = -Math.PI / 6;
 
+	// 회전 설정
+		character.rotation.y = Math.PI / 6;
+		character.rotation.x = Math.PI / 8;
+		
 		// 사용자 데이터 저장
 		character.userData = {
 			memberId: memberId,
@@ -206,7 +212,22 @@ export class CharacterRenderModule {
 			if (data.mixer) {
 				data.mixer.update(delta);
 			}
+			const character = this.playerCharacters.get(sessionId);
+			if (character) {
+				// 파츠 애니메이션 업데이트
+				character.traverse(child => child.userData?.mixer?.update(delta));
 
+				// 🆕 본 위치 동기화 (1줄)
+				character.traverse(child => {
+					if (child.isSkinnedMesh) {
+						child.skeleton?.bones.forEach(bone => {
+							if (bone.userData.baseBone) {
+								bone.matrix.copy(bone.userData.baseBone.matrix);
+							}
+						});
+					}
+				});
+			}
 			// 🖼️ 렌더링
 			if (data.threeInstance) {
 				data.threeInstance.render();
@@ -216,17 +237,43 @@ export class CharacterRenderModule {
 
 	startPlayerWalkAnimation(sessionId) {
 		const instance = this.playerRenderInstances.get(sessionId);
+		const character = this.playerCharacters.get(sessionId);
 		if (instance?.walkAction && !instance.walkAction.isRunning()) {
 			instance.walkAction.reset().play();
 			console.log(`🚶‍♀️ ${sessionId} 걷기 애니메이션 시작`);
+		}
+		if (character) {
+			character.traverse(child => {
+				if (child.userData?.walkAction) {
+					console.log(`🎭 파츠 애니메이션 확인: ${child.name}`);
+					console.log('  - walkAction 있음:', !!child.userData.walkAction);
+					console.log('  - 현재 실행중:', child.userData.walkAction.isRunning());
+
+					if (!child.userData.walkAction.isRunning()) {
+						child.userData.walkAction.reset().play();
+						console.log(`  ✅ ${child.name} 애니메이션 시작됨`);
+					}
+				} else {
+					console.log(`❌ ${child.name} - walkAction 없음`);
+				}
+			});
 		}
 	}
 
 	stopPlayerWalkAnimation(sessionId) {
 		const instance = this.playerRenderInstances.get(sessionId);
+		const character = this.playerCharacters.get(sessionId);
 		if (instance?.walkAction && instance.walkAction.isRunning()) {
 			instance.walkAction.stop();
 			console.log(`⏹️ ${sessionId} 걷기 애니메이션 정지`);
+		}
+		// 🆕 파츠 애니메이션도 정지
+		if (character) {
+			character.traverse(child => {
+				if (child.userData?.walkAction && child.userData.walkAction.isRunning()) {
+					child.userData.walkAction.stop();
+				}
+			});
 		}
 	}
 	// ===== 캐릭터 파츠 로딩 =====
@@ -263,6 +310,61 @@ export class CharacterRenderModule {
 		this.loader.load(modelPath, (gltf) => {
 			const model = gltf.scene;
 
+			// 🆕 베이스 캐릭터의 본 찾기
+			let baseBones = null;
+			character.traverse(child => {
+				if (child.isSkinnedMesh && child.skeleton) {
+					baseBones = child.skeleton.bones;
+				}
+			});
+
+			let hasSkinnedMesh = false;
+
+			model.traverse((child) => {
+				console.log(`  - Child: ${child.name} (${child.type})`);
+
+				if (child.isMesh) {
+					console.log(`    Mesh: ${child.name}`, child.geometry, child.material);
+				}
+
+				if (child.isSkinnedMesh) {
+					hasSkinnedMesh = true;
+
+
+					// 🆕 파츠 애니메이션 설정
+					if (gltf.animations && gltf.animations.length > 0) {
+						console.log('  - 애니메이션 개수:', gltf.animations.length);
+						console.log('  - 애니메이션 이름들:', gltf.animations.map(a => a.name));
+						const mixer = new THREE.AnimationMixer(child);
+						const walkClip = gltf.animations.find(clip =>
+							clip.name === "Armature|mixamo.com|Layer0"
+						);
+						if (walkClip) {
+							const action = mixer.clipAction(walkClip);
+							action.loop = THREE.LoopRepeat;
+							action.enabled = true;
+							action.paused = true;
+							child.userData.mixer = mixer;
+							child.userData.walkAction = action;
+						}
+					}
+
+					// 🆕 파츠 본을 베이스와 연결
+					if (baseBones && child.skeleton) {
+						child.skeleton.bones.forEach((partBone, i) => {
+							if (baseBones[i]) {
+								partBone.userData.baseBone = baseBones[i];
+							}
+						});
+						console.log(`🔗 ${name} 본 연결 완료`);
+					}
+				}
+
+				if (child.isBone) {
+					console.log(`    Bone: ${child.name}`, child.position);
+				}
+			});
+
 			// 색상 적용 (있는 경우)
 			if (partData.color) {
 				model.traverse((child) => {
@@ -274,9 +376,25 @@ export class CharacterRenderModule {
 				});
 			}
 
-			// 파츠 설정 적용
-			this.applyPartSettings(model, partType, character, subType);
-
+			/*	// SkinnedMesh가 없는 경우에만 기존 위치 설정 적용
+				if (!hasSkinnedMesh) {
+					this.applyPartSettings(model, partType, character, subType);
+				}*/
+			console.log(`🔍 ${name} 최종 상태:`, {
+				position: model.position,
+				scale: model.scale,
+				visible: model.visible,
+				children: model.children.length
+			});
+			model.traverse(child => {
+				if (child.isMesh) {
+					console.log(`  - 메시: ${child.name}`, {
+						visible: child.visible,
+						geometry: child.geometry,
+						material: child.material
+					});
+				}
+			});
 			// 캐릭터에 추가
 			character.add(model);
 			console.log(`${name} 로딩 완료`);
@@ -285,7 +403,110 @@ export class CharacterRenderModule {
 			console.error(`${name} 로딩 실패:`, error);
 		});
 	}
+	analyzePartStructure(gltf, partName) {
+		console.log(`\n🔬 ===== ${partName} 상세 구조 분석 =====`);
 
+		// 1. 전체 씬 정보
+		console.log('📊 전체 정보:');
+		console.log('  - 씬 이름:', gltf.scene.name);
+		console.log('  - 애니메이션 개수:', gltf.animations?.length || 0);
+		console.log('  - 직접 자식 개수:', gltf.scene.children.length);
+
+		// 2. 애니메이션 정보
+		if (gltf.animations && gltf.animations.length > 0) {
+			console.log('\n🎬 애니메이션 정보:');
+			gltf.animations.forEach((anim, i) => {
+				console.log(`  ${i}: ${anim.name} (${anim.duration}초, ${anim.tracks.length}개 트랙)`);
+			});
+		}
+
+		// 3. 전체 계층 구조
+		console.log('\n🌳 전체 계층 구조:');
+		this.printHierarchy(gltf.scene, 0);
+
+		// 4. 메시 상세 정보
+		console.log('\n🎭 메시 상세 정보:');
+		const meshes = [];
+		gltf.scene.traverse(child => {
+			if (child.isMesh) {
+				meshes.push(child);
+			}
+		});
+
+		meshes.forEach((mesh, i) => {
+			console.log(`  ${i}: ${mesh.name}`);
+			console.log(`     - 타입: ${mesh.type}`);
+			console.log(`     - SkinnedMesh: ${mesh.isSkinnedMesh}`);
+			console.log(`     - 지오메트리: ${mesh.geometry?.type}`);
+			console.log(`     - 버텍스 수: ${mesh.geometry?.attributes?.position?.count || 0}`);
+			console.log(`     - 머티리얼: ${mesh.material?.type || 'null'}`);
+			console.log(`     - 위치: (${mesh.position.x.toFixed(2)}, ${mesh.position.y.toFixed(2)}, ${mesh.position.z.toFixed(2)})`);
+			console.log(`     - 스케일: (${mesh.scale.x.toFixed(2)}, ${mesh.scale.y.toFixed(2)}, ${mesh.scale.z.toFixed(2)})`);
+			console.log(`     - 보이기: ${mesh.visible}`);
+
+			if (mesh.isSkinnedMesh) {
+				console.log(`     - 스켈레톤: ${!!mesh.skeleton}`);
+				console.log(`     - 본 개수: ${mesh.skeleton?.bones?.length || 0}`);
+			}
+		});
+
+		// 5. 본 상세 정보
+		console.log('\n🦴 본(Bone) 상세 정보:');
+		const bones = [];
+		gltf.scene.traverse(child => {
+			if (child.isBone) {
+				bones.push(child);
+			}
+		});
+
+		if (bones.length > 0) {
+			bones.forEach((bone, i) => {
+				console.log(`  ${i}: ${bone.name}`);
+				console.log(`     - 위치: (${bone.position.x.toFixed(2)}, ${bone.position.y.toFixed(2)}, ${bone.position.z.toFixed(2)})`);
+				console.log(`     - 회전: (${bone.rotation.x.toFixed(2)}, ${bone.rotation.y.toFixed(2)}, ${bone.rotation.z.toFixed(2)})`);
+				console.log(`     - 자식 본: ${bone.children.filter(c => c.isBone).length}개`);
+			});
+		} else {
+			console.log('  본이 없습니다.');
+		}
+
+		// 6. 스켈레톤 정보
+		const skinnedMeshes = meshes.filter(m => m.isSkinnedMesh);
+		if (skinnedMeshes.length > 0) {
+			console.log('\n🩻 스켈레톤 정보:');
+			skinnedMeshes.forEach((mesh, i) => {
+				if (mesh.skeleton) {
+					console.log(`  SkinnedMesh ${i} (${mesh.name}) 스켈레톤:`);
+					console.log(`     - 본 개수: ${mesh.skeleton.bones.length}`);
+					console.log(`     - 본 목록:`);
+					mesh.skeleton.bones.forEach((bone, bi) => {
+						console.log(`       ${bi}: ${bone.name}`);
+					});
+				}
+			});
+		}
+
+		console.log(`===== ${partName} 분석 완료 =====\n`);
+	}
+
+	// 계층 구조 출력 헬퍼
+	printHierarchy(object, depth = 0) {
+		const indent = '  '.repeat(depth);
+		const type = object.isSkinnedMesh ? 'SkinnedMesh' :
+			object.isMesh ? 'Mesh' :
+				object.isBone ? 'Bone' :
+					object.type;
+
+		console.log(`${indent}├─ ${object.name || 'unnamed'} (${type})`);
+
+		if (object.isMesh) {
+			console.log(`${indent}│  └─ visible: ${object.visible}, material: ${!!object.material}`);
+		}
+
+		object.children.forEach((child, i) => {
+			this.printHierarchy(child, depth + 1);
+		});
+	}
 	// ===== 파츠별 위치/스케일 설정 =====
 	applyPartSettings(model, partType, character, subType) {
 		const baseScale = character.scale.x * 75;
@@ -344,6 +565,23 @@ export class CharacterRenderModule {
 			console.log('playerCharacters 목록:', this.playerCharacters);
 		}
 	}
+	updatePlayerRotation(sessionId, rotation) {
+		console.log(`🧭 ${sessionId} 회전 업데이트:`, rotation);
+
+		const character = this.playerCharacters.get(sessionId);
+		if (character) {
+			character.rotation.set(rotation.x, rotation.y, rotation.z);
+
+			// 디버깅용 각도 출력
+			const degrees = (rotation.y * 180 / Math.PI).toFixed(1);
+			console.log(`✅ ${sessionId} 회전 적용: ${degrees}도`);
+		} else {
+			console.log(`❌ ${sessionId} 캐릭터를 찾을 수 없음`);
+			console.log('현재 캐릭터 목록:', Array.from(this.playerCharacters.keys()));
+		}
+	}
+
+
 	clearAllRenderInstances() {
 		console.log('🧹 모든 렌더 인스턴스 정리 (맵 변경)');
 

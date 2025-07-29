@@ -57,7 +57,7 @@ export class ThreeInit {
 			/*		character3D.innerHTML = '';*/
 			character3D.appendChild(this.renderer.domElement);
 
-			this.renderer.domElement.style.zIndex = '9999';
+			this.renderer.domElement.style.zIndex = '9998';
 			this.renderer.domElement.style.position = 'relative';
 		}
 	}
@@ -97,7 +97,7 @@ export class ThreeInit {
 			35, -35,  // top, bottom
 			0.1, 1000 // near, far
 		);
-		camera.position.set(0, 30, 50);
+		camera.position.set(0, 0, 30);
 		camera.lookAt(0, 0, 0);
 
 		return camera;

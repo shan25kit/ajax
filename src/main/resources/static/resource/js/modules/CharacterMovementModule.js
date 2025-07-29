@@ -5,7 +5,7 @@ export class CharacterMovementModule {
 		this.keys = {};
 		this.speed = gameClient.getConfig('MOVEMENT_SPEED') || 0.2;
 		this.lastPositionSent = null;
-		this.positionUpdateThrottle = 50; // 50ms마다 위치 업데이트
+		this.positionUpdateThrottle = 100; // 50ms마다 위치 업데이트
 		this.lastPositionUpdate = 0;
 
 		console.log('📦 CharacterMovementModule 생성됨');
@@ -200,6 +200,20 @@ export class CharacterMovementModule {
 					if (this.walkAction && !this.walkAction.isRunning()) {
 						this.walkAction.reset().play();
 						console.log('🚶‍♀️ 걷기 애니메이션 시작!');
+						// 🆕 내 캐릭터의 파츠 애니메이션도 시작
+						const characterRenderModule = this.gameClient.getCharacterRenderModule();
+						if (characterRenderModule && this.myCharacter) {
+							let partCount = 0;
+							this.myCharacter.traverse(child => {
+								if (child.userData?.walkAction && !child.userData.walkAction.isRunning()) {
+									child.userData.walkAction.reset().play();
+									partCount++;
+									console.log(`  🎭 내 파츠 애니메이션 시작: ${child.name}`);
+								}
+							});
+							console.log(`✅ 내 캐릭터 파츠 애니메이션 ${partCount}개 시작됨`);
+						}
+
 					}
 
 					// ✅ 서버 전송 및 맵 업데이트
@@ -214,6 +228,14 @@ export class CharacterMovementModule {
 					if (this.walkAction && this.walkAction.isRunning()) {
 						this.walkAction.stop();
 						console.log('⏹️ 이동 차단으로 애니메이션 정지');
+						if (this.myCharacter) {
+							this.myCharacter.traverse(child => {
+								if (child.userData?.walkAction && child.userData.walkAction.isRunning()) {
+									child.userData.walkAction.stop();
+									console.log(`  ⏹️ 내 파츠 애니메이션 정지: ${child.name}`);
+								}
+							});
+						}
 					}
 				}
 
@@ -221,6 +243,14 @@ export class CharacterMovementModule {
 				// 입력이 없으면 애니메이션 정지
 				if (this.walkAction && this.walkAction.isRunning()) {
 					this.walkAction.stop();
+					if (this.myCharacter) {
+						this.myCharacter.traverse(child => {
+							if (child.userData?.walkAction && child.userData.walkAction.isRunning()) {
+								child.userData.walkAction.stop();
+								console.log(`  ⏹️ 내 파츠 애니메이션 정지: ${child.name}`);
+							}
+						});
+					}
 					console.log('⏹️ 입력 없음 - 애니메이션 정지');
 				}
 			}
@@ -229,106 +259,7 @@ export class CharacterMovementModule {
 			this.checkPortalCollision(this.myCharacter);
 		}
 	}
-	// ===== 이동 업데이트 (애니메이션 루프에서 호출) =====
-	/* updateMovement() {
-		 if (!this.myCharacter) {
-				 const characterRenderModule = this.gameClient.getCharacterRenderModule();
-				 this.myCharacter = characterRenderModule?.getMyCharacter();
- 
-				 // 디버깅 로그
-				 if (!this.myCharacter) {
-					 console.warn('🚨 myCharacter가 아직 정의되지 않았습니다!');
-					 return;
-				 } else {
-					 console.log('✅ myCharacter 할당 성공:', this.myCharacter);
-					 this.initializeCharacterPosition();
-				 }
-			 }
- 
-			 if (!this.keys) return;
-	 	
-		 // ✅ 항상 높이 고정 
-		 if (this.myCharacter) {
-			 this.myCharacter.position.y = 0;
-		 }
-		 
-		   // 애니메이션 업데이트
-		 if (this.mixer && this.clock) {
-			 const delta = this.clock.getDelta();
-			 this.mixer.update(delta);
-		 }
- 
-		 // 내 캐릭터 이동 처리
-		 if (this.myCharacter && this.keys) {
-		 	
-			 let moved = false;
- 
-			 if (this.keys['ArrowUp'] || this.keys['w'] || this.keys['W']) {
-				 console.log('⬆️ 위로 이동!');
-				 this.myCharacter.position.z -= this.speed;
-				 moved = true;
-			 }
-			 if (this.keys['ArrowDown'] || this.keys['s'] || this.keys['S']) {
-				 this.myCharacter.position.z += this.speed;
-				 moved = true;
-			 }
-			 if (this.keys['ArrowLeft'] || this.keys['a'] || this.keys['A']) {
-				 this.myCharacter.position.x -= this.speed;
-				 moved = true;
-			 }
-			 if (this.keys['ArrowRight'] || this.keys['d'] || this.keys['D']) {
-				 this.myCharacter.position.x += this.speed;
-				 moved = true;
-			 }
- 
-			 // ✅ 걷기 애니메이션 시작/정지 처리
-			 if (moved) {
-				 // ✅ 이동 방향에 따라 회전 (항상 적용해야 함)
-				 const moveX = (this.keys['ArrowLeft'] || this.keys['a'] || this.keys['A'] ? 1 : 0)
-							 - (this.keys['ArrowRight'] || this.keys['d'] || this.keys['D'] ? 1 : 0);
-			 	
-				 const moveZ = (this.keys['ArrowUp'] || this.keys['w'] || this.keys['W'] ? 1 : 0)
-							 - (this.keys['ArrowDown'] || this.keys['s'] || this.keys['S'] ? 1 : 0);
-		 	
-				 if (moveX !== 0 || moveZ !== 0) {
-					 const angle = Math.atan2(moveX, moveZ);
-					 this.myCharacter.rotation.y = angle + Math.PI; // 💡 쿼터뷰라면 +보정 필요
-				 }
-		 	
-				 // ✅ 걷기 애니메이션 시작 (MovementModule 역할)
-				 if (this.walkAction && !this.walkAction.isRunning()) {
-				 this.walkAction.reset().play();
-				 console.log('🚶‍♀️ 걷기 애니메이션 시작!');
-								}
-				 // 카메라 따라가기
-				 this.camera.position.set(
-					 this.myCharacter.position.x,
-					 this.myCharacter.position.y + 25,
-					 this.myCharacter.position.z + this.followZOffset
-				 );
-				 this.camera.lookAt(this.myCharacter.position);
-		 	
-				 this.sendPositionUpdateThrottled();
-				 this.updateMapToFollowCharacter(this.myCharacter);
-			 } else {
-				 // 멈추면 애니메이션 정지
-				 if (this.walkAction && this.walkAction.isRunning()) {
-				 this.walkAction.stop();
-				 console.log('⏹️ 걷기 애니메이션 정지');
-				 }
-			 }
- 
-			 if (moved) {
- 
-				 this.sendPositionUpdateThrottled();
-				 this.updateMapToFollowCharacter(this.myCharacter);
-			 }
- 
-			// 포털 충돌 검사
-			 this.checkPortalCollision(this.myCharacter);
-		 }
- 
-	 }*/
+
 	initializeCharacterPosition() {
 		const config = this.gameClient.getCharacterConfig();
 
@@ -437,6 +368,11 @@ export class CharacterMovementModule {
 				x: myCharacter.position.x,
 				y: myCharacter.position.y,
 				z: myCharacter.position.z
+			},
+			rotation: {  
+				x: myCharacter.rotation.x,
+				y: myCharacter.rotation.y,
+				z: myCharacter.rotation.z
 			}
 		};
 
