@@ -1,12 +1,12 @@
 
 export class MapModule {
-	constructor(gameClient) {
+	constructor(gameClient, mapName) {
 		this.gameClient = gameClient;
 		this.isInitialized = false;
 
 		// ===== 맵 렌더링 관련 =====
 		this.container = null;
-
+		this.currentMapName = mapName;
 		this.scale = 0.5;
 		this.posX = 0;
 		this.posY = 0;
@@ -30,7 +30,9 @@ export class MapModule {
 		this.ctx = null;
 		this.maskingPolygon = null;
 		this.restrictedEllipse = null;
-		this.initializeMaskingAreas();
+
+		/*// ✅ 게임 시작 시 기본 맵의 마스킹 설정
+		this.initializeMaskingAreas('startMap'); // 🔺이 줄이 핵심이야!!*/
 
 		// ===== 캐릭터 DOM관련 =====
 		this.characterContainer = null;
@@ -39,36 +41,72 @@ export class MapModule {
 		this.lastCharacterScale = null;
 
 		console.log('🗺️ MapModule 생성됨');
-	}
-	// ===== 마스킹 영역 초기화 =====
-	initializeMaskingAreas() {
-		// 이동 불가 다각형 영역 (기존 JSP의 points 배열)
-		this.maskingPolygon = [
-			[0, 410], [114, 506], [82, 535], [193, 598], [196, 625],
-			[299, 659], [371, 704], [573, 705], [579, 741], [670, 766],
-			[777, 822], [1028, 804], [1145, 769], [1161, 724], [1320, 639],
-			[1323, 600], [1362, 572], [1385, 597], [1450, 527], [1496, 530],
-			[1521, 517], [1390, 428], [1473, 379], [1450, 313], [1364, 261],
-			[1259, 303], [1177, 279], [1128, 219], [1128, 162], [1191, 143],
-			[1039, 66], [983, 27], [888, 27], [791, 0], [699, 6],
-			[580, 84], [482, 51], [213, 216], [199, 247], [159, 278],
-			[95, 244], [22, 284], [43, 326]
-		];
 
-		// 이동 불가 타원 영역 (구멍 - 이동 가능 영역)
-		this.restrictedEllipse = {
-			centerX: 45,    // 캔버스 중심에서의 오프셋
-			centerY: -220,
-			radiusX: 165,
-			radiusY: 130
-		};
+	}
+
+	// ===== 외부에서 마스킹 데이터 설정 =====
+	setMaskingData(polygon, ellipse) {
+		this.maskingPolygon = polygon;
+		this.restrictedEllipse = ellipse;
+		console.log('📌 외부 마스킹 데이터 적용 완료');
+	}
+
+	// ===== 마스킹 영역 초기화 =====
+	initializeMaskingAreas(mapName) {
+		if (mapName === 'startMap') {
+			// 이동 불가 다각형 영역 (기존 JSP의 points 배열)
+			this.maskingPolygon = [
+				[0, 410], [114, 506], [82, 535], [193, 598], [196, 625],
+				[299, 659], [371, 704], [573, 705], [579, 741], [670, 766],
+				[777, 822], [1028, 804], [1145, 769], [1161, 724], [1320, 639],
+				[1323, 600], [1362, 572], [1385, 597], [1450, 527], [1496, 530],
+				[1521, 517], [1390, 428], [1473, 379], [1450, 313], [1364, 261],
+				[1259, 303], [1177, 279], [1128, 219], [1128, 162], [1191, 143],
+				[1039, 66], [983, 27], [888, 27], [791, 0], [699, 6],
+				[580, 84], [482, 51], [213, 216], [199, 247], [159, 278],
+				[95, 244], [22, 284], [43, 326]
+			];
+
+			// 이동 불가 타원 영역 (구멍 - 이동 가능 영역)
+			this.restrictedEllipse = {
+				centerX: 45,    // 캔버스 중심에서의 오프셋
+				centerY: -220,
+				radiusX: 165,
+				radiusY: 130
+			};
+		}
+		// ✨ 추후 다른 맵들에 대한 조건 추가 가능
+		else if (mapName === 'happyMap') {
+			this.maskingPolygon = [
+				[0, 410], [0, 410], [82, 535], [193, 598], [196, 625],
+				[299, 659], [371, 704], [573, 705], [579, 741], [670, 766],
+				[777, 822], [1028, 804], [1145, 769], [1161, 724], [1320, 639],
+				[1323, 600], [1362, 572], [1385, 597], [1450, 527], [1496, 530],
+				[1521, 517], [1390, 428], [1473, 379], [1450, 313], [1364, 261],
+				[1259, 303], [1177, 279], [1128, 219], [1128, 162], [1191, 143],
+				[1039, 66], [983, 27], [888, 27], [791, 0], [699, 6],
+				[580, 84], [482, 51], [213, 216], [199, 247], [159, 278],
+				[95, 244], [22, 284], [43, 326]
+			];
+			this.restrictedEllipse = {
+				centerX: 0,  // 중심 위치 (X)
+				centerY: 0,  // 중심 위치 (Y)
+				radiusX: 0,
+				radiusY: 0
+			};
+			console.log('💗 happyMap 마스킹 적용됨');
+		} else {
+			console.warn(`⚠️ '${mapName}'에 대한 마스킹 데이터가 없습니다.`);
+		}
+
 
 		console.log('🎯 마스킹 영역 설정 완료');
 	}
 	// ===== 초기화 =====
-	async initialize() {
+	async initialize(currentMapName) {
 		try {
 			console.log('🗺️ MapModule 초기화 시작');
+			
 
 			// 씬 그룹 생성 (GameClient의 ThreeJSCore를 통해)
 			this.mapGroup = this.gameClient.createSceneGroup('map');
@@ -79,6 +117,8 @@ export class MapModule {
 			// 맵 컨트롤 초기화
 			this.initMapControls();
 
+			this.initializeMaskingAreas(currentMapName);
+			
 			// 마스킹 캔버스 초기화
 			this.initMaskingCanvas();
 
@@ -115,7 +155,7 @@ export class MapModule {
 		this.container.addEventListener('pointerdown', this.handlePointerDown.bind(this));
 		this.container.addEventListener('pointermove', this.handlePointerMove.bind(this));
 		this.container.addEventListener('pointerup', this.handlePointerUp.bind(this));
-		
+
 		window.addEventListener('resize', this.handleResize.bind(this));
 		// 오프셋 동적 처리
 		const containerWidth = this.container?.clientWidth || window.innerWidth;
@@ -157,12 +197,15 @@ export class MapModule {
 
 	// ===== 마스킹 영역 그리기 =====
 	drawMaskArea() {
-		if (!this.ctx || !this.canvas) return;
+		if (!this.ctx || !this.canvas || !this.maskingPolygon) {
+			console.warn('⛔ 마스킹 데이터가 비어 있어 drawMaskArea를 건너뜁니다.');
+			return;
+		}
 
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-		this.ctx.fillStyle = 'rgba(255, 0, 0, 0)';
-		this.ctx.strokeStyle = 'rgba(255, 0, 0, 0)';
+		this.ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+		this.ctx.strokeStyle = 'rgba(255, 0, 0, 0.3)';
 		this.ctx.lineWidth = 2.3;
 
 		const scale = 1;
@@ -192,24 +235,26 @@ export class MapModule {
 		this.ctx.stroke();
 
 		// 2️⃣ 이동 가능 타원 (구멍 만들기)
-		this.ctx.save();
-		this.ctx.globalCompositeOperation = 'destination-out'; // 마스크 안에 구멍 만들기
+		if (this.restrictedEllipse) {
+			this.ctx.save();
+			this.ctx.globalCompositeOperation = 'destination-out'; // 마스크 안에 구멍 만들기
 
-		const ellipseX = canvasCenterX + this.restrictedEllipse.centerX;
-		const ellipseY = canvasCenterY + this.restrictedEllipse.centerY;
-		const radiusX = this.restrictedEllipse.radiusX;
-		const radiusY = this.restrictedEllipse.radiusY;
+			const ellipseX = canvasCenterX + this.restrictedEllipse.centerX;
+			const ellipseY = canvasCenterY + this.restrictedEllipse.centerY;
+			const radiusX = this.restrictedEllipse.radiusX;
+			const radiusY = this.restrictedEllipse.radiusY;
 
-		this.ctx.beginPath();
-		this.ctx.ellipse(ellipseX, ellipseY, radiusX, radiusY, 0, 0, Math.PI * 2);
-		this.ctx.fill();
-		this.ctx.restore();
+			this.ctx.beginPath();
+			this.ctx.ellipse(ellipseX, ellipseY, radiusX, radiusY, 0, 0, Math.PI * 2);
+			this.ctx.fill();
+			this.ctx.restore();
+		}
 	}
 
 	// ===== 이동 가능 여부 검사 =====
 	isMovementAllowed(position3D) {
 		if (!position3D) return true;
-console.log(position3D);
+		console.log(position3D);
 		// 3D 좌표를 2D 이미지 좌표로 변환
 		const imageCoord = this.worldToImageCoordinates(position3D.x, position3D.z);
 		console.log(imageCoord);
@@ -466,12 +511,12 @@ console.log(position3D);
 
 			if (!myCharacter) {
 				// 캐릭터가 아직 로드되지 않았으면 숨김
-				characterContainer.style.display = 'none';
+				this.characterContainer.style.display = 'none';
 				return;
 			}
 
 			// 캐릭터가 있으면 표시
-			characterContainer.style.display = 'block';
+			this.characterContainer.style.display = 'block';
 
 			// 🔥 3D 캐릭터 위치를 2D 이미지 좌표로 변환
 			const imageCoord = this.worldToImageCoordinates(
@@ -846,9 +891,6 @@ console.log(position3D);
             `;
 			marker.textContent = portal.id;
 
-			if (this.mapInner) {
-				this.mapInner.appendChild(marker);
-			}
 		});
 
 		console.log('🎯 포털 디버그 마커 표시됨');

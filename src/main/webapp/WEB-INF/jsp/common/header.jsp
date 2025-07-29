@@ -16,6 +16,8 @@
 <link rel="stylesheet" href="/resource/css/login.css" />
 <link rel="stylesheet" href="/resource/css/chatBot.css" />
 <link rel="stylesheet" href="/resource/css/startMap.css"/>
+<link rel="stylesheet" href="/resource/css/happyMap.css"/>
+
 <!-- <link rel="stylesheet" href="/resource/css/map.css" /> -->
 <!-- CSS 끝 -->
 

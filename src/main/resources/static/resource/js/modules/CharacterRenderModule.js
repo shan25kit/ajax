@@ -64,8 +64,9 @@ export class CharacterRenderModule {
 					console.log('✓ 베이스 모델 로드 성공:', nickName);
 					const character = gltf.scene;
 
+
 					// 베이스 캐릭터 설정
-					this.setupBaseCharacter(character, avatarInfo, position, memberId, sessionId);
+					const { bodySkeleton, bodySkinnedMesh } = this.setupBaseCharacter(character, avatarInfo, position, memberId, sessionId);
 
 					// 씬에 추가
 					const scene = this.gameClient.getScene();
@@ -81,11 +82,11 @@ export class CharacterRenderModule {
 						console.log('✓ 내 캐릭터 설정 완료');
 					}
 
-					// 파츠 로딩
-					if (avatarInfo.parts) {
-						this.loadCharacterParts(character, avatarInfo.parts, nickName);
+					if (bodySkeleton && bodySkinnedMesh) {
+						this.loadCharacterParts(character, avatarInfo.parts, avatarInfo.nickName, bodySkeleton, bodySkinnedMesh);
+					} else {
+						console.warn('❗ 스켈레톤 추출 실패! 옷 바인딩 불가');
 					}
-
 					resolve(character);
 				},
 				(progress) => {
@@ -101,6 +102,8 @@ export class CharacterRenderModule {
 
 	// ===== 베이스 캐릭터 설정 =====
 	setupBaseCharacter(character, avatarInfo, position, memberId, sessionId) {
+		let bodySkeleton = null;
+		let bodySkinnedMesh = null;
 		// 스킨 색상 및 재질 설정
 		character.traverse((child) => {
 			if (child.isMesh && child.material && child.material.color) {
@@ -108,14 +111,20 @@ export class CharacterRenderModule {
 				child.material.color = new THREE.Color(avatarInfo.skinColor || 0xffe0bd);
 				child.material.needsUpdate = true;
 			}
+
+			if (child.isSkinnedMesh && child.skeleton) {
+				bodySkeleton = child.skeleton;             // ✅ 바디의 스켈레톤 저장
+				bodySkinnedMesh = child;                   // ✅ 바디의 스킨드메시도 저장
+			}
 		});
+
 		// 스케일 설정
 		const characterConfig = this.gameClient.getCharacterConfig();
 		const characterScale = characterConfig.SCALE;
 		character.scale.set(characterScale, characterScale, characterScale);
 
 		// 위치 설정
-		
+
 
 		// 회전 설정
 		character.rotation.y = Math.PI / 4;
@@ -127,6 +136,7 @@ export class CharacterRenderModule {
 			sessionId: sessionId,
 			avatarInfo: avatarInfo
 		};
+		return { bodySkeleton, bodySkinnedMesh };
 	}
 	// ✅ 내 캐릭터 애니메이션 설정 (RenderModule 역할)
 	setupMyCharacterAnimations(character, gltf) {
@@ -170,11 +180,12 @@ export class CharacterRenderModule {
 		}
 	}
 
-	
+
 	// ===== 캐릭터 파츠 로딩 =====
-	loadCharacterParts(character, parts, nickName) {
+	loadCharacterParts(character, parts, nickName, bodySkeleton, bodySkinnedMesh) {
 		console.log('캐릭터 파츠 로딩 시작:', nickName, parts);
 		console.log('📊 파츠 키들:', Object.keys(parts));
+
 
 		// 모든 파츠를 순회하면서 로딩
 		for (const [partType, partData] of Object.entries(parts)) {
@@ -182,51 +193,78 @@ export class CharacterRenderModule {
 				// accessory는 main 배열과 detail 단일로 구성
 				partData.main?.forEach((item, i) => {
 					if (item?.style) {
-						this.loadPart(character, 'accessory', item, 'main');
+						this.loadPart(character, 'accessory', item, 'main', bodySkeleton, bodySkinnedMesh);
 					}
 				});
 
 				// detail 단일
 				if (partData.detail?.style) {
-					this.loadPart(character, 'accessory', partData.detail, 'detail');
+					this.loadPart(character, 'accessory', partData.detail, 'detail', bodySkeleton, bodySkinnedMesh);
 				}
 			} else if (partData?.style) {
 				// 일반 파츠
-				this.loadPart(character, partType, partData);
+				this.loadPart(character, partType, partData, null, bodySkeleton, bodySkinnedMesh);
 			}
 		}
 	}
 
 	// ===== 개별 파츠 로딩 =====
-	loadPart(character, partType, partData, subType = null) {
-		const modelPath = this.getModelPath(partType, partData.style);
-		const name = subType ? `${partType}.${subType}` : partType;
+	loadPart(character, partType, partData, subType = null, bodySkeleton, bodySkinnedMesh) {
+	  console.log(bodySkeleton);
+	  console.log(bodySkinnedMesh);
 
-		this.loader.load(modelPath, (gltf) => {
-			const model = gltf.scene;
+	  const modelPath = this.getModelPath(partType, partData.style);
+	  const name = subType ? `${partType}.${subType}` : partType;
 
-			// 색상 적용 (있는 경우)
-			if (partData.color) {
-				model.traverse((child) => {
-					if (child.isMesh && child.material && child.material.color) {
-						if (child.material.map) child.material.map = null;
-						child.material.color.set(partData.color);
-						child.material.needsUpdate = true;
-					}
-				});
-			}
+	  this.loader.load(modelPath, (gltf) => {
+	    const model = gltf.scene;
 
-			// 파츠 설정 적용
-			this.applyPartSettings(model, partType, character, subType);
+	    // 💡 색상 적용
+	    if (partData.color) {
+	      model.traverse((child) => {
+	        if (child.isMesh && child.material?.color) {
+	          if (child.material.map) child.material.map = null;
+	          child.material.color.set(partData.color);
+	          child.material.needsUpdate = true;
+	        }
+	      });
+	    }
+		
+	    // 💡 본 바인딩
+	    if (bodySkeleton && bodySkinnedMesh) {
+	      model.traverse((child) => {
+	        if (child.isSkinnedMesh) {
+	          // 💡 transform 설정은 바인딩보다 먼저
+	          child.position.copy(bodySkinnedMesh.position);
+	          child.rotation.copy(bodySkinnedMesh.rotation);
+	          child.scale.copy(bodySkinnedMesh.scale);
 
-			// 캐릭터에 추가
-			character.add(model);
-			console.log(`${name} 로딩 완료`);
+	          // 💡 월드 행렬 갱신
+	          bodySkinnedMesh.updateMatrixWorld(true);
+	          child.updateMatrixWorld(true);
 
-		}, undefined, (error) => {
-			console.error(`${name} 로딩 실패:`, error);
-		});
+	          // 💡 bind 수행
+	          child.bind(bodySkeleton);
+
+	          // 디버깅 로그
+	          console.log("📌 바인딩 직전 child 위치:", child.position);
+	          console.log("📌 바인딩 직전 child matrixWorld:", child.matrixWorld.elements);
+	          console.log("📌 바인딩 직전 bodySkinnedMesh matrixWorld:", bodySkinnedMesh.matrixWorld.elements);
+	          console.log("📌 옷의 bindMatrix:", child.bindMatrix);
+	          console.log("📌 옷의 bindMatrixWorld:", child.bindMatrixWorld);
+	        }
+	      });
+	    }
+
+	    // ✅ 캐릭터에 한 번만 추가
+		character.add(model);
+	    console.log(`${name} 로딩 완료`);
+
+	  }, undefined, (error) => {
+	    console.error(`${name} 로딩 실패:`, error);
+	  });
 	}
+
 
 	// ===== 파츠별 위치/스케일 설정 =====
 	applyPartSettings(model, partType, character, subType) {
@@ -253,14 +291,14 @@ export class CharacterRenderModule {
 
 			case 'dress':
 			case 'top':
-				model.scale.set(baseScale * 1.6, baseScale * 1.6, baseScale * 1.6);
-				model.position.set(0, 5, 0);
+				model.scale.set(baseScale, baseScale, baseScale);
+				model.position.set(0, 0, 0);
 				break;
 
 			case 'bottom':
 			case 'shoes':
 			default:
-				model.scale.set(baseScale* 0.3, baseScale* 0.2, baseScale* 0.2);
+				model.scale.set(baseScale * 0.3, baseScale * 0.2, baseScale * 0.2);
 				model.position.set(0, -4, 0);
 				break;
 		}
