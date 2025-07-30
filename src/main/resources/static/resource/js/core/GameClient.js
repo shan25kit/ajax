@@ -195,12 +195,6 @@ export class GameClient {
 			await this.characterRenderModule.initialize();
 		}
 		
-		// ✅ (추가) 맵 마스킹 설정: happyMap
-		if (this.mapModule && this.mapModule.initializeMaskingAreas) {
-			this.mapModule.initializeMaskingAreas('happyMap');
-			console.log('🎈 happyMap 마스킹 적용 완료');
-		}
-
 		// ✅ 캐릭터 렌더링 완료될 때까지 기다리기
 		await this.waitForMyCharacter();
 

@@ -95,7 +95,7 @@ export class MapModule {
 				radiusX: 0,
 				radiusY: 0
 			};
-			console.log('💗 happyMap 마스킹 적용됨');
+			console.log('Map 마스킹 적용됨');
 		} else {
 			console.warn(`⚠️ '${mapName}'에 대한 마스킹 데이터가 없습니다.`);
 		}
@@ -107,7 +107,7 @@ export class MapModule {
 	async initialize(currentMapName) {
 		try {
 			console.log('🗺️ MapModule 초기화 시작');
-			
+
 
 			// 씬 그룹 생성 (GameClient의 ThreeJSCore를 통해)
 			this.mapGroup = this.gameClient.createSceneGroup('map');
@@ -119,7 +119,7 @@ export class MapModule {
 			this.initMapControls();
 
 			this.initializeMaskingAreas(currentMapName);
-			
+
 			// 마스킹 캔버스 초기화
 			this.initMaskingCanvas();
 
@@ -560,7 +560,15 @@ export class MapModule {
 			characterPosition.x,
 			characterPosition.z
 		);
-
+		console.log('캐릭터 2D 위치:', character2DPos);
+		console.log('포털 위치들:', this.portalCollisionAreas.map(p => ({
+		    id: p.id,
+		    x: p.x,
+		    y: p.y,
+		    targetMap: p.targetMap,
+		    radius: p.collisionRadius
+		})));
+		
 		// 각 포털과의 거리 계산
 		for (const portal of this.portalCollisionAreas) {
 			const distance = Math.sqrt(
@@ -573,7 +581,6 @@ export class MapModule {
 				return portal.targetMap;
 			}
 		}
-
 		return null;
 	}
 

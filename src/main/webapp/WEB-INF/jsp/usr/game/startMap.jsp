@@ -95,7 +95,9 @@
 <!-- 메인 스크립트 -->
 <script type="module">
     import { GameClient } from '/resource/js/core/GameClient.js';
-		
+	const currentMapName = "startMap";
+	console.log(currentMapName);
+
 	console.log('=== 서버 데이터 원본 ===');
  	console.log('Member ID Raw:', '${player.memberId}');
  	console.log('Nick Name Raw:', '${player.nickName}');
@@ -123,7 +125,7 @@
 
         // 게임 클라이언트 생성 및 초기화
         const gameClient = new GameClient();
-        await gameClient.initialize(player);
+        await gameClient.initialize(player, currentMapName);
         
         // 서버 연결
         await gameClient.connect();
