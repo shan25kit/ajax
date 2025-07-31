@@ -30,6 +30,7 @@ export class MapModule {
 		this.ctx = null;
 		this.maskingPolygon = null;
 		this.restrictedEllipse = null;
+		this.maskingOffsets = null;
 
 		/*// ✅ 게임 시작 시 기본 맵의 마스킹 설정
 		this.initializeMaskingAreas('startMap'); // 🔺이 줄이 핵심이야!!*/
@@ -54,6 +55,7 @@ export class MapModule {
 	// ===== 마스킹 영역 초기화 =====
 
 	initializeMaskingAreas(mapName) {
+
 		if (mapName === 'startMap') {
 			// 이동 불가 다각형 영역 (기존 JSP의 points 배열)
 			this.maskingPolygon = [
@@ -75,27 +77,81 @@ export class MapModule {
 				radiusX: 165,
 				radiusY: 130
 			};
+
+			this.maskingOffsets = { offsetX: 70, offsetY: -130 };
 		}
 		// ✨ 추후 다른 맵들에 대한 조건 추가 가능
 		else if (mapName === 'happyMap') {
 			this.maskingPolygon = [
-				[0, 410], [0, 410], [82, 535], [193, 598], [196, 625],
-				[299, 659], [371, 704], [573, 705], [579, 741], [670, 766],
-				[777, 822], [1028, 804], [1145, 769], [1161, 724], [1320, 639],
-				[1323, 600], [1362, 572], [1385, 597], [1450, 527], [1496, 530],
-				[1521, 517], [1390, 428], [1473, 379], [1450, 313], [1364, 261],
-				[1259, 303], [1177, 279], [1128, 219], [1128, 162], [1191, 143],
-				[1039, 66], [983, 27], [888, 27], [791, 0], [699, 6],
-				[580, 84], [482, 51], [213, 216], [199, 247], [159, 278],
-				[95, 244], [22, 284], [43, 326]
+				[1886, 2097],
+				[2065, 2002],
+				[2306, 2000],
+				[2465, 2053],
+				[2597, 2153],
+				[2722, 2049],
+				[2859, 2004],
+				[3091, 2008],
+				[3294, 2089],
+				[3352, 2182],
+				[3336, 2296],
+				[3238, 2451],
+				[2947, 2647],
+				[2629, 2830],
+				[2360, 2656],
+				[2029, 2483],
+				[1847, 2302],
+				[1846, 2183]
 			];
 			this.restrictedEllipse = {
-				centerX: 0,  // 중심 위치 (X)
-				centerY: 0,  // 중심 위치 (Y)
-				radiusX: 0,
-				radiusY: 0
+				centerX: 550,  // 중심 위치 (X)
+				centerY: -400,  // 중심 위치 (Y)
+				radiusX: 130,
+				radiusY: 150
 			};
-			console.log('Map 마스킹 적용됨');
+			this.maskingOffsets = { offsetX: 70, offsetY: -20 };
+
+		} else if (mapName === 'angerMap') {
+			this.maskingPolygon = [
+				[1662, 1670],
+				[1458, 1577],
+				[1261, 1534],
+				[1070, 1526],
+				[870, 1426],
+				[786, 1323],
+				[979, 1210],
+				[1174, 1123],
+				[1385, 1198],
+				[1596, 1272],
+				[1432, 1414],
+				[1623, 1492],
+				[1836, 1510],
+				[2051, 1448],
+				[2267, 1392],
+				[2489, 1377],
+				[2709, 1413],
+				[2928, 1459],
+				[3124, 1548],
+				[3288, 1700],
+				[3314, 1884],
+				[3205, 2067],
+				[3004, 2163],
+				[2797, 2239],
+				[2574, 2253],
+				[2351, 2267],
+				[2134, 2236],
+				[1925, 2159],
+				[1718, 2079],
+				[1628, 1874],
+				[1662, 1670]
+			];
+			this.restrictedEllipse = {
+				centerX:0,  // 중심 위치 (X)
+				centerY: -220,  // 중심 위치 (Y)
+				radiusX: 350,
+				radiusY: 200
+			};
+			this.maskingOffsets = { offsetX: -400, offsetY: -250 };
+
 		} else {
 			console.warn(`⚠️ '${mapName}'에 대한 마스킹 데이터가 없습니다.`);
 		}
@@ -204,15 +260,15 @@ export class MapModule {
 
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-		this.ctx.fillStyle = 'rgba(255, 0, 0, 0)';
+		this.ctx.fillStyle = 'rgba(255, 255, 0, 0.3)';
 
-		this.ctx.strokeStyle = 'rgba(255, 0, 0, 0)';
+		this.ctx.strokeStyle = 'rgba(255, 0, 0, 0.3)';
 
 		this.ctx.lineWidth = 2.3;
 
 		const scale = 1;
-		const offsetX = 70;
-		const offsetY = -130;
+		const offsetX = this.maskingOffsets?.offsetX;
+		const offsetY = this.maskingOffsets?.offsetY;
 
 		const points = this.maskingPolygon;
 		const xs = points.map(p => p[0]);
@@ -278,8 +334,8 @@ export class MapModule {
 
 		// 다각형 좌표를 실제 캔버스 좌표로 변환
 		const scale = 1;
-		const offsetX = 70;
-		const offsetY = -130;
+		const offsetX = this.maskingOffsets?.offsetX;
+		const offsetY = this.maskingOffsets?.offsetY;
 
 		const xs = polygon.map(p => p[0]);
 		const ys = polygon.map(p => p[1]);
