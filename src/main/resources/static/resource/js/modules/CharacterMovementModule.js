@@ -393,6 +393,7 @@ export class CharacterMovementModule {
 		// ✅ MapModule의 실제 메서드 사용
 		const targetMap = mapModule.checkPortalCollision(characterPos);
 		if (targetMap) {
+			console.log(targetMap);
 			this.enterPortal(targetMap);
 		}
 	}
@@ -405,6 +406,7 @@ export class CharacterMovementModule {
 	}
 	// ===== 포털 진입 처리 =====
 	enterPortal(targetMap) {
+		console.log(targetMap);
 		const mapModule = this.gameClient.getMapModule();
 		if (!mapModule) return;
 

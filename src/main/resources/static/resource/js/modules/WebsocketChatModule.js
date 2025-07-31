@@ -278,7 +278,11 @@ export class WebsocketChatModule {
 	// ===== 맵 변경 성공 처리 =====
 	handleMapChangeSuccess(message) {
 		console.log('🗺️ 맵 변경 성공:', message.targetMap);
-		this.handleMapTransition(message.targetMap);
+		// ✅ MapModule로 전달
+		    const mapModule = this.gameClient.getMapModule();
+		    if (mapModule) {
+		        mapModule.executeTransition(message.targetMap);
+		    }
 	}
 
 	// ===== 플레이어 맵 이동 처리 =====
@@ -386,71 +390,7 @@ export class WebsocketChatModule {
 			this.activeBubbles.delete(playerId);
 		}
 	}
-	// ===== 맵 전환 처리 =====
-	handleMapTransition(targetMap) {
-		console.log('🔄 맵 전환 시작:', targetMap);
-
-		this.showMapTransition(targetMap);
-
-		// JSP 경로 결정
-		let redirectPath;
-
-		switch (targetMap) {
-			case '/angerMap':
-				redirectPath = 'game/angerMap';
-				break;
-			case '/zenMap':
-				redirectPath = 'game/zenMap';
-				break;
-			case '/happyMap':
-				redirectPath = 'game/happyMap';
-				break;
-			case '/sadMap':
-				redirectPath = 'game/sadMap';
-				break;
-			case '/anxietyMap':
-				redirectPath = 'game/anxietyMap';
-				break;
-			default:
-				redirectPath = 'game/startMap';
-		}
-
-		setTimeout(() => {
-			window.location.href = redirectPath;
-		}, 2000);
-
-		console.log('🔗 리다이렉트 경로:', redirectPath);
-	}
-
-	// ===== 맵 전환 효과 =====
-	showMapTransition(targetMap) {
-		const overlay = document.createElement('div');
-		overlay.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px;
-            z-index: 1000;
-        `;
-		overlay.textContent = '감정을 찾아 이동 중...';
-
-		document.body.appendChild(overlay);
-
-		// 2초 후 제거
-		setTimeout(() => {
-			if (document.body.contains(overlay)) {
-				document.body.removeChild(overlay);
-			}
-		}, 2000);
-	}
-
+	
 	// ===== 맵 변경 요청 =====
 	requestMapChange(targetMap) {
 		if (this.isChangingMap) return;

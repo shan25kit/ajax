@@ -31,11 +31,11 @@ export class GameClient {
 
 			// 포털 위치 설정
 			PORTAL_POSITIONS: [
-				{ id: 'portal_1', x: 2200, y: 900, targetMap: '/angerMap' },
-				{ id: 'portal_2', x: 2978, y: 1150, targetMap: '/zenMap' },
-				{ id: 'portal_3', x: 2795, y: 1350, targetMap: '/happyMap' },
-				{ id: 'portal_4', x: 1875, y: 1200, targetMap: '/sadMap' },
-				{ id: 'portal_5', x: 1538, y: 1370, targetMap: '/anxietyMap' },
+				{ id: 'portal_1', x: 2200, y: 900, targetMap: 'angerMap' },
+				{ id: 'portal_2', x: 2978, y: 1150, targetMap: 'zenMap' },
+				{ id: 'portal_3', x: 2795, y: 1350, targetMap: 'happyMap' },
+				{ id: 'portal_4', x: 1875, y: 1200, targetMap: 'sadMap' },
+				{ id: 'portal_5', x: 1538, y: 1370, targetMap: 'anxietyMap' },
 				{ id: 'object', x: 2260, y: 1550, type: 'fountain' }
 			]
 		};

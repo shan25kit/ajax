@@ -204,9 +204,9 @@ export class MapModule {
 
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-		this.ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+		this.ctx.fillStyle = 'rgba(255, 0, 0, 0)';
 
-		this.ctx.strokeStyle = 'rgba(255, 0, 0, 0.3)';
+		this.ctx.strokeStyle = 'rgba(255, 0, 0, 0)';
 
 		this.ctx.lineWidth = 2.3;
 
@@ -343,7 +343,7 @@ export class MapModule {
 					x: itemData.x,
 					y: itemData.y,
 					targetMap: itemData.targetMap || null,  // 분수대는 targetMap이 null
-					collisionRadius: itemData.id === 'object' ? 50 : 100,
+					collisionRadius: itemData.id === 'object' ? 20 : 30,
 					element: element,
 					type: itemData.id === 'object' ? 'object' : 'portal'
 				});
@@ -353,7 +353,6 @@ export class MapModule {
 				console.warn(`⚠️ 요소를 찾을 수 없음: ${itemData.id}`);
 			}
 		});
-
 		console.log(`✅ DOM 포털 초기화 완료: ${this.portalCollisionAreas.length}개`);
 	}
 
@@ -451,7 +450,9 @@ export class MapModule {
 		if (this.mapCanvas) this.mapCanvas.style.transform = transform;
 		/*	if (clouds) clouds.style.transform = transform;*/
 
-
+		if (document.querySelector('.portal-debug-area')) {
+			this.updatePortalCollisionVisuals();
+		}
 		// 마스킹 영역 다시 그리기
 		this.drawMaskArea();
 
@@ -560,28 +561,37 @@ export class MapModule {
 			characterPosition.x,
 			characterPosition.z
 		);
-		console.log('캐릭터 2D 위치:', character2DPos);
-		console.log('포털 위치들:', this.portalCollisionAreas.map(p => ({
-		    id: p.id,
-		    x: p.x,
-		    y: p.y,
-		    targetMap: p.targetMap,
-		    radius: p.collisionRadius
-		})));
-		
+
+		const characterScreenX = character2DPos.x * this.scale + this.posX - 180;
+		const characterScreenY = character2DPos.y * this.scale + this.posY - 180;
+
 		// 각 포털과의 거리 계산
 		for (const portal of this.portalCollisionAreas) {
+			const cssOffset = this.getPortalCSSOffset(portal.id);
+			const portalScreenX = (portal.x + cssOffset.x) * this.scale + this.posX;
+			const portalScreenY = (portal.y + cssOffset.y) * this.scale + this.posY;
 			const distance = Math.sqrt(
-				Math.pow(character2DPos.x - portal.x, 2) +
-				Math.pow(character2DPos.y - portal.y, 2)
+				Math.pow(characterScreenX - portalScreenX, 2) +
+				Math.pow(characterScreenY - portalScreenY, 2)
 			);
-
-			if (distance < portal.collisionRadius) {
+			const scaledRadius = portal.collisionRadius * this.scale;
+			if (distance < scaledRadius) {
 				console.log(`🌀 포털 충돌 감지: ${portal.id} -> ${portal.targetMap}`);
 				return portal.targetMap;
 			}
 		}
 		return null;
+	}
+
+	getPortalCSSOffset(portalId) {
+		const offsets = {
+			'portal_1': { x: 80, y: 225 },
+			'portal_2': { x: -380, y: 20 },
+			'portal_3': { x: -20, y: 20 },
+			'portal_4': { x: 1, y: 15 },
+			'portal_5': { x: 0, y: 0 }
+		};
+		return offsets[portalId] || { x: 0, y: 0 };
 	}
 
 	// ===== 좌표 변환 유틸리티 =====
@@ -606,7 +616,7 @@ export class MapModule {
 		this.isTransitioning = true;
 
 		// 서버에 맵 변경 요청 (websocketChatModule을 통해)
-		const websocketModule = this.gameClient.getwebsocketChatModule();
+		const websocketModule = this.gameClient.getWebSocketChatModule();
 		if (websocketModule && websocketModule.requestMapChange) {
 			websocketModule.requestMapChange(targetMap);
 		} else {
@@ -622,11 +632,6 @@ export class MapModule {
 		}, 3000);
 	}
 
-	// ===== 서버로부터 맵 전환 성공 응답 처리 =====
-	handleMapChangeSuccess(message) {
-		console.log(`✅ 맵 전환 성공: ${message.targetMap}`);
-		this.executeTransition(message.targetMap);
-	}
 
 	// ===== 전환 효과 표시 =====
 	showTransitionEffect(targetMap) {
@@ -653,25 +658,30 @@ export class MapModule {
 		// 맵별 메시지 커스터마이징
 		let message = `${targetMap}로 이동 중...`;
 		switch (targetMap) {
-			case '/emotionMap':
-				message = '감정의 세계로 이동 중...';
+			case 'angerMap':
+				message = '분노의 세계로 이동 중...';
 				break;
-			case '/happyMap':
+			case 'zenMap':
+				message = '평온의 호수으로 이동 중...';
+				break;
+			case 'happyMap':
 				message = '행복의 공간으로 이동 중...';
 				break;
-			case '/sadMap':
+			case 'sadMap':
 				message = '슬픔의 공간으로 이동 중...';
 				break;
-			case '/testMap':
-				message = '테스트 맵으로 이동 중...';
+			case 'anxietyMap':
+				message = '불안의 공간으로 이동 중...';
+				break;
+			case 'startMap':
+				message = '시작 맵으로 이동 중...';
 				break;
 		}
 
 		this.transitionOverlay.innerHTML = `
             <div style="text-align: center;">
-                <div style="font-size: 28px; margin-bottom: 20px;">🌀</div>
+                <div style="font-size: 50px; margin-bottom: 20px;">🌀</div>
                 <div>${message}</div>
-                <div style="font-size: 14px; margin-top: 10px; opacity: 0.7;">잠시만 기다려주세요...</div>
             </div>
         `;
 
@@ -680,31 +690,34 @@ export class MapModule {
 
 	// ===== 실제 페이지 전환 실행 =====
 	executeTransition(targetMap) {
+
 		let redirectPath;
 
 		switch (targetMap) {
-			case '/testMap':
-				redirectPath = '/usr/game/testMap';
+			case 'angerMap':
+				redirectPath = '/usr/game/angerMap';
 				break;
-			case '/emotionMap':
-				redirectPath = '/usr/game/emotionMap';
+			case 'zenMap':
+				redirectPath = '/usr/game/zenMap';
 				break;
-			case '/happyMap':
+			case 'happyMap':
 				redirectPath = '/usr/game/happyMap';
 				break;
-			case '/sadMap':
+			case 'sadMap':
 				redirectPath = '/usr/game/sadMap';
+				break;
+			case 'anxietyMap':
+				redirectPath = '/usr/game/anxietyMap';
 				break;
 			default:
 				redirectPath = '/usr/game/startMap';
-				console.warn(`⚠️ 알 수 없는 타겟 맵: ${targetMap}, 시작 맵으로 이동`);
 		}
 
 		console.log(`🔄 페이지 이동: ${redirectPath}`);
 
 		setTimeout(() => {
 			window.location.href = redirectPath;
-		}, 1000);
+		}, 2000);
 	}
 
 	// ===== 전환 효과 제거 =====
@@ -870,36 +883,85 @@ export class MapModule {
 		this.applyTransform();
 	}
 	// ===== 디버그 메서드들 =====
-	enableDebugMode() {
-		console.log('🔍 MapModule 디버그 모드 활성화');
+	addPortalCollisionVisuals() {
+		console.log('🎯 addPortalCollisionVisuals 호출됨');
 
-		// 포털 위치에 디버그 마커 표시
-		this.portalCollisionAreas.forEach(portal => {
-			const marker = document.createElement('div');
-			marker.style.cssText = `
-                position: absolute;
-                width: ${portal.collisionRadius * 2}px;
-                height: ${portal.collisionRadius * 2}px;
-                border: 2px solid red;
-                border-radius: 50%;
-                background: rgba(255, 0, 0, 0.2);
-                pointer-events: none;
-                z-index: 100;
-                left: ${portal.x - portal.collisionRadius}px;
-                top: ${portal.y - portal.collisionRadius}px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 10px;
-                color: red;
-            `;
-			marker.textContent = portal.id;
+		// 기존 디버그 요소들 제거
+		document.querySelectorAll('.portal-debug-area').forEach(el => el.remove());
 
+		this.portalCollisionAreas.forEach((portal, index) => {
+			const cssOffset = this.getPortalCSSOffset(portal.id);
+
+			// ✅ 화면 좌표로 변환 (맵 스케일과 드래그 위치 적용)
+			const portalScreenX = (portal.x + cssOffset.x) * this.scale + this.posX + 180;
+			const portalScreenY = (portal.y + cssOffset.y) * this.scale + this.posY + 180;
+			const scaledRadius = portal.collisionRadius * this.scale;
+
+			// 충돌 영역 원 생성
+			const collisionArea = document.createElement('div');
+			collisionArea.className = 'portal-debug-area';
+			collisionArea.style.cssText = `
+	            position: absolute;
+	            width: ${scaledRadius * 2}px;
+	            height: ${scaledRadius * 2}px;
+	            border: 3px solid rgba(255, 0, 0, 0.7);
+	            border-radius: 50%;
+	            background: rgba(255, 0, 0, 0.1);
+	            pointer-events: none;
+	            z-index: 9999;
+	            left: ${portalScreenX - scaledRadius}px;
+	            top: ${portalScreenY - scaledRadius}px;
+	            transform-origin: center;
+	        `;
+
+			// 포털 ID 라벨
+			const label = document.createElement('div');
+			label.style.cssText = `
+	            position: absolute;
+	            top: 50%;
+	            left: 50%;
+	            transform: translate(-50%, -50%);
+	            color: red;
+	            font-weight: bold;
+	            font-size: ${12 * this.scale}px;
+	            text-shadow: 1px 1px 2px white;
+	        `;
+			label.textContent = portal.id;
+			collisionArea.appendChild(label);
+
+			document.getElementById('mapContainer').appendChild(collisionArea);
+
+			console.log(`✅ 포털 ${portal.id} 충돌 영역:`, {
+				원본위치: { x: portal.x, y: portal.y },
+				CSS오프셋: cssOffset,
+				화면위치: { x: portalScreenX, y: portalScreenY },
+				반지름: scaledRadius
+			});
 		});
-
-		console.log('🎯 포털 디버그 마커 표시됨');
 	}
+	updatePortalCollisionVisuals() {
+		document.querySelectorAll('.portal-debug-area').forEach((area, index) => {
+			const portal = this.portalCollisionAreas[index];
+			if (portal) {
+				const cssOffset = this.getPortalCSSOffset(portal.id);
+				const portalScreenX = (portal.x + cssOffset.x) * this.scale + this.posX;
+				const portalScreenY = (portal.y + cssOffset.y) * this.scale + this.posY;
+				const scaledRadius = portal.collisionRadius * this.scale;
 
+				// 위치와 크기 업데이트
+				area.style.left = (portalScreenX - scaledRadius) + 'px';
+				area.style.top = (portalScreenY - scaledRadius) + 'px';
+				area.style.width = (scaledRadius * 2) + 'px';
+				area.style.height = (scaledRadius * 2) + 'px';
+
+				// 폰트 크기도 스케일 적용
+				const label = area.querySelector('div');
+				if (label) {
+					label.style.fontSize = (12 * this.scale) + 'px';
+				}
+			}
+		});
+	}
 	// ===== 리소스 정리 =====
 	dispose() {
 		console.log('🧹 MapModule 리소스 정리');
