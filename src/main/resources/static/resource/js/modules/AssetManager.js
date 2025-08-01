@@ -3,13 +3,15 @@ export class AssetManager {
         // ===== 에셋 경로 설정 =====
         this.PATHS = {
             MODEL: '/resource/model/',
-            IMAGE: '/resource/img/'
+            IMAGE: '/resource/img/',
+			FACE: '/resource/face/'
         };
         
         // ===== 파일 확장자 =====
         this.EXTENSIONS = {
             MODEL: '.glb',
-            IMAGE: '.png'
+            IMAGE: '.png',
+			FACE: '.glb'
         };
         
         // ===== 파츠별 상세 설정값 =====

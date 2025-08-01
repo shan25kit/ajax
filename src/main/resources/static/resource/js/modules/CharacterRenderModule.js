@@ -13,7 +13,8 @@ export class CharacterRenderModule {
 		this.walkAction = null;
 		// 모델 경로 설정
 		this.ASSET_CONFIG = {
-			MODEL: { base: '/resource/model/', ext: '.glb' }
+			MODEL: { base: '/resource/model/', ext: '.glb' },
+			FACE: { base: '/resource/face/', ext: '.glb' }
 		};
 
 		console.log('📦 CharacterRenderModule 생성됨');
@@ -42,9 +43,15 @@ export class CharacterRenderModule {
 
 	// ===== 모델 경로 생성 =====
 	getModelPath(partType, styleNumber) {
+		let path;
 		if (!styleNumber) return null;
 
-		const path = this.ASSET_CONFIG.MODEL.base + String(partType) + String(styleNumber) + this.ASSET_CONFIG.MODEL.ext;
+		if (partType === 'face') {
+			path = this.ASSET_CONFIG.FACE.base + String(partType) + String(styleNumber) + this.ASSET_CONFIG.FACE.ext;
+		} else {
+			path = this.ASSET_CONFIG.MODEL.base + String(partType) + String(styleNumber) + this.ASSET_CONFIG.MODEL.ext;
+		}
+
 		console.log('🔗 생성된 경로:', path);
 		return path;
 	}
@@ -128,10 +135,10 @@ export class CharacterRenderModule {
 		const characterScale = characterConfig.SCALE;
 		character.scale.set(characterScale, characterScale, characterScale);
 
-	// 회전 설정
+		// 회전 설정
 		character.rotation.y = Math.PI / 6;
 		character.rotation.x = Math.PI / 8;
-		
+
 		// 사용자 데이터 저장
 		character.userData = {
 			memberId: memberId,
