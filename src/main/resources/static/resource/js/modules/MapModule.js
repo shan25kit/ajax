@@ -666,6 +666,7 @@ export class MapModule {
 
 	// ===== 포털 진입 처리 =====
 	handlePortalEntry(targetMap) {
+		console.log(targetMap);
 		if (this.isTransitioning) return;
 
 		console.log(`🌀 포털 진입: ${targetMap}`);

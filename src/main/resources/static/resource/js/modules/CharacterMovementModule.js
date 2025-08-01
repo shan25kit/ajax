@@ -172,7 +172,7 @@ export class CharacterMovementModule {
 				const mapModule = this.gameClient.getMapModule();
 				const isAllowed = mapModule.isMovementAllowed(newPosition);
 
-				console.log('이동 시도:', {
+		/*		console.log('이동 시도:', {
 					current: {
 						x: this.myCharacter.position.x.toFixed(2),
 						z: this.myCharacter.position.z.toFixed(2)
@@ -183,11 +183,11 @@ export class CharacterMovementModule {
 					},
 					delta: { x: deltaX, z: deltaZ },
 					allowed: isAllowed
-				});
+				});*/
 
 				if (isAllowed) {
 					// ✅ 이동 허용 - 위치 업데이트
-					console.log('✅ 이동 허용');
+				/*	console.log('✅ 이동 허용');*/
 					this.myCharacter.position.set(newPosition.x, newPosition.y, newPosition.z);
 
 					// ✅ 이동 방향에 따라 회전
@@ -199,7 +199,7 @@ export class CharacterMovementModule {
 					// ✅ 걷기 애니메이션 시작
 					if (this.walkAction && !this.walkAction.isRunning()) {
 						this.walkAction.reset().play();
-						console.log('🚶‍♀️ 걷기 애니메이션 시작!');
+					/*	console.log('🚶‍♀️ 걷기 애니메이션 시작!');*/
 						// 🆕 내 캐릭터의 파츠 애니메이션도 시작
 						const characterRenderModule = this.gameClient.getCharacterRenderModule();
 						if (characterRenderModule && this.myCharacter) {
@@ -208,10 +208,10 @@ export class CharacterMovementModule {
 								if (child.userData?.walkAction && !child.userData.walkAction.isRunning()) {
 									child.userData.walkAction.reset().play();
 									partCount++;
-									console.log(`  🎭 내 파츠 애니메이션 시작: ${child.name}`);
+								/*	console.log(`  🎭 내 파츠 애니메이션 시작: ${child.name}`);*/
 								}
 							});
-							console.log(`✅ 내 캐릭터 파츠 애니메이션 ${partCount}개 시작됨`);
+					/*		console.log(`✅ 내 캐릭터 파츠 애니메이션 ${partCount}개 시작됨`);*/
 						}
 
 					}
@@ -227,12 +227,12 @@ export class CharacterMovementModule {
 					// 애니메이션 정지 (이동하지 않으므로)
 					if (this.walkAction && this.walkAction.isRunning()) {
 						this.walkAction.stop();
-						console.log('⏹️ 이동 차단으로 애니메이션 정지');
+					/*	console.log('⏹️ 이동 차단으로 애니메이션 정지');*/
 						if (this.myCharacter) {
 							this.myCharacter.traverse(child => {
 								if (child.userData?.walkAction && child.userData.walkAction.isRunning()) {
 									child.userData.walkAction.stop();
-									console.log(`  ⏹️ 내 파츠 애니메이션 정지: ${child.name}`);
+									/*console.log(`  ⏹️ 내 파츠 애니메이션 정지: ${child.name}`);*/
 								}
 							});
 						}
@@ -247,11 +247,11 @@ export class CharacterMovementModule {
 						this.myCharacter.traverse(child => {
 							if (child.userData?.walkAction && child.userData.walkAction.isRunning()) {
 								child.userData.walkAction.stop();
-								console.log(`  ⏹️ 내 파츠 애니메이션 정지: ${child.name}`);
+						/*		console.log(`  ⏹️ 내 파츠 애니메이션 정지: ${child.name}`);*/
 							}
 						});
 					}
-					console.log('⏹️ 입력 없음 - 애니메이션 정지');
+				/*	console.log('⏹️ 입력 없음 - 애니메이션 정지');*/
 				}
 			}
 
@@ -406,7 +406,7 @@ export class CharacterMovementModule {
 	}
 	// ===== 포털 진입 처리 =====
 	enterPortal(targetMap) {
-		console.log(targetMap);
+		
 		const mapModule = this.gameClient.getMapModule();
 		if (!mapModule) return;
 
