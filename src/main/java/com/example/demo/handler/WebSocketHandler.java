@@ -157,6 +157,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 				// 2. 플레이어 맵 정보 업데이트
 				player.setCurrentMap(targetMap);
 				System.out.println(player.getCurrentMap());
+				playerSessions.put(sessionId, player);
 				// 3. 새로운 맵에 입장
 				broadcastToPlayersInMap(targetMap, sessionId, createPlayerEnteredMapMessage(player));
 				// 4. 본인에게 성공 메시지
@@ -328,7 +329,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 	private String createPlayerEnteredMapMessage(Player player) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
 		Map<String, Object> message = new HashMap<>();
-		message.put("type", "player-entered-map");
+		message.put("type", "player-joined");
 		message.put("player", player);
 		System.out.println(message);
 		return mapper.writeValueAsString(message);

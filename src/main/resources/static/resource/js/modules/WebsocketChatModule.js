@@ -10,7 +10,7 @@ export class WebsocketChatModule {
 		this.maxReconnectAttempts = 5;
 		this.reconnectDelay = 1000;
 		this.activeBubbles = new Map();
-
+		this.currentMapName = 'startMap';
 		console.log('📦 WebSocketChatModule 생성됨');
 	}
 
@@ -95,17 +95,21 @@ export class WebsocketChatModule {
 	}
 
 	// ===== 맵 입장 요청 =====
-	async joinMap(player) {
+	async joinMap(player, targetMap = null) {
 		if (!this.isConnected || !this.socket) {
 			throw new Error('웹소켓이 연결되지 않았습니다.');
 		}
-		this.clearCharacterContainer();
+		const mapToJoin = targetMap || this.currentMapName;
+		if (targetMap && targetMap !== this.currentMapName) {
+			console.log(`🧹 맵 변경 감지: ${this.currentMapName} → ${targetMap}`);
+			this.currentMapName = targetMap;
+		}
 		const joinMessage = {
 			type: 'join-map',
 			memberId: player.memberId,
 			nickName: player.nickName,
 			avatarInfo: player.avatarInfo,
-			currentMap: 'startMap'
+			currentMap: mapToJoin
 		};
 
 		console.log('=== 맵 입장 요청 전송 ===');
@@ -131,6 +135,13 @@ export class WebsocketChatModule {
 		if (characterRenderModule) {
 			characterRenderModule.clearAllRenderInstances();
 		}
+		this.activeBubbles.forEach((bubble, playerId) => {
+			const mapContainer = document.getElementById('mapContainer');
+			if (mapContainer && bubble.parentNode === mapContainer) {
+				mapContainer.removeChild(bubble);
+			}
+		});
+		this.activeBubbles.clear();
 	}
 	// ===== 메시지 처리 =====
 	async handleMessage(message) {
@@ -181,9 +192,19 @@ export class WebsocketChatModule {
 	// ===== 플레이어 입장 처리 =====
 	async handlePlayerJoined(message) {
 		console.log('👤 새 플레이어 입장:', message.player);
+		const playerMap = message.player.currentMap;
+		if (playerMap !== this.currentMapName) {
+			console.log(`❌ 다른 맵(${playerMap})의 플레이어, 현재 맵: ${this.currentMapName} - 무시`);
+			return;
+		}
 		const characterRenderModule = this.gameClient.getCharacterRenderModule();
 		if (!characterRenderModule)
 			return;
+		const existingCharacter = characterRenderModule.getCharacter(message.player.sessionId);
+		if (existingCharacter) {
+			console.log(`⚠️ 이미 로드된 플레이어: ${message.player.nickName}, 스킵`);
+			return;
+		}
 
 		const avatarInfo = typeof message.player.avatarInfo === 'string'
 			? JSON.parse(message.player.avatarInfo)
@@ -207,6 +228,7 @@ export class WebsocketChatModule {
 	// ===== 기존 플레이어들 처리 =====
 	async handleExistingPlayers(message) {
 		console.log('👥 기존 플레이어들:', message.players);
+		console.log(`📍 현재 클라이언트 맵: ${this.currentMapName}`);
 
 		const characterRenderModule = this.gameClient.getCharacterRenderModule();
 		if (!characterRenderModule) return;
@@ -246,7 +268,7 @@ export class WebsocketChatModule {
 
 	// ===== 플레이어 이동 처리 =====
 	handlePlayerMove(message) {
-		console.log('🚶 플레이어 이동:', message.sessionId, message.position,message.rotation);
+		console.log('🚶 플레이어 이동:', message.sessionId, message.position, message.rotation);
 
 		const characterRenderModule = this.gameClient.getCharacterRenderModule();
 		if (characterRenderModule) {
@@ -278,11 +300,22 @@ export class WebsocketChatModule {
 	// ===== 맵 변경 성공 처리 =====
 	handleMapChangeSuccess(message) {
 		console.log('🗺️ 맵 변경 성공:', message.targetMap);
+		this.currentMapName = message.targetMap;
+		this.clearCharacterContainer();
 		// ✅ MapModule로 전달
-		    const mapModule = this.gameClient.getMapModule();
-		    if (mapModule) {
-		        mapModule.executeTransition(message.targetMap);
-		    }
+		const mapModule = this.gameClient.getMapModule();
+		if (mapModule) {
+			mapModule.executeTransition(message.targetMap);
+		}
+		// ✅ 새 맵에 join-map 요청 
+		setTimeout(async () => {
+			console.log(`🚪 새 맵 ${message.targetMap} 입장 시작`);
+			try {
+				await this.joinMap(this.gameClient.player);
+			} catch (error) {
+				console.error('새 맵 입장 실패:', error);
+			}
+		}, 200);
 	}
 
 	// ===== 플레이어 맵 이동 처리 =====
@@ -390,7 +423,7 @@ export class WebsocketChatModule {
 			this.activeBubbles.delete(playerId);
 		}
 	}
-	
+
 	// ===== 맵 변경 요청 =====
 	requestMapChange(targetMap) {
 		if (this.isChangingMap) return;

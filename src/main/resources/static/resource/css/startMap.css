@@ -174,7 +174,14 @@ html, body {
     transform-origin: top left;
     z-index: 16;
 }
-
+.ai-chatbot {
+    position: absolute;   
+    width: 120px;    
+    transform-origin: top left;
+    transform: translate(750px, -800px);
+    z-index: 16;
+  
+}
 
 .clouds {
     position: absolute; 

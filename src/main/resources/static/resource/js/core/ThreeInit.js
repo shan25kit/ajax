@@ -235,11 +235,11 @@ export class ThreeInit {
 		console.log('🔍 디버그 모드 활성화');
 
 		try {
-
+/*
 			// 축 헬퍼 추가
 			const axesHelper = new THREE.AxesHelper(5);
 			this.scene.add(axesHelper);
-
+*/
 			// 그리드 헬퍼 추가
 			/*      const gridHelper = new THREE.GridHelper(50, 50);
 				  this.scene.add(gridHelper);

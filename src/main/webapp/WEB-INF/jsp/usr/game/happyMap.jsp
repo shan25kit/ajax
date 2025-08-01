@@ -22,12 +22,14 @@
 	<div id="object" class="object">
 		<img class="chair" src="/resource/img/기쁨의맵chair.png" />
 		<div class="candy">
-			<img class="candy1" src="/resource/img/기쁨의맵object1.png" /> <img
-				class="candy2" src="/resource/img/기쁨의맵object2.png" />
+			<img class="candy1" src="/resource/img/기쁨의맵object1.png" /> 
+			<img class="candy2" src="/resource/img/기쁨의맵object2.png" />
 		</div>
 	</div>
 </div>
-
+<div id="aiChatbot" class="ai-chatbot">
+    <img class="chatbot-character" src="/resource/img/animated-fairy-image-0066.gif" alt="AI 상담사" />
+</div>
 <!-- 채팅 시스템 -->
 <div class="player-chat-container" id="chatContainer">
 	<div class="player-chat-header">
