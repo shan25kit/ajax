@@ -328,7 +328,6 @@ export class CharacterRenderModule {
 			let hasSkinnedMesh = false;
 
 			model.traverse((child) => {
-				console.log(`  - Child: ${child.name} (${child.type})`);
 
 				if (child.isMesh) {
 					console.log(`    Mesh: ${child.name}`, child.geometry, child.material);
@@ -368,7 +367,6 @@ export class CharacterRenderModule {
 				}
 
 				if (child.isBone) {
-					console.log(`    Bone: ${child.name}`, child.position);
 				}
 			});
 

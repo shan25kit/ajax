@@ -150,7 +150,10 @@ export class WebsocketChatModule {
 		try {
 			switch (message.type) {
 				case 'player-joined':
-					await this.handlePlayerJoined(message);
+					/*if (message.player.memberId === this.gameClient.player.memberId) {
+						this.handleMapChangeSuccess(message);
+					} else {*/
+						await this.handlePlayerJoined(message);
 					break;
 
 				case 'existing-players':
@@ -427,14 +430,12 @@ export class WebsocketChatModule {
 	// ===== 맵 변경 요청 =====
 	requestMapChange(targetMap) {
 		if (this.isChangingMap) return;
-
 		this.isChangingMap = true;
-
+		console.log('맵변경요청', targetMap);
 		const mapChangeMessage = {
 			type: 'change-map',
 			targetMap: targetMap
 		};
-
 		if (this.socket && this.socket.readyState === WebSocket.OPEN) {
 			try {
 				this.socket.send(JSON.stringify(mapChangeMessage));

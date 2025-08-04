@@ -52,7 +52,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 			handlePlayerMove(sessionId, messageNode);
 			break;
 		case "change-map": 
-			handleMapChange(session, messageNode);
+			handleMapChange(sessionId, messageNode);
 			break;
 		case "chat-inMap": 
 			handleChatInMap(session, messageNode);
@@ -94,13 +94,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 		player.setAvatarInfo(avatarInfo);
 		player.setCurrentMap(currentMap);
 
-		Map<String, Double> initialPosition = new HashMap<>();
-		initialPosition.put("x", 2400.0);
-		initialPosition.put("y", 0.0);
-		initialPosition.put("z", 1800.0);
-
-		player.setPosition(initialPosition);
-
+	
 		playerSessions.put(sessionId, player);
 		System.out.println("플레이어 저장 완료: " + player);
 
@@ -141,11 +135,11 @@ public class WebSocketHandler extends TextWebSocketHandler {
 		}
 	}
 
-	private void handleMapChange(WebSocketSession session, JsonNode messageNode) throws Exception {
+	private void handleMapChange(String sessionId, JsonNode messageNode) throws Exception {
+		
 		System.out.println("=== 맵 변경 요청 ===");
 		System.out.println("전체 메시지: " + messageNode);
 		JsonNode targetMapNode = messageNode.get("targetMap");
-		String sessionId = session.getId();
 		if (targetMapNode != null) {
 			String targetMap = targetMapNode.asText();
 			System.out.println("targetMap: " + targetMap);
@@ -158,10 +152,10 @@ public class WebSocketHandler extends TextWebSocketHandler {
 				player.setCurrentMap(targetMap);
 				System.out.println(player.getCurrentMap());
 				playerSessions.put(sessionId, player);
-				// 3. 새로운 맵에 입장
-				broadcastToPlayersInMap(targetMap, sessionId, createPlayerEnteredMapMessage(player));
-				// 4. 본인에게 성공 메시지
-				session.sendMessage(new TextMessage(createMapChangeSuccessMessage(targetMap)));
+				// 3. 본인에게 성공 메시지 
+				 WebSocketSession session = sessions.get(sessionId);
+				 session.sendMessage(new TextMessage(createMapChangeSuccessMessage(targetMap)));
+				 broadcastToPlayersInMap(targetMap, sessionId, createPlayerEnteredMapMessage(player));
 			}
 		} else {
 			System.out.println("targetMap을 찾을 수 없음!");

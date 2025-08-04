@@ -18,15 +18,13 @@
 </div>
 
 <!-- 오브젝트 -->
-<!-- <div id="portalLayer">
-	<div id="object" class="object">
-		<img class="chair" src="/resource/img/기쁨의맵chair.png" />
-		<div class="candy">
-			<img class="candy1" src="/resource/img/기쁨의맵object1.png" /> <img
-				class="candy2" src="/resource/img/기쁨의맵object2.png" />
-		</div>
+ <div id="portalLayer">
+	<div id="portal_6" class="portal_6">
+		<img class="portal_back" src="/resource/img/portal_right-back2.png" />
+		<img class="portal_center" src="/resource/img/portal_left2.png" /> 
+		<img class="portal_inside" src="/resource/img/portal_inside_right2.gif" />
 	</div>
-</div> -->
+</div> 
 <!-- 채팅 시스템 -->
 <div class="player-chat-container" id="chatContainer">
 	<div class="player-chat-header">

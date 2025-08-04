@@ -26,7 +26,6 @@ export class GameClient {
 				SCALE: 1.6,
 				DEFAULT_SKIN_COLOR: 0xffe0bd,
 				COLLISION_RADIUS: 2,
-				MAP_POSITION: { x: 2400, y: 1800 }
 			},
 
 			// 포털 위치 설정
@@ -36,6 +35,7 @@ export class GameClient {
 				{ id: 'portal_3', x: 2795, y: 1350, targetMap: 'happyMap' },
 				{ id: 'portal_4', x: 1875, y: 1200, targetMap: 'sadMap' },
 				{ id: 'portal_5', x: 1538, y: 1370, targetMap: 'anxietyMap' },
+				{ id: 'portal_6', x: 1625, y: 1525, targetMap: 'startMap' },
 				{ id: 'object', x: 2260, y: 1550, type: 'fountain' }
 			]
 		};
