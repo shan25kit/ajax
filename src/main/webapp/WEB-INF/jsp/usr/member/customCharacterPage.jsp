@@ -122,12 +122,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ✅ 캐릭터 본체 로딩
-  loader.load('/resource/model/body.glb', (gltf) => {
+  loader.load('/resource/model/body_c.glb', (gltf) => {
     character = gltf.scene;
     character.scale.set(1.7, 1.7, 1.7);
     character.position.set(0, -18, 0);
 
-    character.traverse((child) => {
+    /* character.traverse((child) => {
       if (child.isMesh) {
         const prev = child.material;
         child.material = new THREE.MeshStandardMaterial({
@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         child.material.needsUpdate = true;
       }
-    });
+    }); */
 
     scene.add(character);
   });

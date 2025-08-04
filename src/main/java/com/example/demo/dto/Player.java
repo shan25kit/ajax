@@ -115,4 +115,5 @@ public class Player {
 	public Map<String, Double> getRotation() {
 		return this.rotation;
 	}
+	
 }

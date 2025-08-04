@@ -4,7 +4,8 @@ export class AssetManager {
         this.PATHS = {
             MODEL: '/resource/model/',
             IMAGE: '/resource/img/',
-			FACE: '/resource/face/'
+			FACE: '/resource/face/',
+			
         };
         
         // ===== 파일 확장자 =====
