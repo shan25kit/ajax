@@ -321,9 +321,9 @@ export class MapModule {
 
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-		this.ctx.fillStyle = 'rgba(255, 255, 0, 0.3)';
+		this.ctx.fillStyle = 'rgba(255, 255, 0, 0)';
 
-		this.ctx.strokeStyle = 'rgba(255, 0, 0, 0.3)';
+		this.ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
 
 		this.ctx.lineWidth = 2.3;
 
@@ -479,8 +479,8 @@ export class MapModule {
 				break;
 
 			case 'happyMap':
-				this.aiChatbotMapX = 2000;
-				this.aiChatbotMapY = 1200;
+				this.aiChatbotMapX = 2910;
+				this.aiChatbotMapY = 1300;
 				break;
 
 			case 'angerMap':
@@ -489,18 +489,18 @@ export class MapModule {
 				break;
 
 			case 'sadMap':
-				this.aiChatbotMapX = 2200;
-				this.aiChatbotMapY = 1400;
+				this.aiChatbotMapX = 2450;
+				this.aiChatbotMapY = 930;
 				break;
 
 			case 'anxietyMap':
-				this.aiChatbotMapX = 2300;
-				this.aiChatbotMapY = 1300;
+				this.aiChatbotMapX = 2480;
+				this.aiChatbotMapY = 1530;
 				break;
 
 			case 'zenMap':
-				this.aiChatbotMapX = 2100;
-				this.aiChatbotMapY = 1500;
+				this.aiChatbotMapX = 2250;
+				this.aiChatbotMapY = 1630;
 				break;
 
 			default:
