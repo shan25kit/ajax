@@ -29,7 +29,7 @@ public class GameController {
 	// 유저 정보 로딩
 	@GetMapping("/usr/game/startMap")
     public String userInfoload(Model model) {
-		System.out.println("=== websocket() 메서드 호출됨 ===");
+		System.out.println("game controller startmap enter");
 		int memberId = this.req.getLoginedMember().getId();
 		Player player = this.gameService.selectPlayerByMemberId(memberId);
 		System.out.println(player);
@@ -50,7 +50,7 @@ public class GameController {
 	
 	@GetMapping("/usr/game/happyMap")
 	public String happyMap(Model model) {
-		System.out.println("=== websocket() 메서드 호출됨 ===");
+		System.out.println("game controller happymap enter");
 		int memberId = this.req.getLoginedMember().getId();
 		Player player = this.gameService.selectPlayerByMemberId(memberId);
 		System.out.println(player);
@@ -66,7 +66,7 @@ public class GameController {
 	
 	@GetMapping("/usr/game/zenMap")
 	public String zenMap(Model model) {
-		System.out.println("=== websocket() 메서드 호출됨 ===");
+		System.out.println("game controller zenmap enter");
 		int memberId = this.req.getLoginedMember().getId();
 		Player player = this.gameService.selectPlayerByMemberId(memberId);
 		System.out.println(player);
@@ -82,7 +82,7 @@ public class GameController {
 	
 	@GetMapping("/usr/game/angerMap")
 	public String angerMap(Model model) {
-		System.out.println("=== websocket() 메서드 호출됨 ===");
+		System.out.println("game controller angermap enter");
 		int memberId = this.req.getLoginedMember().getId();
 		Player player = this.gameService.selectPlayerByMemberId(memberId);
 		System.out.println(player);
@@ -94,6 +94,38 @@ public class GameController {
 		System.out.println(player);
 		model.addAttribute("player", player);
 		return "usr/game/angerMap";
+	}
+	
+	@GetMapping("/usr/game/anxietyMap")
+	public String anxietyMap(Model model) {
+		System.out.println("game controller anxietymap enter");
+		int memberId = this.req.getLoginedMember().getId();
+		Player player = this.gameService.selectPlayerByMemberId(memberId);
+		System.out.println(player);
+		CustomCharacter character = this.characterService.getCharacter(memberId);
+		System.out.println(character);
+		JsonNode avatarInfo = this.characterService.convertCharacterToJson(character);
+		System.out.println(avatarInfo);
+		player.setAvatarInfo(avatarInfo);
+		System.out.println(player);
+		model.addAttribute("player", player);
+		return "usr/game/anxietyMap";
+	}
+	
+	@GetMapping("/usr/game/sadMap")
+	public String sadMap(Model model) {
+		System.out.println("game controller sadmap enter");
+		int memberId = this.req.getLoginedMember().getId();
+		Player player = this.gameService.selectPlayerByMemberId(memberId);
+		System.out.println(player);
+		CustomCharacter character = this.characterService.getCharacter(memberId);
+		System.out.println(character);
+		JsonNode avatarInfo = this.characterService.convertCharacterToJson(character);
+		System.out.println(avatarInfo);
+		player.setAvatarInfo(avatarInfo);
+		System.out.println(player);
+		model.addAttribute("player", player);
+		return "usr/game/sadMap";
 	}
 	
 	// 테스트용 엔드포인트

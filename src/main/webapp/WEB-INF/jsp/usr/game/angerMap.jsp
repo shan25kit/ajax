@@ -23,6 +23,9 @@
 		<img class="fire" src="/resource/img/분노의맵fire.png" />
 	</div>
 </div>
+<div id="aiChatbot" class="ai-chatbot">
+    <img class="chatbot-character" src="/resource/img/분노의맵NPC.gif" alt="AI 상담사" />
+</div>
 
 <!-- 채팅 시스템 -->
 <div class="player-chat-container" id="chatContainer">

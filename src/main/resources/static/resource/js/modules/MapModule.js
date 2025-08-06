@@ -32,15 +32,16 @@ export class MapModule {
 		this.restrictedEllipse = null;
 		this.maskingOffsets = null;
 
-		/*// ✅ 게임 시작 시 기본 맵의 마스킹 설정
-		this.initializeMaskingAreas('startMap'); // 🔺이 줄이 핵심이야!!*/
-
 		// ===== 캐릭터 DOM관련 =====
 		this.characterContainer = null;
 		this.lastCharacterScreenX = null;
 		this.lastCharacterScreenY = null;
 		this.lastCharacterScale = null;
 
+		// ===== 캐릭터 DOM관련 =====
+		this.aiChatbot = null;
+		this.aiChatbotMapX = 1800; // 기본값
+		this.aiChatbotMapY = 1500; // 기본값
 		console.log('🗺️ MapModule 생성됨');
 
 	}
@@ -54,7 +55,7 @@ export class MapModule {
 
 	// ===== 마스킹 영역 초기화 =====
 
-	initializeMaskingAreas(mapName) {
+	setupMaskingAreas(mapName) {
 
 		if (mapName === 'startMap') {
 			// 이동 불가 다각형 영역 (기존 JSP의 points 배열)
@@ -83,24 +84,26 @@ export class MapModule {
 		// ✨ 추후 다른 맵들에 대한 조건 추가 가능
 		else if (mapName === 'happyMap') {
 			this.maskingPolygon = [
-				[1886, 2097],
-				[2065, 2002],
-				[2306, 2000],
-				[2465, 2053],
-				[2597, 2153],
-				[2722, 2049],
-				[2859, 2004],
-				[3091, 2008],
-				[3294, 2089],
-				[3352, 2182],
-				[3336, 2296],
-				[3238, 2451],
-				[2947, 2647],
-				[2629, 2830],
-				[2360, 2656],
-				[2029, 2483],
-				[1847, 2302],
-				[1846, 2183]
+				[762.087, 143.519], [748.518, 150.891], [737.416, 143.519],
+				[726.314, 137.376], [674.506, 98.0607], [631.333, 69.8025],
+				[574.59, 40.3157], [453.705, 7.14308], [364.891, 1],
+				[285.945, 7.14308], [200.832, 19.4292], [116.952, 47.6874], 
+				[52.8082, 98.0607], [15.8023, 150.891], [1, 202.493],
+				[15.8023, 236.894], [7.16764, 278.667], [46.6405, 336.412],
+				[110.784, 395.386], [223.035, 481.389], [326.651, 531.762],
+				[419.166, 588.278], [507.98, 632.509], [654.77, 692.711],
+				[726.314, 749.227], [780.59, 791], [812.661, 766.428],
+				[890.374, 717.283], [1108.71, 599.336], [1262.9, 508.418],
+				[1359.11, 438.387], [1399.82, 395.386], [1435.59, 354.841],
+				[1450.4, 313.068], [1472.6, 278.667], [1472.6, 227.065],
+				[1480, 187.75], [1456.56, 137.376], [1417.09, 88.2317],
+				[1351.71, 47.6874], [1338.14, 69.8025], [1328.28, 98.0607],
+				[1315.94, 122.633], [1296.2, 143.519], [1244.4, 159.491],
+				[1174.09, 159.491], [1123.51, 137.376], [1097.61, 116.49],
+				[1069.24, 77.1742], [1081.57, 47.6874], [1140.78, 1],
+				[1097.61, 1], [1031, 7.14308], [961.918, 19.4292],
+				[901.475, 40.3157], [858.302, 61.2022], [812.661, 98.0607],
+				[780.59, 122.633], [762.087, 143.519]
 			];
 			this.restrictedEllipse = {
 				centerX: 550,  // 중심 위치 (X)
@@ -112,47 +115,107 @@ export class MapModule {
 
 		} else if (mapName === 'angerMap') {
 			this.maskingPolygon = [
-				[1662, 1670],
-				[1458, 1577],
-				[1261, 1534],
-				[1070, 1526],
-				[870, 1426],
-				[786, 1323],
-				[979, 1210],
-				[1174, 1123],
-				[1385, 1198],
-				[1596, 1272],
-				[1432, 1414],
-				[1623, 1492],
-				[1836, 1510],
-				[2051, 1448],
-				[2267, 1392],
-				[2489, 1377],
-				[2709, 1413],
-				[2928, 1459],
-				[3124, 1548],
-				[3288, 1700],
-				[3314, 1884],
-				[3205, 2067],
-				[3004, 2163],
-				[2797, 2239],
-				[2574, 2253],
-				[2351, 2267],
-				[2134, 2236],
-				[1925, 2159],
-				[1718, 2079],
-				[1628, 1874],
-				[1662, 1670]
+				[1240.54, 0.00], [1471.04, 18.50], [1634.11, 55.51], [1781.67, 107.52],
+				  [1910.74, 178.56], [1981.78, 227.59], [2064.90, 335.19], [2101.97, 433.82],
+				  [2083.49, 511.11], [2043.46, 600.20], [1957.36, 689.84], [1849.29, 766.40],
+				  [1658.66, 830.97], [1511.13, 870.98], [1268.04, 892.50], [1031.40, 892.49],
+				  [828.40, 852.99], [637.84, 787.97], [468.25, 689.93], [379.11, 578.81],
+				  [360.51, 471.08], [379.01, 387.89], [412.84, 308.25], [1.30, 126.95],
+				  [99.66, 37.12], [548.39, 196.93], [569.67, 178.62], [619.26, 154.05],
+				  [735.74, 83.07], [871.33, 37.02], [1086.42, 0.00], [1240.54, 0.00], // 경로 닫힘
+
+				  // 🔸 구멍 (반시계 방향)
+				  [1071.64, 203.98], [1323.42, 179.50], [1470.74, 228.43], [1556.58, 308.29],
+				  [1590.45, 387.98], [1532.12, 510.62], [1390.86, 578.01], [1213.01, 599.49],
+				  [1086.61, 578.01], [988.70, 550.53], [896.38, 492.14], [853.50, 335.71],
+				  [945.76, 246.93], [1071.64, 203.98] // 경로 닫힘
 			];
 			this.restrictedEllipse = {
-				centerX:0,  // 중심 위치 (X)
+				centerX: 0,  // 중심 위치 (X)
 				centerY: -220,  // 중심 위치 (Y)
 				radiusX: 350,
 				radiusY: 200
 			};
-			this.maskingOffsets = { offsetX: -400, offsetY: -250 };
+			this.maskingOffsets = { offsetX: -170, offsetY: -150 };
 
-		} else {
+		} else if (mapName === 'sadMap') {
+			this.maskingPolygon = [
+				[64.5, 671.5], [1.0, 700.0], [103.5, 792.5], [147.0, 881.0],
+				[197.0, 941.5], [246.0, 980.0], [304.5, 1015.5], [316.0, 1034.0],
+				[246.0, 1087.5], [224.0, 1034.0], [180.5, 1015.5], [103.5, 1087.5],
+				[333.0, 1184.5], [509.0, 1106.0], [479.0, 1059.0], [520.5, 1000.0],
+				[584.5, 1025.5], [616.0, 1015.5], [663.0, 1034.0], [901.0, 965.0],
+				[1109.0, 1059.0], [1203.0, 1034.0], [1142.5, 965.0], [998.5, 921.5],
+				[1348.5, 718.5], [1387.5, 643.0], [1397.5, 593.0], [1360.5, 504.0],
+				[1313.5, 417.0], [968.0, 231.0], [921.5, 184.0], [857.5, 130.0],
+				[799.0, 95.0], [789.0, 71.5], [732.0, 23.0], [675.0, 1.0],
+				[633.0, 23.0], [655.0, 39.5], [683.5, 41.5], [717.0, 71.5],
+				[743.5, 145.5], [760.5, 164.0], [807.5, 215.5], [825.5, 262.5],
+				[1167.5, 437.0], [1183.0, 465.5], [1203.0, 519.0], [1213.0, 611.5],
+				[1167.5, 744.0], [705.0, 965.0], [663.0, 953.5], [633.0, 899.5],
+				[509.0, 881.0], [467.0, 899.5], [457.0, 921.5], [445.0, 953.5],
+				[433.5, 980.0], [354.5, 953.5], [304.5, 931.5], [271.0, 899.5],
+				[235.5, 881.0], [224.0, 847.5], [235.5, 809.0], [197.0, 782.5],
+				[180.5, 744.0], [158.5, 718.5], [115.0, 710.0], [64.5, 671.5]
+			];
+			this.restrictedEllipse = {
+				centerX: 0,  // 중심 위치 (X)
+				centerY: 0,  // 중심 위치 (Y)
+				radiusX: 0,
+				radiusY: 0
+			};
+			this.maskingOffsets = { offsetX: 180, offsetY: -150 };
+
+			} else if (mapName === 'zenMap') {
+				this.maskingPolygon = [
+					[874.031, 0.500977], [1065.03, 12.501], [1065.05, 12.502], [1065.06, 12.5039],
+					  [1254.56, 37.0039], [1254.62, 37.0117], [1254.68, 37.0332], [1437.18, 107.533],
+					  [1437.23, 107.554], [1437.28, 107.586], [1623.28, 233.586], [1623.34, 233.626],
+					  [1623.38, 233.681], [1712.38, 340.681], [1712.44, 340.75], [1712.47, 340.835],
+					  [1747.97, 442.335], [1748.01, 442.434], [1748.0, 442.538], [1739.0, 560.038],
+					  [1738.99, 560.118], [1738.96, 560.191], [1687.96, 683.191], [1687.92, 683.301],
+					  [1687.83, 683.379], [1559.83, 793.879], [1559.79, 793.912], [1559.74, 793.937],
+					  [1405.74, 879.937], [1405.72, 879.95], [1405.69, 879.961], [1272.19, 935.961],
+					  [1272.14, 935.981], [1272.09, 935.991], [1038.59, 979.991], [1038.56, 979.997],
+					  [1038.53, 979.999], [858.033, 991.999], [857.995, 992.001], [857.956, 991.998],
+					  [721.456, 979.998], [721.438, 979.996], [550.938, 958.996], [550.912, 958.993],
+					  [550.887, 958.987], [370.387, 916.987], [370.335, 916.975], [370.286, 916.952],
+					  [210.786, 841.452], [210.739, 841.43], [210.699, 841.399], [159.699, 802.899],
+					  [159.143, 802.479], [159.718, 802.087], [190.724, 780.924], [103.644, 692.351],
+					  [103.62, 692.327], [103.601, 692.301], [44.1006, 613.301], [44.0801, 613.273],
+					  [44.0635, 613.243], [0.0635, 534.243], [0.0, 534.13], [0.0, 484.5],
+					  [54.8623, 484.5], [89.5264, 463.701], [103.457, 321.9], [44.4014, 309.99],
+					  [44.0, 309.909], [44.0, 263.76], [44.1875, 263.609], [119.212, 203.59],
+					  [119.238, 203.574], [147.738, 186.074], [147.744, 186.07], [147.751, 186.066],
+					  [247.79, 128.544], [247.833, 128.528], [407.333, 72.0283], [407.361, 72.0186],
+					  [407.392, 72.0117], [564.892, 37.0117], [564.904, 37.0088], [564.917, 37.0068],
+					  [710.917, 12.5068], [710.94, 12.5029], [710.963, 12.501], [873.963, 0.500977]
+				];
+				this.restrictedEllipse = {
+					centerX: 0,  // 중심 위치 (X)
+					centerY: 0,  // 중심 위치 (Y)
+					radiusX: 0,
+					radiusY: 0
+				};
+				this.maskingOffsets = { offsetX: -30, offsetY: -20 };
+
+			} else if (mapName === 'anxietyMap') {
+				this.maskingPolygon = [
+					[963.0, 1.5], [1.0, 468.0], [201.5, 603.0],
+					[245.0, 581.5], [320.0, 644.5], [320.0, 673.5],
+					[443.0, 746.0], [1001.5, 1096.5], [1436.5, 806.5],
+					[1526.0, 746.0], [1473.0, 688.0], [1543.0, 673.5],
+					[1620.5, 688.0], [1956.5, 468.0], [963.0, 1.5]
+				];
+				this.restrictedEllipse = {
+					centerX: 0,  // 중심 위치 (X)
+					centerY: 0,  // 중심 위치 (Y)
+					radiusX: 0,
+					radiusY: 0
+				};
+				this.maskingOffsets = { offsetX: 100, offsetY: -150 };
+			
+			} else {
 			console.warn(`⚠️ '${mapName}'에 대한 마스킹 데이터가 없습니다.`);
 		}
 
@@ -173,15 +236,14 @@ export class MapModule {
 
 			// 맵 컨트롤 초기화
 			this.initMapControls();
-
-			this.initializeMaskingAreas(currentMapName);
-
 			// 마스킹 캔버스 초기화
+			this.setupMaskingAreas(currentMapName);
 			this.initMaskingCanvas();
-
 			// DOM 포털 초기화
 			this.initDOMPortals();
-
+			// 챗봇 초기화
+			this.setAIChatbotPositionByMap(currentMapName);
+			this.initAIChatbotDOM();
 			// 초기 변환 적용
 			this.applyTransform();
 
@@ -200,7 +262,6 @@ export class MapModule {
 		this.mapImage = document.getElementById('mapImage');
 		this.mapCanvas = document.getElementById('mapCanvas');
 		this.characterContainer = document.getElementById('characterContainer');
-		/*	this.clouds = document.querySelector('.clouds'); */
 
 		if (!this.container) {
 			console.warn('⚠️ 맵 컨테이너 요소를 찾을 수 없습니다.');
@@ -399,11 +460,10 @@ export class MapModule {
 					x: itemData.x,
 					y: itemData.y,
 					targetMap: itemData.targetMap || null,  // 분수대는 targetMap이 null
-					collisionRadius: itemData.id === 'object' ? 20 : 30,
+					collisionRadius: itemData.id === 'object' ? 20 : 40,
 					element: element,
 					type: itemData.id === 'object' ? 'object' : 'portal'
 				});
-
 				console.log(`🌀 ${itemData.id === 'object' ? '오브젝트' : '포털'} 등록: ${itemData.id} (${itemData.x}, ${itemData.y})`);
 			} else {
 				console.warn(`⚠️ 요소를 찾을 수 없음: ${itemData.id}`);
@@ -411,7 +471,82 @@ export class MapModule {
 		});
 		console.log(`✅ DOM 포털 초기화 완료: ${this.portalCollisionAreas.length}개`);
 	}
+	setAIChatbotPositionByMap(mapName) {
+		switch (mapName) {
+			case 'startMap':
+				this.aiChatbotMapX = 2500;
+				this.aiChatbotMapY = 1500;
+				break;
 
+			case 'happyMap':
+				this.aiChatbotMapX = 2000;
+				this.aiChatbotMapY = 1200;
+				break;
+
+			case 'angerMap':
+				this.aiChatbotMapX = 1050;
+				this.aiChatbotMapY = 1050;
+				break;
+
+			case 'sadMap':
+				this.aiChatbotMapX = 2200;
+				this.aiChatbotMapY = 1400;
+				break;
+
+			case 'anxietyMap':
+				this.aiChatbotMapX = 2300;
+				this.aiChatbotMapY = 1300;
+				break;
+
+			case 'zenMap':
+				this.aiChatbotMapX = 2100;
+				this.aiChatbotMapY = 1500;
+				break;
+
+			default:
+				this.aiChatbotMapX = 2500;
+				this.aiChatbotMapY = 1500;
+				console.warn(`⚠️ '${mapName}'에 대한 AI 챗봇 위치가 설정되지 않아 기본값을 사용합니다.`);
+		}
+
+		console.log(`🤖 ${mapName} AI 챗봇 위치 설정: (${this.aiChatbotMapX}, ${this.aiChatbotMapY})`);
+	}
+	
+	initAIChatbotDOM() {
+		this.aiChatbot = document.getElementById('aiChatbot');
+		if (!this.aiChatbot) return;
+		// 클릭 이벤트 리스너 추가
+		this.aiChatbot.addEventListener('click', (event) => {
+			event.stopPropagation();
+			// 클릭 애니메이션
+			this.aiChatbot.style.animation = 'chatbotClick 0.6s ease-out';
+
+			// 클릭 애니메이션 CSS 추가 (한 번만)
+			if (!document.getElementById('chatbotClickStyle')) {
+				const style = document.createElement('style');
+				style.id = 'chatbotClickStyle';
+				style.textContent = `
+			             @keyframes chatbotClick {
+			                 0% { transform: scale(1); }
+			                 50% { transform: scale(1.2); }
+			                 100% { transform: scale(1); }
+			             }
+			         `;
+				document.head.appendChild(style);
+			}
+
+			// 애니메이션 초기화
+			setTimeout(() => {
+				this.aiChatbot.style.animation = '';
+			}, 600);
+
+			// 0.8초 후 페이지 이동 (executeTransition 함수 활용)
+			setTimeout(() => {
+				this.executeTransition('chatBot');
+			}, 800);
+		});
+
+	}
 	// ===== 휠 이벤트 처리 (줌) =====
 	handleWheel(e) {
 		if (!this.mapDragEnabled) return;
@@ -504,16 +639,16 @@ export class MapModule {
 
 		if (this.mapImage) this.mapImage.style.transform = transform;
 		if (this.mapCanvas) this.mapCanvas.style.transform = transform;
-		/*	if (clouds) clouds.style.transform = transform;*/
 
-		if (document.querySelector('.portal-debug-area')) {
-			this.updatePortalCollisionVisuals();
-		}
+
 		// 마스킹 영역 다시 그리기
 		this.drawMaskArea();
 
 		// 포털 위치 업데이트
 		this.updatePortals();
+
+		// ===== AI 챗봇 위치 업데이트 추가 =====
+		this.updateAIChatbotPosition();
 
 		// 캐릭터 위치 업데이트
 		this.updateCharacterDOM();
@@ -533,6 +668,18 @@ export class MapModule {
 		});
 	}
 
+	updateAIChatbotPosition() {
+		if (!this.aiChatbot) return;
+
+		// 화면 좌표로 변환
+		const screenX = this.aiChatbotMapX * this.scale + this.posX;
+		const screenY = this.aiChatbotMapY * this.scale + this.posY;
+
+		// AI 챗봇 위치 업데이트
+		this.aiChatbot.style.left = screenX + 'px';
+		this.aiChatbot.style.top = screenY + 'px';
+		this.aiChatbot.style.transform = `scale(${this.scale})`;
+	}
 
 	// ===== Three.js 씬 변환 동기화 =====
 	updateSceneTransform() {
@@ -617,7 +764,6 @@ export class MapModule {
 			characterPosition.x,
 			characterPosition.z
 		);
-
 		const characterScreenX = character2DPos.x * this.scale + this.posX - 180;
 		const characterScreenY = character2DPos.y * this.scale + this.posY - 180;
 
@@ -666,7 +812,7 @@ export class MapModule {
 
 	// ===== 포털 진입 처리 =====
 	handlePortalEntry(targetMap) {
-		console.log(targetMap);
+		console.log('포털진입처리', targetMap);
 		if (this.isTransitioning) return;
 
 		console.log(`🌀 포털 진입: ${targetMap}`);
@@ -749,6 +895,14 @@ export class MapModule {
 	executeTransition(targetMap) {
 
 		let redirectPath;
+		if (targetMap === 'chatBot') {
+			redirectPath = '/usr/game/chatBot';
+			console.log(`🤖 AI 상담 페이지 이동: ${redirectPath}`);
+
+			// AI 챗봇은 즉시 이동 (딜레이 없음)
+			window.location.href = redirectPath;
+			return;
+		}
 
 		switch (targetMap) {
 			case 'angerMap':
@@ -940,85 +1094,7 @@ export class MapModule {
 		this.applyTransform();
 	}
 	// ===== 디버그 메서드들 =====
-	addPortalCollisionVisuals() {
-		console.log('🎯 addPortalCollisionVisuals 호출됨');
 
-		// 기존 디버그 요소들 제거
-		document.querySelectorAll('.portal-debug-area').forEach(el => el.remove());
-
-		this.portalCollisionAreas.forEach((portal, index) => {
-			const cssOffset = this.getPortalCSSOffset(portal.id);
-
-			// ✅ 화면 좌표로 변환 (맵 스케일과 드래그 위치 적용)
-			const portalScreenX = (portal.x + cssOffset.x) * this.scale + this.posX + 180;
-			const portalScreenY = (portal.y + cssOffset.y) * this.scale + this.posY + 180;
-			const scaledRadius = portal.collisionRadius * this.scale;
-
-			// 충돌 영역 원 생성
-			const collisionArea = document.createElement('div');
-			collisionArea.className = 'portal-debug-area';
-			collisionArea.style.cssText = `
-	            position: absolute;
-	            width: ${scaledRadius * 2}px;
-	            height: ${scaledRadius * 2}px;
-	            border: 3px solid rgba(255, 0, 0, 0.7);
-	            border-radius: 50%;
-	            background: rgba(255, 0, 0, 0.1);
-	            pointer-events: none;
-	            z-index: 9999;
-	            left: ${portalScreenX - scaledRadius}px;
-	            top: ${portalScreenY - scaledRadius}px;
-	            transform-origin: center;
-	        `;
-
-			// 포털 ID 라벨
-			const label = document.createElement('div');
-			label.style.cssText = `
-	            position: absolute;
-	            top: 50%;
-	            left: 50%;
-	            transform: translate(-50%, -50%);
-	            color: red;
-	            font-weight: bold;
-	            font-size: ${12 * this.scale}px;
-	            text-shadow: 1px 1px 2px white;
-	        `;
-			label.textContent = portal.id;
-			collisionArea.appendChild(label);
-
-			document.getElementById('mapContainer').appendChild(collisionArea);
-
-			console.log(`✅ 포털 ${portal.id} 충돌 영역:`, {
-				원본위치: { x: portal.x, y: portal.y },
-				CSS오프셋: cssOffset,
-				화면위치: { x: portalScreenX, y: portalScreenY },
-				반지름: scaledRadius
-			});
-		});
-	}
-	updatePortalCollisionVisuals() {
-		document.querySelectorAll('.portal-debug-area').forEach((area, index) => {
-			const portal = this.portalCollisionAreas[index];
-			if (portal) {
-				const cssOffset = this.getPortalCSSOffset(portal.id);
-				const portalScreenX = (portal.x + cssOffset.x) * this.scale + this.posX;
-				const portalScreenY = (portal.y + cssOffset.y) * this.scale + this.posY;
-				const scaledRadius = portal.collisionRadius * this.scale;
-
-				// 위치와 크기 업데이트
-				area.style.left = (portalScreenX - scaledRadius) + 'px';
-				area.style.top = (portalScreenY - scaledRadius) + 'px';
-				area.style.width = (scaledRadius * 2) + 'px';
-				area.style.height = (scaledRadius * 2) + 'px';
-
-				// 폰트 크기도 스케일 적용
-				const label = area.querySelector('div');
-				if (label) {
-					label.style.fontSize = (12 * this.scale) + 'px';
-				}
-			}
-		});
-	}
 	// ===== 리소스 정리 =====
 	dispose() {
 		console.log('🧹 MapModule 리소스 정리');
