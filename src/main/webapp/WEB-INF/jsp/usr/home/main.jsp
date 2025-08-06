@@ -13,7 +13,7 @@
 	</div>
 
 	<div id="lottie-icon" style="width: 100px; height: 100px;"></div>
-	
+
 	<div class="login_page_button glassy-button">
 		<a href="/usr/member/login">입장하기</a>
 	</div>
@@ -45,8 +45,8 @@
 		</ul>
 	</div>
 
-</div>
 
+</div>
 
 <!-- 하단 텍스트 슬라이드 스크립트 -->
 

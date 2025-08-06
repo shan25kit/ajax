@@ -16,6 +16,10 @@ $(document).ready(function() {
             alert('이메일을 입력해주세요.');
             return;
         }
+        $(this).prop('disabled', true)
+        .text('처리중...')
+        .css('background-color', '#ccc')
+        .css('cursor', 'not-allowed');
         
         $.ajax({
             url: '/usr/member/sendToEmailForconfirm',
@@ -51,19 +55,19 @@ $('input[name="email"]').blur(function() {
             if (data.rsCode.startsWith('F-')) {
                 $('#emailDupMsg')
                     .text(data.rsMsg)
-                    .css('color', 'white')
+                    .css('color', 'rgb(255, 66, 66)')
                     .css('display', 'block');
-                // 중복 없을 때 버튼 활성화
+             // 중복 있을 때 버튼 비활성화
                 $('.email_check_button')
-                    .prop('disabled', false)
-                    .css('background-color', '#662c77')
-                    .css('cursor', 'pointer');
+                    .prop('disabled', true)
             } else {
                 $('#emailDupMsg')
                     .text(data.rsMsg)
-                    .css('color', 'rgb(255, 66, 66)');
-                // 중복 있을 때 버튼 비활성화
-                $('.email_check_button').prop('disabled', true);
+                    .css('color', 'white');
+                 // 중복 없을 때 버튼 활성화
+                $('.email_check_button').prop('disabled', false)
+                	.css('background-color', '#662c77')
+                    .css('cursor', 'pointer');
             }
         }, // <-- success 콜백 닫힘
         error: function(xhr, status, error) {

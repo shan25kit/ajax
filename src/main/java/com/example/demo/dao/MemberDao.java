@@ -5,7 +5,6 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
-import com.example.demo.dto.EmailAuth;
 import com.example.demo.dto.Member;
 
 @Mapper
@@ -38,7 +37,9 @@ public interface MemberDao {
 
 	@Select("""
 			SELECT *
-				FROM `member`
+				FROM `member` m
+				LEFT JOIN memberInfo mi
+				ON m.id = mi.memberId
 				WHERE email = #{email}
 			""")
 	Member getMemberByEmail(String email);
