@@ -236,7 +236,8 @@ html, body {
 .ai-chatbot {
 	position: absolute;
 	transform-origin: top left;
-	z-index: 16;
+	z-index: 9999;
+	
 }
 .chatbot-character{
 	width: 300px;

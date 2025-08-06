@@ -21,6 +21,9 @@
 		<div class="character-3d" id="character3D"></div>
 	</div>
 </div>
+<div id="aiChatbot" class="ai-chatbot">
+    <img class="chatbot-character" src="/resource/img/평온의맵NPC.gif" alt="AI 상담사" />
+</div>
 
 <!-- 오브젝트 -->
 <!--  <div id="portalLayer">
