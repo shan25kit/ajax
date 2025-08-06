@@ -56,8 +56,10 @@ public class KakaoService {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(response.getBody());
-            String email = jsonNode.path("kakao_account").path("email").asText();
-            return new KakaoUserInfo(email);
+            System.out.println("카카오 API 전체 응답: " + jsonNode.toString());
+            String nickname = jsonNode.path("properties").path("nickname").asText();
+            System.out.println(nickname);
+            return new KakaoUserInfo(nickname);
         } catch (Exception e) {
             throw new RuntimeException("카카오 유저정보 파싱 실패", e);
         }

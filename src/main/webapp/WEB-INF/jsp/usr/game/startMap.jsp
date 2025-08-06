@@ -4,9 +4,20 @@
 <c:set var="pageTitle" value="StartMap" />
 <%@ include file="/WEB-INF/jsp/common/header.jsp"%>
 
+<div class="top-nav">
+		<a href="/usr/member/customCharacterPage" class="nav-icon"><i class="fa-solid fa-circle-user"></i>
+		<span class="nav-text">MYPAGE</span></a>
+		<a href="/usr/member/logout" class="nav-icon"><i class="fa-solid fa-right-from-bracket"></i>
+		<span class="nav-text">LOGOUT</span></a>
+	</div>
 <!-- 맵 컨테이너 -->
 <div class="map-container" id="mapContainer">
-
+	<ul class="fixed">
+		<li class="hover:underline underline-offset-8"><a
+			class="flex h-full px-3 items-center" href="/usr/member/myPage">MYPAGE</a></li>
+		<li class="hover:underline underline-offset-8"><a
+			class="flex h-full px-3 items-center" href="/usr/member/logout">LOGOUT</a></li>
+	</ul>
 	<!-- 배경 이미지 -->
 	<img id="mapImage" src="/resource/img/background-1.png" alt="map" />
 

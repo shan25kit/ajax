@@ -26,16 +26,16 @@ public class WebConfig implements WebMvcConfigurer {
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(beforeActionInterceptor).addPathPatterns("/**").excludePathPatterns("/resource/**");
 
-		registry.addInterceptor(needLoginInterceptor).addPathPatterns("/usr/game/startMap").addPathPatterns("/usr/game/chatBot")
+		registry.addInterceptor(needLoginInterceptor).addPathPatterns("/usr/game/startMap")
+				.addPathPatterns("/usr/game/happyMap").addPathPatterns("/usr/game/angerMap")
+				.addPathPatterns("/usr/game/anxietyMap").addPathPatterns("/usr/game/sadMap")
+				.addPathPatterns("/usr/game/zenMap").addPathPatterns("/usr/game/chatBot")
 				.addPathPatterns("/usr/member/info").addPathPatterns("/usr/member/customCharacterPage");
 
-		/*
-		 * registry.addInterceptor(needLogoutInterceptor).addPathPatterns(
-		 * "/usr/member/signup")
-		 * .addPathPatterns("/usr/member/doSignUp").addPathPatterns(
-		 * "/usr/member/emailSignUp")
-		 * .addPathPatterns("/usr/member/login").addPathPatterns("/usr/member/doLogin");
-		 */
+		registry.addInterceptor(needLogoutInterceptor).addPathPatterns("/usr/member/signup")
+				.addPathPatterns("/usr/member/doSignUp").addPathPatterns("/usr/member/emailSignUp")
+				.addPathPatterns("/usr/member/login").addPathPatterns("/usr/member/doLogin");
+
 	}
 
 }

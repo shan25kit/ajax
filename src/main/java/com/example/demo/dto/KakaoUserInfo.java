@@ -8,5 +8,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class KakaoUserInfo {
-	private String email;
+	private String name;
 }

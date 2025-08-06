@@ -3,7 +3,12 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <c:set var="pageTitle" value="angerMap" />
 <%@ include file="/WEB-INF/jsp/common/header.jsp"%>
-
+<div class="top-nav">
+		<a href="/usr/member/customCharacterPage" class="nav-icon"><i class="fa-solid fa-circle-user"></i>
+		<span class="nav-text">MYPAGE</span></a>
+		<a href="/usr/member/logout" class="nav-icon"><i class="fa-solid fa-right-from-bracket"></i>
+		<span class="nav-text">LOGOUT</span></a>
+	</div>
 <!-- 맵 컨테이너 -->
 <div class="map-container" id="mapContainer">
 

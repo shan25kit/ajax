@@ -46,6 +46,7 @@ public class Req {
 
 	public void logout() {
 		this.session.removeAttribute("loginedMember");
+		this.loginedMember = new LoginedMember();
 	}
 
 	public void jsPrintReplace(String msg, String uri) {
