@@ -28,6 +28,10 @@
 	</div>
 </div> -->
 
+<div id="aiChatbot" class="ai-chatbot">
+    <img class="chatbot-character" src="/resource/img/불안의맵NPC.gif" alt="AI 상담사" />
+</div>
+
 <!-- 채팅 시스템 -->
 <div class="player-chat-container" id="chatContainer">
 	<div class="player-chat-header">

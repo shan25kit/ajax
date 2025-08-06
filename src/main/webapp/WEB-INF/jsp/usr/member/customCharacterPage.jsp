@@ -94,8 +94,8 @@ document.addEventListener('DOMContentLoaded', () => {
   controls.enableZoom = false;
   controls.enablePan = false;
   controls.minPolarAngle = Math.PI / 2;
-  controls.maxPolarAngle = Math.PI / 2;
- */
+  controls.maxPolarAngle = Math.PI / 2; */
+ 
  
  const controls = new THREE.OrbitControls(camera, renderer.domElement);
 
@@ -127,6 +127,11 @@ document.addEventListener('DOMContentLoaded', () => {
     character.scale.set(1.7, 1.7, 1.7);
     character.position.set(0, -18, 0);
 
+ 	/* // ✅ 바디의 skeleton 저장
+    character.traverse((child) => {
+      if (child.isSkinnedMesh && child.skeleton) {
+        character.skeleton = child.skeleton; */
+
     /* character.traverse((child) => {
       if (child.isMesh) {
         const prev = child.material;
@@ -139,6 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
           child.material.map = prev.map;
         }
         child.material.needsUpdate = true;
+
       }
     }); */
 
@@ -151,7 +157,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	  const styleNumber = parseInt(partStyleKey.replace(/[^0-9]/g, ''));  // 1, 2, 3 등
 	  
 console.log(partGroupKey);
-console.log(partGroupKey);  
   // 🎯 파트별 설정
   const partSettings = {
 		  
@@ -164,14 +169,14 @@ console.log(partGroupKey);
     'face7': { scale: [1.7, 1.7, 1.7], position: [0, -18, 0.1], rotation: [0, 0, 0] },
     'face8': { scale: [1.7, 1.7, 1.7], position: [0, -18, 0.1], rotation: [0, 0, 0] },
     // 💇 헤어
-    'hair1': { scale: [66, 66, 65], position: [0, -46, 0], rotation: [0, 0, 0] },
-    'hair12': { scale: [65, 64, 63], position: [0, -45, 0.8], rotation: [0, 0, 0] },
-    'hair3': { scale: [66.8, 65, 55.75], position: [0, -45.2, 0.4], rotation: [0, 0, 0] },
-    'hair14': { scale: [62, 61, 60], position: [0, -66, 1], rotation: [0, 0, 0] },
-    'hair10': { scale: [59, 60, 61], position: [0, -64.5, 0.5], rotation: [0, 0, 0] },
-    'hair17': { scale: [66, 60, 58], position: [0, -41, 0], rotation: [0, 0, 0] },
-    'hair18': { scale: [65, 58, 65], position: [0, -40, 0], rotation: [0, 0, 0] },
-    'hair19': { scale: [65, 60, 61], position: [0, -41.1, 1], rotation: [0, 0, 0] },
+    'hair1': { scale: [1.7, 1.7, 1.7], position: [0, -22, 0.5], rotation: [0, 0, 0] },
+    'hair12': { scale: [1.8, 1.7, 1.7], position: [0, -23.5, 0.5], rotation: [0, 0, 0] },
+    'hair3': { scale: [1.7, 1.7, 1.7], position: [0, -22, 0.5], rotation: [0, 0, 0] },
+    'hair14': { scale: [1.7, 1.7, 1.7], position: [0, -22, 0.5], rotation: [0, 0, 0] },
+    'hair10': { scale: [1.7, 1.7, 1.7], position: [0, -22, 0.5], rotation: [0, 0, 0] },
+    'hair17': { scale: [1.7, 1.7, 1.7], position: [0, -22, 0.5], rotation: [0, 0, 0] },
+    'hair18': { scale: [1.7, 1.7, 1.7], position: [0, -22, 0.5], rotation: [0, 0, 0] },
+    'hair19': { scale: [1.7, 1.7, 1.7], position: [0, -22, 0.5], rotation: [0, 0, 0] },
 
     // 👕 상의
     'top10': { scale: [42.5, 42, 40], position: [0, -27.5, 0.2], rotation: [0, 0, 0] },
@@ -322,6 +327,16 @@ console.log(partGroupKey);
           child.material.roughness = 1;
           child.material.needsUpdate = true;
         }
+        
+     	// ✅ 자동 바인딩 시도
+        if (child.isSkinnedMesh && character?.skeleton) {
+          try {
+            child.bind(character.skeleton); // 바디에 붙이기
+            console.log('🧵 파츠가 skeleton에 bind됨!');
+          } catch (err) {
+            console.warn('⚠️ skeleton bind 실패:', err);
+          }
+        }
       });
 
       scene.add(model);
@@ -368,6 +383,15 @@ console.log(partGroupKey);
                   child.material.side = THREE.FrontSide;
                   child.material.needsUpdate = true;
               }
+          	// ✅ 자동 바인딩 시도
+              if (child.isSkinnedMesh && character?.skeleton) {
+                try {
+                  child.bind(character.skeleton); // 바디에 붙이기
+                  console.log('🧵 파츠가 skeleton에 bind됨!');
+                } catch (err) {
+                  console.warn('⚠️ skeleton bind 실패:', err);
+                }
+              }
           });
 
           scene.add(model);
@@ -408,7 +432,7 @@ console.log(partGroupKey);
     };
   console.log(model.userData);
 
-    model.traverse((child) => {
+  model.traverse((child) => {
       if (child.isMesh && child.material) {
         child.material.transparent = false;
         child.material.opacity = 1;
@@ -420,6 +444,15 @@ console.log(partGroupKey);
         child.material.metalness = 0;
         child.material.roughness = 1;
         child.material.needsUpdate = true;
+      }
+  	// ✅ 자동 바인딩 시도
+      if (child.isSkinnedMesh && character?.skeleton) {
+        try {
+          child.bind(character.skeleton); // 바디에 붙이기
+          console.log('🧵 파츠가 skeleton에 bind됨!');
+        } catch (err) {
+          console.warn('⚠️ skeleton bind 실패:', err);
+        }
       }
     });
 

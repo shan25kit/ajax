@@ -28,7 +28,7 @@
 	</div>
 </div>
 <div id="aiChatbot" class="ai-chatbot">
-    <img class="chatbot-character" src="/resource/img/animated-fairy-image-0066.gif" alt="AI 상담사" />
+    <img class="chatbot-character" src="/resource/img/기쁨의맵NPC.gif" alt="AI 상담사" />
 </div>
 <!-- 채팅 시스템 -->
 <div class="player-chat-container" id="chatContainer">

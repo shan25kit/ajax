@@ -24,7 +24,11 @@
 		<img class="portal_center" src="/resource/img/portal_left2.png" /> 
 		<img class="portal_inside" src="/resource/img/portal_inside_right2.gif" />
 	</div>
-</div> 
+</div>
+<div id="aiChatbot" class="ai-chatbot">
+    <img class="chatbot-character" src="/resource/img/슬픔의맵NPC.gif" alt="AI 상담사" />
+</div>
+
 <!-- 채팅 시스템 -->
 <div class="player-chat-container" id="chatContainer">
 	<div class="player-chat-header">
