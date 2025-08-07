@@ -113,7 +113,7 @@ export class WebsocketChatModule {
 		};
 
 		console.log('=== 맵 입장 요청 전송 ===');
-		console.log('메시지 내용:', joinMessage);
+		console.log('입장요청 메시지 내용:', joinMessage);
 
 		try {
 			this.socket.send(JSON.stringify(joinMessage));
@@ -150,10 +150,7 @@ export class WebsocketChatModule {
 		try {
 			switch (message.type) {
 				case 'player-joined':
-					/*if (message.player.memberId === this.gameClient.player.memberId) {
-						this.handleMapChangeSuccess(message);
-					} else {*/
-						await this.handlePlayerJoined(message);
+					await this.handlePlayerJoined(message);
 					break;
 
 				case 'existing-players':
@@ -183,7 +180,10 @@ export class WebsocketChatModule {
 				case 'chat-global':
 					this.handleChatMessage(message, 'global');
 					break;
-
+					
+				case 'session-replaced':
+					this.handleSessionReplaced(message);
+					break;
 				default:
 					console.warn('알 수 없는 메시지 타입:', message.type);
 			}
@@ -191,6 +191,18 @@ export class WebsocketChatModule {
 			console.error('❌ 메시지 처리 중 오류:', error, message);
 		}
 	}
+	
+	handleSessionReplaced(message) {
+	     console.log('🔄 세션 교체됨:', message.reason);
+	     
+	     // 사용자에게 알림 (선택적)
+	     if (this.chatSystem) {
+	         this.chatSystem.showSystemMessage('다른 페이지에서 접속하여 연결이 갱신되었습니다.');
+	     }
+	     
+	     // 현재 연결은 자동으로 종료됨 (서버에서 close 호출)
+	     this.isConnected = false;
+	 }
 
 	// ===== 플레이어 입장 처리 =====
 	async handlePlayerJoined(message) {
@@ -215,10 +227,10 @@ export class WebsocketChatModule {
 
 		await characterRenderModule.loadCharacter(
 			avatarInfo,
-			message.player.position,
 			message.player.memberId,
 			message.player.sessionId,
-			message.player.nickName
+			message.player.nickName,
+			this.gameClient.currentMapName
 		);
 
 		if (message.player.memberId === this.gameClient.player.memberId) {
@@ -310,7 +322,7 @@ export class WebsocketChatModule {
 		if (mapModule) {
 			mapModule.executeTransition(message.targetMap);
 		}
-		// ✅ 새 맵에 join-map 요청 
+		/*// ✅ 새 맵에 join-map 요청 
 		setTimeout(async () => {
 			console.log(`🚪 새 맵 ${message.targetMap} 입장 시작`);
 			try {
@@ -318,7 +330,7 @@ export class WebsocketChatModule {
 			} catch (error) {
 				console.error('새 맵 입장 실패:', error);
 			}
-		}, 200);
+		}, 200);*/
 	}
 
 	// ===== 플레이어 맵 이동 처리 =====

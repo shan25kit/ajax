@@ -10,8 +10,10 @@
 <div class="chatBot-container">
 	<!-- 헤더 -->
 	<div class="chatBot-header">
-		<h1>감정별 전문 상담 🤖 AI 챗봇</h1>
-
+		<h1>감정별 전문 상담 AI 챗봇</h1>
+		<button id="backToMapBtn" class="map-icon-btn">
+			🗺️ <span class="tooltip">맵으로 돌아가기</span>
+		</button>
 	</div>
 
 	<!-- 현재 모드 표시 -->
@@ -21,41 +23,6 @@
 
 	<!-- 메시지 영역 -->
 	<div class="chat-messages" id="chatMessages">
-		<div class="message bot">
-			<div class="avatar">🤖</div>
-			<div class="message-bubble">안녕하세요! 저는 당신의 AI 감정입니다. 오늘 기분이 어때요?
-			</div>
-		</div>
-		<div class="bot-selection" id="botSelection">
-			<div class="bot-card" data-type="Anger">
-				<div class="bot-emoji">😤</div>
-				<div class="bot-name">버럭이</div>
-				<div class="bot-desc">화가 날 때</div>
-			</div>
-			<div class="bot-card" data-type="Hope">
-				<div class="bot-emoji">😢</div>
-				<div class="bot-name">슬픔이</div>
-				<div class="bot-desc">슬플 때</div>
-			</div>
-			<div class="bot-card" data-type="Calm">
-				<div class="bot-emoji">😰</div>
-				<div class="bot-name">소심이</div>
-				<div class="bot-desc">불안할 때</div>
-			</div>
-			<div class="bot-card" data-type="Joy">
-				<div class="bot-emoji">😊</div>
-				<div class="bot-name">기쁨이</div>
-				<div class="bot-desc">기쁠 때</div>
-			</div>
-			<div class="bot-card" data-type="Zen">
-				<div class="bot-emoji">😌</div>
-				<div class="bot-name">평온이</div>
-				<div class="bot-desc">평온하고 싶을 때</div>
-			</div>
-		</div>
-
-
-
 		<div class="typing" id="typing">AI가 답변을 생각하고 있습니다</div>
 	</div>
 
@@ -75,40 +42,62 @@
     	    'Zen': '😌'
     	};
     let currentBotEmoji = '🤖'; 
+    // ===== 서버에서 전달받은 맵 정보 =====
+    const currentMapFromServer = '${currentMap}' || 'startMap';
+    
+    // ===== 맵별 챗봇 타입 매핑 =====
+    const mapToBotType = {
+        'startMap': null,
+        'angerMap': 'Anger',
+        'happyMap': 'Joy',
+        'sadMap': 'Hope',
+        'anxietyMap': 'Calm',
+        'zenMap': 'Zen'
+    };
+    function getBotDisplayName(botType) {
+        const names = {
+            'Anger': '버럭이',
+            'Hope': '슬픔이', 
+            'Calm': '소심이',
+            'Joy': '기쁨이',
+            'Zen': '평온이'
+        };
+        return names[botType] || '상담사';
+    }
+    // ===== 맵별 환영 메시지 =====
+    const mapWelcomeMessages = {
+        'angerMap': '분노의 세계에서 오셨군요. 버럭이가 당신의 화를 이해하고 도와드릴게요. 무엇이 화나게 했나요?',
+        'happyMap': '행복의 공간에서 오셨네요! 기쁨이와 함께 더 많은 기쁨을 나누어봐요. 오늘 좋은 일이 있으셨나요?',
+        'sadMap': '슬픔의 공간에서 오셨군요. 슬픔이가 당신의 마음을 이해하고 위로해드릴게요. 무엇이 슬프게 했나요?',
+        'anxietyMap': '불안의 공간에서 오셨네요. 소심이가 당신의 불안감을 달래드릴게요. 어떤 것이 불안하신가요?',
+        'zenMap': '평온의 호수에서 오셨군요. 평온이와 함께 마음의 평화를 찾아봐요. 어떻게 도와드릴까요?'
+    };
         $(document).ready(function() {
         	let currentBotType = null;
-        	// 초기 상태에서 입력창 비활성화
-            $('#messageInput').prop('disabled', true).attr('placeholder', '상담사를 먼저 선택해주세요...');
-            $('#sendBtn').prop('disabled', true);
+            const autoBotType = mapToBotType[currentMapFromServer];
             
-            // 현재 모드 초기 메시지
-            $('#currentMode').text('상담사를 선택해주세요');
-           
-            $('.bot-card').click(function() {
-                // 기존 선택 해제
-                $('.bot-card').removeClass('selected');
+            if (autoBotType) {
+                // 자동 봇 선택
+                currentBotType = autoBotType;
+                currentBotEmoji = botEmojis[autoBotType];
                 
-                // 현재 카드 선택
-                $(this).addClass('selected');
+                const botName = Object.keys(botEmojis).find(key => key === autoBotType);
+                $('#currentMode').text(getBotDisplayName(botName) + ' 모드');
+              
+                const welcomeMessage = mapWelcomeMessages[currentMapFromServer];
+                if (welcomeMessage) {
+                    addMessage('bot', welcomeMessage);
+                }
                 
-                currentBotType = $(this).data('type');
-                currentBotEmoji = botEmojis[currentBotType];
-                const botName = $(this).find('.bot-name').text();
-                
-                // 모드 표시 업데이트
-                $('#currentMode').text(botName + ' 채팅 모드');
-                
-                // 봇 선택 완료 메시지 추가
-                addMessage('bot', `\${botName} 모드로 설정되었습니다. 이제 대화를 시작해보세요!`);
-                
-                // 봇 선택 영역 숨김 (선택 후)
-                $('#botSelection').fadeOut(300);
-                
-                // 입력창 활성화 및 포커스
-                
-                $('#messageInput').prop('disabled', false).focus();
+                // 입력창 즉시 활성화
+                $('#messageInput').prop('disabled', false).attr('placeholder', '메시지를 입력하세요...').focus();
                 $('#sendBtn').prop('disabled', false);
-            });
+            } else {
+                // 시작 맵이거나 매핑되지 않은 맵
+                $('#messageInput').prop('disabled', true).attr('placeholder', '상담사를 먼저 선택해주세요...');
+                $('#sendBtn').prop('disabled', true);
+                $('#currentMode').text('상담사를 선택해주세요');
+            }
             // 메시지 전송 (엔터키)
             $('#messageInput').keypress(function(e) {
                 if (e.which === 13 && !e.shiftKey) {
@@ -116,7 +105,6 @@
                     sendMessage();
                 }
             });
-
             // 메시지 전송 (버튼)
             $('#sendBtn').click(sendMessage);
 
@@ -173,9 +161,6 @@
                                 $('#sendBtn').prop('disabled', true)
                                              .text('종료됨')
                                              .css('background-color', '#ccc');
-                                
-                                // 봇 선택 카드들도 비활성화
-                                $('.bot-card').addClass('disabled').off('click');
                                 
                                 // 현재 모드 표시 변경
                                 $('#currentMode').text('상담 종료')
@@ -236,6 +221,20 @@
 
             // 페이지 로드 시 입력창에 포커스
             $('#messageInput').focus();
+            
+            $('#backToMapBtn').click(function() {
+                const currentMap = currentMapFromServer || 'startMap';
+                
+                console.log('🚪 현재 맵으로 돌아가기:', currentMap);
+                
+                // 확인 다이얼로그 (선택사항)
+                if (confirm('상담을 종료하고 맵으로 돌아가시겠습니까?')) {
+                    // 맵 페이지로 이동
+                    const mapUrl = '/usr/game/' + currentMap;
+                    console.log('🎯 이동할 URL:', mapUrl);
+                    window.location.href = mapUrl;
+                }
+            });
         });
     </script>
 <%@ include file="/WEB-INF/jsp/common/footer.jsp"%>

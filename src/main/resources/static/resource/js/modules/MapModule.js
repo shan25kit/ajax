@@ -373,10 +373,8 @@ export class MapModule {
 	// ===== 이동 가능 여부 검사 =====
 	isMovementAllowed(position3D) {
 		if (!position3D) return true;
-		console.log(position3D);
 		// 3D 좌표를 2D 이미지 좌표로 변환
 		const imageCoord = this.worldToImageCoordinates(position3D.x, position3D.z);
-		console.log(imageCoord);
 		// 1. 다각형 내부에 있는지 검사 (이동 가능 영역)
 		if (this.isPointInPolygon(imageCoord, this.maskingPolygon)) {
 			// 2. 타원 내부에 있는지 검사 (이동 불가능 구멍)
@@ -896,7 +894,8 @@ export class MapModule {
 
 		let redirectPath;
 		if (targetMap === 'chatBot') {
-			redirectPath = '/usr/game/chatBot';
+			const currentMap = this.gameClient.currentMapName;
+			 redirectPath = `/usr/game/chatBot?currentMap=${currentMap}`;
 			console.log(`🤖 AI 상담 페이지 이동: ${redirectPath}`);
 
 			// AI 챗봇은 즉시 이동 (딜레이 없음)

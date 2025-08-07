@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.demo.dto.CustomCharacter;
 import com.example.demo.dto.Player;
@@ -44,7 +45,13 @@ public class GameController {
     }
 
 	@GetMapping("/usr/game/chatBot")
-	public String chatBot() {
+	public String chatBot(@RequestParam(value = "currentMap", defaultValue = "startMap") String currentMap, Model model) {
+		int memberId = this.req.getLoginedMember().getId();
+		Player player = this.gameService.selectPlayerByMemberId(memberId);
+		 if (player != null) {
+		        model.addAttribute("currentMap", currentMap);
+		        model.addAttribute("player", player);
+		    }
 		return "usr/game/chatBot";
 	}
 	

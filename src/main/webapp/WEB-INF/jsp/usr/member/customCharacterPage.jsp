@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(75, containerWidth / containerHeight, 0.1, 950);
-  camera.position.set(0, 10, 25);
+  camera.position.set(0, 0, 18);
   camera.lookAt(0, 0, 0);
 
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -122,15 +122,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ✅ 캐릭터 본체 로딩
-  loader.load('/resource/model/body_c.glb', (gltf) => {
+  loader.load('/resource/model/body.glb', (gltf) => {
     character = gltf.scene;
-    character.scale.set(1.7, 1.7, 1.7);
-    character.position.set(0, -18, 0);
+    character.scale.set(1, 1, 1);
+    character.position.set(0, -10, 0);
 
- 	/* // ✅ 바디의 skeleton 저장
+ 	// ✅ 바디의 skeleton 저장
     character.traverse((child) => {
       if (child.isSkinnedMesh && child.skeleton) {
-        character.skeleton = child.skeleton; */
+        character.skeleton = child.skeleton}
+    });
 
     /* character.traverse((child) => {
       if (child.isMesh) {
@@ -229,12 +230,6 @@ console.log(partGroupKey);
     'accessory8': { scale: [6.3, 6.3, 6.3], position: [0, -16.3, 0], rotation: [0, 0, 0] }
   };
 
-  // ✅ 설정값 불러오기 (기본값 fallback)
-  const setting = partSettings[partStyleKey] || {
-    scale: [4, 4, 4],
-    position: [0, 0, 0],
-    rotation: [0, 0, 0]
-  };
 
 
   // 드레스 선택 시 탑/바텀 제거
@@ -295,16 +290,9 @@ console.log(partGroupKey);
 
     loader.load(path, (gltf) => {
 
-      const setting = partSettings[partStyleKey] || {
-        scale: [4, 4, 4],
-        position: [0, 0, 0],
-        rotation: [0, 0, 0]
-      };
 
       const model = gltf.scene;
-      model.scale.set(...setting.scale);
-      model.position.set(...setting.position);
-      model.rotation.set(...setting.rotation);
+     
    // ✅ userData 설정
      model.userData = {
                     partGroupKey: 'accessory',
@@ -360,9 +348,7 @@ console.log(partGroupKey);
       // 모델 추가
       loader.load(path, (gltf) => {
           const model = gltf.scene;
-          model.scale.set(...setting.scale);
-          model.position.set(...setting.position);
-          model.rotation.set(...setting.rotation);
+         
           
           model.userData = {
               partGroupKey: 'accessory',
@@ -375,7 +361,13 @@ console.log(partGroupKey);
           console.log('🎒 accessory.main userData:', model.userData);
 
           model.traverse((child) => {
+        	  console.log('📋 ' + child.name + ': ' + child.type + ', isSkinnedMesh: ' + child.isSkinnedMesh);
               if (child.isMesh && child.material) {
+            	  if (child.material.map) {
+                      console.log('  - 텍스처 포맷: ' + child.material.map.format);
+                      console.log('  - 텍스처 타입: ' + child.material.map.type);
+                      console.log('  - 텍스처 크기: ' + (child.material.map.image ? child.material.map.image.width + 'x' + child.material.map.image.height : 'unknown'));
+            	  } 
                   child.material.transparent = false;
                   child.material.opacity = 1;
                   child.material.depthWrite = true;
@@ -393,7 +385,20 @@ console.log(partGroupKey);
                 }
               }
           });
+          let hasSkinnedMesh = false;
+          model.traverse((child) => {
+            if (child.isSkinnedMesh) hasSkinnedMesh = true;
+          });
 
+          if (!hasSkinnedMesh) {
+            const settings = partSettings[partStyleKey];
+            if (settings) {
+              model.position.set(...settings.position);
+              model.scale.set(...settings.scale);
+              model.rotation.set(...settings.rotation);
+              console.log('⚙️ ' + partStyleKey + ' partSettings 적용됨');
+            }
+          }
           scene.add(model);
           currentParts.accessory.main.push(model);
           console.log('✅ accessory.main 추가됨, 총 개수:', currentParts.accessory.main.length);
@@ -421,9 +426,7 @@ console.log(partGroupKey);
 
   loader.load(path, (gltf) => {
     const model = gltf.scene;
-    model.scale.set(...setting.scale);
-    model.position.set(...setting.position);
-    model.rotation.set(...setting.rotation);
+
  // ✅ userData 설정
     model.userData = {
       partGroupKey: partGroupKey,    // "hair", "top" 등
@@ -447,9 +450,18 @@ console.log(partGroupKey);
       }
   	// ✅ 자동 바인딩 시도
       if (child.isSkinnedMesh && character?.skeleton) {
-        try {
-          child.bind(character.skeleton); // 바디에 붙이기
-          console.log('🧵 파츠가 skeleton에 bind됨!');
+        try {  
+        	 const clonedSkeleton = character.skeleton.clone();
+        	    
+        	    // 2. 복제된 스켈레톤의 바인드 매트릭스 수정
+        	    clonedSkeleton.boneInverses.forEach((matrix, i) => {
+        	      matrix.elements[13] -= 1000;
+        	    });
+        	    clonedSkeleton.calculateInverses();
+        	    
+        	    // 3. 수정된 스켈레톤으로 바인딩
+        	    child.bind(clonedSkeleton);
+        	    model.position.copy(character.position); // (0, -10, 0)
         } catch (err) {
           console.warn('⚠️ skeleton bind 실패:', err);
         }

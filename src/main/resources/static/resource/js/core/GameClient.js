@@ -27,7 +27,15 @@ export class GameClient {
 				DEFAULT_SKIN_COLOR: 0xffe0bd,
 				COLLISION_RADIUS: 2,
 			},
-
+			MAP_SPAWN_POSITIONS: {
+				'startMap': { x: 2500, y: 0, z: 1800 },
+				'angerMap': { x: 1200, y: 0, z: 1000 },
+				'zenMap': { x: 2800, y: 0, z: 1500 },
+				'happyMap': { x: 2200, y: 0, z: 1400 },
+				'sadMap': { x: -8, y: 0, z: 0 },
+				'anxietyMap': { x: 0, y: 0, z: 0 },
+				'default': { x: 2000, y: 0, z: 1500 }
+			},
 			// 포털 위치 설정
 			PORTAL_POSITIONS: [
 				{ id: 'portal_1', x: 2200, y: 900, targetMap: 'angerMap' },
@@ -61,7 +69,7 @@ export class GameClient {
 	}
 
 	// ===== 게임 클라이언트 초기화 =====
-	async initialize(player,currentMapName) {
+	async initialize(player, currentMapName) {
 		try {
 			console.log('=== 게임 클라이언트 초기화 시작 ===');
 			console.log('플레이어 정보:', player);
@@ -137,6 +145,7 @@ export class GameClient {
 	async connect() {
 		try {
 			console.log('=== 서버 연결 시작 ===');
+			console.log('현재 맵:', this.currentMapName); // ✅ 맵 정보 확인
 
 			if (!this.isInitialized) {
 				throw new Error('게임 클라이언트가 초기화되지 않았습니다.');
@@ -146,7 +155,7 @@ export class GameClient {
 			await this.websocketChatModule.connect();
 
 			// 맵 입장 요청
-			await this.websocketChatModule.joinMap(this.player);
+			await this.websocketChatModule.joinMap(this.player, this.currentMapName);
 
 			this.isConnected = true;
 			console.log('=== 서버 연결 완료 ===');
@@ -156,33 +165,33 @@ export class GameClient {
 			throw error;
 		}
 	}
-	async connect() {
-	 try {
-		 console.log('=== 서버 연결 시작 (테스트 모드) ===');
-		 
-		 if (!this.isInitialized) {
-			 throw new Error('게임 클라이언트가 초기화되지 않았습니다.');
-		 }
-		 
-		 // 🚫 테스트용: 웹소켓 연결 비활성화
-		 console.log('⚠️ 테스트 모드: 웹소켓 연결 생략');
-		 
-		 
-		 // 웹소켓 연결
-		 await this.websocketChatModule.connect();
-		 
-		 // 맵 입장 요청
-		 await this.websocketChatModule.joinMap(this.player);
-		 
-		 
-		 this.isConnected = true;
-		 console.log('=== 서버 연결 완료 (테스트 모드) ===');
-		 
-	 } catch (error) {
-		 console.error('서버 연결 실패:', error);
-		 throw error;
-	 }
- }
+	/*async connect() {
+		try {
+			console.log('=== 서버 연결 시작 (테스트 모드) ===');
+
+			if (!this.isInitialized) {
+				throw new Error('게임 클라이언트가 초기화되지 않았습니다.');
+			}
+
+			// 🚫 테스트용: 웹소켓 연결 비활성화
+			console.log('⚠️ 테스트 모드: 웹소켓 연결 생략');
+
+
+			// 웹소켓 연결
+			await this.websocketChatModule.connect();
+
+			// 맵 입장 요청
+			await this.websocketChatModule.joinMap(this.player);
+
+
+			this.isConnected = true;
+			console.log('=== 서버 연결 완료 (테스트 모드) ===');
+
+		} catch (error) {
+			console.error('서버 연결 실패:', error);
+			throw error;
+		}
+	}*/
 	// ===== 게임 루프 시작 =====
 	async startGame() {
 		if (!this.isInitialized || !this.isConnected) {
@@ -194,7 +203,7 @@ export class GameClient {
 		if (this.characterRenderModule && this.characterRenderModule.initialize) {
 			await this.characterRenderModule.initialize();
 		}
-		
+
 		// ✅ 캐릭터 렌더링 완료될 때까지 기다리기
 		await this.waitForMyCharacter();
 
@@ -246,7 +255,7 @@ export class GameClient {
 					if (this.characterMovementModule?.updateMovement) {
 						this.characterMovementModule.updateMovement();
 					}
-				
+
 					if (this.mapModule?.updatePortals) {
 						this.mapModule.updatePortals();
 					}
@@ -309,7 +318,13 @@ export class GameClient {
 			IMAGE_HEIGHT: this.CONFIG.IMAGE_HEIGHT
 		};
 	}
+	getInitialSpawnPosition(mapName = null) {
+		const targetMap = mapName || this.currentMapName || 'default';
+		const position = this.CONFIG.MAP_SPAWN_POSITIONS[targetMap] || this.CONFIG.MAP_SPAWN_POSITIONS['default'];
 
+		console.log(`📍 ${targetMap} 맵 초기 스폰 위치:`, position);
+		return { ...position }; // 복사본 반환
+	}
 	// ===== ThreeJS 관련 접근자 =====
 	getThreeInit() {
 		return this.threeInit;
@@ -441,6 +456,24 @@ export class GameClient {
 
 	// ===== 소멸자 (페이지 언로드 시 호출) =====
 	destroy() {
+		console.log('🧹 게임 클라이언트 정리 시작 (세션 업데이트 방식)');
+
+		// ✅ 서버에 명시적 연결 해제 알림
+		if (this.websocketChatModule && this.websocketChatModule.isSocketConnected()) {
+			const disconnectMessage = {
+				type: 'player-disconnect',
+				memberId: this.player?.memberId,
+				reason: 'page-unload'
+			};
+
+			try {
+				// 동기적으로 전송 (페이지 언로드 시간 제약 고려)
+				this.websocketChatModule.getSocket().send(JSON.stringify(disconnectMessage));
+				console.log('✅ 연결 해제 알림 전송');
+			} catch (error) {
+				console.log('연결 해제 알림 전송 실패:', error);
+			}
+		}
 		this.cleanup();
 	}
 }
