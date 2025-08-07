@@ -18,19 +18,13 @@
 
 	<!-- 마스킹 캔버스 -->
 	<canvas id="mapCanvas" width="5055" height="3904"></canvas>
+	<img id="sad_portal" class="sad_portal" src="/resource/img/슬픔의맵마법진.png" />
 	<div class="character-container" id="characterContainer">
 		<div class="character-3d" id="character3D"></div>
 	</div>
 </div>
 
 <!-- 오브젝트 -->
- <div id="portalLayer">
-	<div id="portal_6" class="portal_6">
-		<img class="portal_back" src="/resource/img/portal_right-back2.png" />
-		<img class="portal_center" src="/resource/img/portal_left2.png" /> 
-		<img class="portal_inside" src="/resource/img/portal_inside_right2.gif" />
-	</div>
-</div>
 <div id="aiChatbot" class="ai-chatbot">
     <img class="chatbot-character" src="/resource/img/슬픔의맵NPC.gif" alt="AI 상담사" />
 </div>

@@ -331,6 +331,15 @@ export class CharacterRenderModule {
 
 				if (child.isMesh) {
 					console.log(`    Mesh: ${child.name}`, child.geometry, child.material);
+					
+					// ✅ 불투명하게 설정
+					if (child.material) {
+						child.material.transparent = false;
+						child.material.opacity = 1.0;
+						child.material.depthWrite = true;
+						child.material.alphaTest = 0.5; // 알파가 있는 경우에 대비
+						child.material.needsUpdate = true;
+					}
 				}
 
 				if (child.isSkinnedMesh) {
