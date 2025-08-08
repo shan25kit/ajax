@@ -66,7 +66,7 @@ html, body {
 	position: relative;
 	width: 100vw;
 	height: 100vh;
-	background: black;
+	background: white;
 	overflow: hidden;
 }
 
@@ -274,6 +274,8 @@ html, body {
 	top: -375px;
 }
 
+/* 기쁨의맵 오브젝트 */
+
 .chair {
 	width: 1000px;
 	top: -450px;
@@ -299,10 +301,77 @@ html, body {
 	position: absolute;
 }
 
+.portal {
+	position: relative;
+}
+
+.happy_portal {
+	position: absolute;
+	top: 200px;
+	left: 390px;
+	width: 450px;
+	mix-blend-mode: color-dodge; /* 또는 lighten, overlay 등도 시도 */
+	z-index: 11;
+	pointer-events: none;
+	transform-origin: center center;
+}
+
+/* 불안의맵 오브젝트 */
+.anxiety_portal {
+	position: absolute;
+	top: 200px;
+	left: 400px;
+	width: 450px;
+	mix-blend-mode: screen; /* 또는 lighten, overlay 등도 시도 */
+	opacity: 1;
+	z-index: 11;
+	pointer-events: none;
+	transform-origin: center center;
+}
+
+/* 슬픔의맵 오브젝트 */
+.sad_portal {
+	position: absolute;
+	top: 95px;
+	left: 5px;
+	width: 450px;
+	mix-blend-mode: screen; /* 또는 lighten, overlay 등도 시도 */
+	opacity: 2;
+	z-index: 11;
+	pointer-events: none;
+	transform-origin: center center;
+}
+
+/* 분노의맵 오브젝트 */
 .fire {
 	position: absolute;
 	top: -1620px;
 	left: -950px;
+}
+
+.anger_portal {
+	position: absolute;
+	top: 80px;
+	left: 650px;
+	width: 450px;
+	mix-blend-mode: screen; /* 또는 lighten, overlay 등도 시도 */
+	opacity: 2;
+	z-index: 11;
+	pointer-events: none;
+	transform-origin: center center;
+}
+
+/* 평온의맵 오브젝트 */
+.zen_portal {
+	position: absolute;
+	top: 290px;
+	left: 310px;
+	width: 450px;
+	mix-blend-mode: hard-light; /* 또는 lighten, overlay 등도 시도 */
+	opacity: 3;
+	z-index: 11;
+	pointer-events: none;
+	transform-origin: center center;
 }
 
 /*캐릭터 영역*/
