@@ -332,8 +332,8 @@ html, body {
 /* 슬픔의맵 오브젝트 */
 .sad_portal {
 	position: absolute;
-	top: 95px;
-	left: 5px;
+	top: 170px;
+	left: 40px;
 	width: 450px;
 	mix-blend-mode: screen; /* 또는 lighten, overlay 등도 시도 */
 	opacity: 2;

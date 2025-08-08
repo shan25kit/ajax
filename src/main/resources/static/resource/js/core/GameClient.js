@@ -28,13 +28,13 @@ export class GameClient {
 				COLLISION_RADIUS: 2,
 			},
 			MAP_SPAWN_POSITIONS: {
-				'startMap': { x: 2500, y: 0, z: 1800 },
-				'angerMap': { x: 1200, y: 0, z: 1000 },
-				'zenMap': { x: 2800, y: 0, z: 1500 },
-				'happyMap': { x: 2200, y: 0, z: 1400 },
-				'sadMap': { x: -8, y: 0, z: 0 },
-				'anxietyMap': { x: 0, y: 0, z: 0 },
-				'default': { x: 2000, y: 0, z: 1500 }
+				'startMap': { x: 0, y: 0, z: 0 },
+				'angerMap': { x: 8.9, y: 0, z: 1 },
+				'zenMap': { x: 1, y: 0, z: 8 },
+				'happyMap': { x: 1, y: 0, z: 2.4 },
+				'sadMap': { x: -11, y: 0, z: 1.5 },
+				'anxietyMap': { x: 3, y: 0, z: 2.5},
+				'default': { x: 0, y: 0, z: 0 }
 			},
 			// 포털 위치 설정
 			PORTAL_POSITIONS: [
@@ -43,10 +43,9 @@ export class GameClient {
 				{ id: 'portal_3', x: 2795, y: 1350, targetMap: 'happyMap' },
 				{ id: 'portal_4', x: 1875, y: 1200, targetMap: 'sadMap' },
 				{ id: 'portal_5', x: 1538, y: 1370, targetMap: 'anxietyMap' },
-				{ id: 'portal_6', x: 1625, y: 1525, targetMap: 'startMap' },
 				{ id: 'happy_portal', x: 1625, y: 1525, targetMap: 'startMap' },
 				{ id: 'anxiety_portal', x: 1625, y: 1525, targetMap: 'startMap' },
-				{ id: 'sad_portal', x: 1625, y: 1525, targetMap: 'startMap' },
+				{ id: 'sad_portal', x: 1538, y: 1370, targetMap: 'startMap' },
 				{ id: 'anger_portal', x: 1625, y: 1525, targetMap: 'startMap' },
 				{ id: 'zen_portal', x: 1625, y: 1525, targetMap: 'startMap' },
 				{ id: 'object', x: 2260, y: 1550, type: 'fountain' }
