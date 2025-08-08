@@ -97,7 +97,10 @@ public class MemberService {
 		return this.memberDao.getMemberById(id);
 	}
 
-	
+	public void updateNickName(int memberId, String nickName) {
+		this.memberDao.updateNickName(memberId, nickName);
+	}
+
 
 	// 이메일 인증 메일 보내기
 	

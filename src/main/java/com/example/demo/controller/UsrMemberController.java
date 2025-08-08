@@ -383,6 +383,9 @@ public class UsrMemberController {
 		Member member = this.memberService.getMemberById(id);
 
 		model.addAttribute("member", member);
+		model.addAttribute("memberId", member.getId());
+	    model.addAttribute("nickName", member.getNickName());
+
 
 		return "usr/member/customCharacterPage";
 	}

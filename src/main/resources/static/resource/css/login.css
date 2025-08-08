@@ -495,15 +495,55 @@ input {
 	position: relative;
 }
 
-.custom-box h3 {
+.nickName-box{
+	display: flex;
+	position: relative;
+}
+
+.nickName-box h3 {
+	display:block;
 	font-family: 'Pretendard-Regular';
 	font-size:2.2rem;
 	font-weight:900;
 	color:#fff;
 	letter-spacing: 2px;
-	margin-bottom:10px;
-	margin-left: 100px;
+	margin-left: 90px;
+	padding-left:10px;
 }
+
+.nickName-box input {
+	margin-left: 100px;
+	width:150px;
+	height:41px;
+	font-size:1.8rem !important;
+	font-family: 'Pretendard-Regular';
+	font-weight:900;
+	color:#fff;
+	letter-spacing: 2px;
+	background-color:rgba(255,255,255,0.2);
+	border-radius : 10px;
+	border:none;
+	padding :10px;
+}
+
+.nickName-box input:focus {
+  outline: none;
+}
+
+.nickName-box button{
+	position:absolute;
+	bottom:0;
+	margin-left:10px;
+	display:block;
+	width:20px;
+	height:20px;
+	border:none;
+	background-color:rgba(0,0,0,0);
+	cursor: pointer;
+	color:#fff;
+	opacity: 0.6;
+}
+
 
 .custom-box .custom-ui {
 	margin-left:30px;
