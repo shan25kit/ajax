@@ -52,6 +52,7 @@ public class UsrMemberController {
 
 	@GetMapping("/usr/member/signup")
 	public String signup() {
+
 		return "usr/member/signup";
 	}
 
@@ -209,7 +210,11 @@ public class UsrMemberController {
 
 	@GetMapping("/usr/member/login")
 	public String login() {
-		return "usr/member/login";
+		if (req.getLoginedMember() == null || req.getLoginedMember().getId() == 0) {
+			System.out.println(req.getLoginedMember().getId());
+			return "usr/member/login";
+		}
+		return "redirect:/usr/game/startMap";
 	}
 
 	@PostMapping("/usr/member/doLogin")

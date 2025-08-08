@@ -79,7 +79,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(75, containerWidth / containerHeight, 0.1, 950);
+<<<<<<< HEAD
+  camera.position.set(0, 0, 18);
+=======
   camera.position.set(0, 0, 22);
+>>>>>>> 25542480aec70b85cae06320219fa7c8d1fbfee3
   camera.lookAt(0, 0, 0);
 
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -128,14 +132,14 @@ const controls = new THREE.OrbitControls(camera, renderer.domElement);
   loader.load('/resource/model/body.glb', (gltf) => {
     character = gltf.scene;
     character.scale.set(1, 1, 1);
-    character.position.set(0, -12, 0);
+    character.position.set(0, -10, 0);
 
  	// ✅ 바디의 skeleton 저장
     character.traverse((child) => {
       if (child.isSkinnedMesh && child.skeleton) {
-        character.skeleton = child.skeleton;
-      }
+        character.skeleton = child.skeleton}
     });
+
 
     scene.add(character);
     setSkinColor(currentSkinColor);
@@ -218,6 +222,8 @@ console.log(partGroupKey);
     'accessory7': { scale: [6, 6, 6], position: [0, -15, 0], rotation: [0, 0, 0] },
     'accessory8': { scale: [6.3, 6.3, 6.3], position: [0, -16.3, 0], rotation: [0, 0, 0] }
   };
+
+
 
   // 드레스 선택 시 탑/바텀 제거
   if (partGroupKey === 'dress') {
@@ -325,7 +331,6 @@ console.log(partGroupKey);
 // 모델 추가
 
     loader.load(path, (gltf) => {
-
       const model = gltf.scene;
       model.position.set(0, -12, 0);
    // ✅ userData 설정
@@ -385,6 +390,7 @@ console.log(partGroupKey);
       // 모델 추가
       loader.load(path, (gltf) => {
           const model = gltf.scene;
+         
           model.position.set(0, -12, 0);
           
           model.userData = {

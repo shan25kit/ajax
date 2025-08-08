@@ -57,7 +57,7 @@ export class CharacterRenderModule {
 	}
 
 	// ===== 캐릭터 로딩 =====
-	async loadCharacter(avatarInfo, position, memberId, sessionId, nickName) {
+	async loadCharacter(avatarInfo, memberId, sessionId, nickName, mapName = null) {
 
 		let threeInstance;
 
@@ -89,7 +89,7 @@ export class CharacterRenderModule {
 					const character = gltf.scene;
 
 					// 베이스 캐릭터 설정
-					this.setupBaseCharacter(character, avatarInfo, position, memberId, sessionId);
+					this.setupBaseCharacter(character, avatarInfo, memberId, sessionId, mapName);
 
 					// 씬에 추가
 					const scene = threeInstance.getScene();
@@ -117,7 +117,7 @@ export class CharacterRenderModule {
 	}
 
 	// ===== 베이스 캐릭터 설정 =====
-	setupBaseCharacter(character, avatarInfo, position, memberId, sessionId) {
+	setupBaseCharacter(character, avatarInfo, memberId, sessionId,mapName = null ) {
 		console.log('=== 베이스 캐릭터 구조 분석 ===');
 		console.log('Character scene:', character);
 		// 스킨 색상 및 재질 설정
@@ -129,7 +129,10 @@ export class CharacterRenderModule {
 			}
 
 		});
+		const finalPosition = this.gameClient.getInitialSpawnPosition(mapName);
+		console.log(`📍 ${sessionId} ${mapName || 'current'} 맵 초기 위치 사용:`, finalPosition);
 
+		character.position.set(finalPosition.x, finalPosition.y, finalPosition.z);
 		// 스케일 설정
 		const characterConfig = this.gameClient.getCharacterConfig();
 		const characterScale = characterConfig.SCALE;
@@ -252,16 +255,16 @@ export class CharacterRenderModule {
 		if (character) {
 			character.traverse(child => {
 				if (child.userData?.walkAction) {
-					console.log(`🎭 파츠 애니메이션 확인: ${child.name}`);
-					console.log('  - walkAction 있음:', !!child.userData.walkAction);
-					console.log('  - 현재 실행중:', child.userData.walkAction.isRunning());
-
+					/*	console.log(`🎭 파츠 애니메이션 확인: ${child.name}`);
+						console.log('  - walkAction 있음:', !!child.userData.walkAction);
+						console.log('  - 현재 실행중:', child.userData.walkAction.isRunning());
+	*/
 					if (!child.userData.walkAction.isRunning()) {
 						child.userData.walkAction.reset().play();
-						console.log(`  ✅ ${child.name} 애니메이션 시작됨`);
+						/*	console.log(`  ✅ ${child.name} 애니메이션 시작됨`);*/
 					}
 				} else {
-					console.log(`❌ ${child.name} - walkAction 없음`);
+					/*	console.log(`❌ ${child.name} - walkAction 없음`);*/
 				}
 			});
 		}
@@ -272,7 +275,7 @@ export class CharacterRenderModule {
 		const character = this.playerCharacters.get(sessionId);
 		if (instance?.walkAction && instance.walkAction.isRunning()) {
 			instance.walkAction.stop();
-			console.log(`⏹️ ${sessionId} 걷기 애니메이션 정지`);
+			/*	console.log(`⏹️ ${sessionId} 걷기 애니메이션 정지`);*/
 		}
 		// 🆕 파츠 애니메이션도 정지
 		if (character) {
@@ -371,7 +374,7 @@ export class CharacterRenderModule {
 								partBone.userData.baseBone = baseBones[i];
 							}
 						});
-						console.log(`🔗 ${name} 본 연결 완료`);
+						/*console.log(`🔗 ${name} 본 연결 완료`);*/
 					}
 				}
 
