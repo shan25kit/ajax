@@ -239,7 +239,7 @@ export class MapModule {
 			this.initMaskingCanvas();
 			// DOM 포털 초기화
 			this.initDOMPortals();
-			
+
 			// 챗봇 초기화
 			this.setAIChatbotPositionByMap(currentMapName);
 			this.initAIChatbotDOM();
@@ -655,6 +655,24 @@ export class MapModule {
 				portal.element.style.transformOrigin = 'top left';
 			}
 		});
+		// PORTAL_POSITIONS에서 등록되지 않은 포털들 별도 처리
+		const portalPositions = this.gameClient.getPortalPositions();
+		const additionalPortals = ['happy_portal', 'anxiety_portal', 'sad_portal', 'anger_portal', 'zen_portal'];
+
+		additionalPortals.forEach(portalId => {
+			const element = document.getElementById(portalId);
+			if (element) {
+				// PORTAL_POSITIONS에서 해당 포털의 좌표 찾기
+				const portalData = portalPositions.find(p => p.id === portalId);
+				if (portalData) {
+					const cssOffset = this.getPortalCSSOffset(portalId);
+					const tx = (portalData.x + cssOffset.x) * this.scale + this.posX;
+					const ty = (portalData.y + cssOffset.y) * this.scale + this.posY;
+					element.style.transform = `translate(${tx}px, ${ty}px) scale(${this.scale})`;
+					element.style.transformOrigin = 'top left';
+				}
+			}
+		});
 	}
 
 	updateAIChatbotPosition() {
@@ -787,7 +805,7 @@ export class MapModule {
 			'anxiety_portal': { x: 675, y: 280 },
 			'zen_portal': { x: 400, y: 450 }
 		};
-		return offsets[portalId]|| { x: 0, y: 0 };
+		return offsets[portalId] || { x: 0, y: 0 };
 	}
 
 	// ===== 좌표 변환 유틸리티 =====
@@ -1090,14 +1108,14 @@ export class MapModule {
 	}
 	// ===== 디버그 메서드들 =====
 	showPortalCenters() {
-	      console.log('📍 포털 중심점 마커 표시');
-	      
-	      this.hidePortalCenters(); // 기존 마커 제거
-	      
-	      this.portalCollisionAreas.forEach((portal) => {
-	          const marker = document.createElement('div');
-	          marker.id = `marker-${portal.id}`;
-	          marker.style.cssText = `
+		console.log('📍 포털 중심점 마커 표시');
+
+		this.hidePortalCenters(); // 기존 마커 제거
+
+		this.portalCollisionAreas.forEach((portal) => {
+			const marker = document.createElement('div');
+			marker.id = `marker-${portal.id}`;
+			marker.style.cssText = `
 	              position: absolute;
 	              width: 10px;
 	              height: 10px;
@@ -1109,10 +1127,10 @@ export class MapModule {
 	              pointer-events: none;
 	              box-shadow: 0 0 5px rgba(0,0,0,0.5);
 	          `;
-	          
-	          // 라벨 추가
-	          const label = document.createElement('div');
-	          label.style.cssText = `
+
+			// 라벨 추가
+			const label = document.createElement('div');
+			label.style.cssText = `
 	              position: absolute;
 	              top: 15px;
 	              left: 50%;
@@ -1125,85 +1143,85 @@ export class MapModule {
 	              white-space: nowrap;
 	              font-family: monospace;
 	          `;
-	          label.textContent = `${portal.id}(${portal.x},${portal.y})`;
-	          marker.appendChild(label);
-	          
-	          // CSS 오프셋 적용된 위치 계산
-	          const cssOffset = this.getPortalCSSOffset(portal.id);
-	          const adjustedX = portal.x + cssOffset.x;
-	          const adjustedY = portal.y + cssOffset.y;
-	          
-	          // 화면 좌표로 변환
-	          const screenX = adjustedX * this.scale + this.posX;
-	          const screenY = adjustedY * this.scale + this.posY;
-	          
-	          marker.style.left = screenX + 'px';
-	          marker.style.top = screenY + 'px';
-	          
-	          // 맵 컨테이너에 추가
-	          const mapContainer = document.getElementById('mapContainer');
-	          if (mapContainer) {
-	              mapContainer.appendChild(marker);
-	          }
-	          
-	          this.simpleMarkers.push({
-	              element: marker,
-	              portalId: portal.id,
-	              originalX: portal.x,
-	              originalY: portal.y,
-	              offsetX: cssOffset.x,
-	              offsetY: cssOffset.y
-	          });
-	          
-	          console.log(`📍 ${portal.id}: 원본(${portal.x},${portal.y}) + 오프셋(${cssOffset.x},${cssOffset.y}) = 최종(${adjustedX},${adjustedY})`);
-	      });
-	      
-	      this.markersVisible = true;
-	      console.log(`✅ ${this.simpleMarkers.length}개 중심점 마커 생성 완료`);
-	  }
-	  updateSimpleMarkers() {
-	        if (!this.markersVisible || this.simpleMarkers.length === 0) return;
-	        
-	        this.simpleMarkers.forEach(marker => {
-	            // CSS 오프셋 적용된 위치
-	            const adjustedX = marker.originalX + marker.offsetX;
-	            const adjustedY = marker.originalY + marker.offsetY;
-	            
-	            // 화면 좌표로 변환
-	            const screenX = adjustedX * this.scale + this.posX;
-	            const screenY = adjustedY * this.scale + this.posY;
-	            
-	            marker.element.style.left = screenX + 'px';
-	            marker.element.style.top = screenY + 'px';
-	            marker.element.style.transform = `translate(-50%, -50%) scale(${Math.max(0.5, this.scale)})`;
-	        });
-	    }
-		// ===== 포털 중심점 마커 숨기기 =====
-		   hidePortalCenters() {
-		       this.simpleMarkers.forEach(marker => {
-		           if (marker.element && marker.element.parentNode) {
-		               marker.element.parentNode.removeChild(marker.element);
-		           }
-		       });
-		       this.simpleMarkers = [];
-		       this.markersVisible = false;
-		       console.log('🙈 중심점 마커 숨김');
-		   }
-		debugPortalOffsets() {
-		        console.log('🎯 === 포털 오프셋 정보 ===');
-		        this.portalCollisionAreas.forEach((portal) => {
-		            const cssOffset = this.getPortalCSSOffset(portal.id);
-		            const adjustedX = portal.x + cssOffset.x;
-		            const adjustedY = portal.y + cssOffset.y;
-		            
-		            console.log(`${portal.id}:`);
-		            console.log(`  원본 위치: (${portal.x}, ${portal.y})`);
-		            console.log(`  CSS 오프셋: (${cssOffset.x}, ${cssOffset.y})`);
-		            console.log(`  최종 위치: (${adjustedX}, ${adjustedY})`);
-		            console.log(`  타입: ${portal.type}, 반경: ${portal.collisionRadius}`);
-		            console.log('---');
-		        });
-		    }
+			label.textContent = `${portal.id}(${portal.x},${portal.y})`;
+			marker.appendChild(label);
+
+			// CSS 오프셋 적용된 위치 계산
+			const cssOffset = this.getPortalCSSOffset(portal.id);
+			const adjustedX = portal.x + cssOffset.x;
+			const adjustedY = portal.y + cssOffset.y;
+
+			// 화면 좌표로 변환
+			const screenX = adjustedX * this.scale + this.posX;
+			const screenY = adjustedY * this.scale + this.posY;
+
+			marker.style.left = screenX + 'px';
+			marker.style.top = screenY + 'px';
+
+			// 맵 컨테이너에 추가
+			const mapContainer = document.getElementById('mapContainer');
+			if (mapContainer) {
+				mapContainer.appendChild(marker);
+			}
+
+			this.simpleMarkers.push({
+				element: marker,
+				portalId: portal.id,
+				originalX: portal.x,
+				originalY: portal.y,
+				offsetX: cssOffset.x,
+				offsetY: cssOffset.y
+			});
+
+			console.log(`📍 ${portal.id}: 원본(${portal.x},${portal.y}) + 오프셋(${cssOffset.x},${cssOffset.y}) = 최종(${adjustedX},${adjustedY})`);
+		});
+
+		this.markersVisible = true;
+		console.log(`✅ ${this.simpleMarkers.length}개 중심점 마커 생성 완료`);
+	}
+	updateSimpleMarkers() {
+		if (!this.markersVisible || this.simpleMarkers.length === 0) return;
+
+		this.simpleMarkers.forEach(marker => {
+			// CSS 오프셋 적용된 위치
+			const adjustedX = marker.originalX + marker.offsetX;
+			const adjustedY = marker.originalY + marker.offsetY;
+
+			// 화면 좌표로 변환
+			const screenX = adjustedX * this.scale + this.posX;
+			const screenY = adjustedY * this.scale + this.posY;
+
+			marker.element.style.left = screenX + 'px';
+			marker.element.style.top = screenY + 'px';
+			marker.element.style.transform = `translate(-50%, -50%) scale(${Math.max(0.5, this.scale)})`;
+		});
+	}
+	// ===== 포털 중심점 마커 숨기기 =====
+	hidePortalCenters() {
+		this.simpleMarkers.forEach(marker => {
+			if (marker.element && marker.element.parentNode) {
+				marker.element.parentNode.removeChild(marker.element);
+			}
+		});
+		this.simpleMarkers = [];
+		this.markersVisible = false;
+		console.log('🙈 중심점 마커 숨김');
+	}
+	debugPortalOffsets() {
+		console.log('🎯 === 포털 오프셋 정보 ===');
+		this.portalCollisionAreas.forEach((portal) => {
+			const cssOffset = this.getPortalCSSOffset(portal.id);
+			const adjustedX = portal.x + cssOffset.x;
+			const adjustedY = portal.y + cssOffset.y;
+
+			console.log(`${portal.id}:`);
+			console.log(`  원본 위치: (${portal.x}, ${portal.y})`);
+			console.log(`  CSS 오프셋: (${cssOffset.x}, ${cssOffset.y})`);
+			console.log(`  최종 위치: (${adjustedX}, ${adjustedY})`);
+			console.log(`  타입: ${portal.type}, 반경: ${portal.collisionRadius}`);
+			console.log('---');
+		});
+	}
 	// ===== 리소스 정리 =====
 	dispose() {
 		console.log('🧹 MapModule 리소스 정리');
