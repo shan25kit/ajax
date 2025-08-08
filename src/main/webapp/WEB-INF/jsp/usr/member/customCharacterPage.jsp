@@ -79,7 +79,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(75, containerWidth / containerHeight, 0.1, 950);
+<<<<<<< HEAD
   camera.position.set(0, 0, 18);
+=======
+  camera.position.set(0, 0, 22);
+>>>>>>> 25542480aec70b85cae06320219fa7c8d1fbfee3
   camera.lookAt(0, 0, 0);
 
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -95,9 +99,12 @@ document.addEventListener('DOMContentLoaded', () => {
   controls.enablePan = false;
   controls.minPolarAngle = Math.PI / 2;
   controls.maxPolarAngle = Math.PI / 2; */
+//✅ 바로 여기!!
+  /* controls.target.set(0, 1, 0);   // 캐릭터 목 정도 위치를 바라보게
+  camera.lookAt(controls.target); // 카메라 시선 재설정 */
  
  
- const controls = new THREE.OrbitControls(camera, renderer.domElement);
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
 
  controls.enableRotate = true;
  controls.enablePan = true;
@@ -133,23 +140,9 @@ document.addEventListener('DOMContentLoaded', () => {
         character.skeleton = child.skeleton}
     });
 
-    /* character.traverse((child) => {
-      if (child.isMesh) {
-        const prev = child.material;
-        child.material = new THREE.MeshStandardMaterial({
-          color: 0xffe0bd,
-          roughness: 0.8,
-          metalness: 0
-        });
-        if (prev.map) {
-          child.material.map = prev.map;
-        }
-        child.material.needsUpdate = true;
-
-      }
-    }); */
 
     scene.add(character);
+    setSkinColor(currentSkinColor);
   });
   
   // ✅ 파츠 모델 로드 함수
@@ -161,7 +154,7 @@ console.log(partGroupKey);
   // 🎯 파트별 설정
   const partSettings = {
 		  
-    'face1': { scale: [1.7, 1.7, 1.7], position: [0, -18, 0.1], rotation: [0, 0, 0] },
+    'face1': { scale: [1.7, 1.7, 1.7], position: [0, -50, 0], rotation: [0, 0, 0] },
     'face2': { scale: [1.7, 1.7, 1.7], position: [0, -18, 0.1], rotation: [0, 0, 0] },
     'face3': { scale: [1.7, 1.7, 1.7], position: [0, -18, 0.1], rotation: [0, 0, 0] },
     'face4': { scale: [1.7, 1.7, 1.7], position: [0, -18, 0.1], rotation: [0, 0, 0] },
@@ -263,6 +256,55 @@ console.log(partGroupKey);
     console.log(`🧹 ${partGroupKey} 파트 해제됨`);
     return;
   }
+  if (partGroupKey === 'face') {
+	  
+	// 이미 선택된 파츠가 있고, 같은 path면 → 선택 해제
+	  if (
+	    currentParts.face &&
+	    currentParts.face.userData &&
+	    currentParts.face.userData.path === path
+	  ) {
+	    scene.remove(currentParts.face);
+	    currentParts.face = null;
+	    return;
+	  }
+	  
+	  if (currentParts.face) {
+		    scene.remove(currentParts.face);
+		    currentParts.face = null;
+		}
+	  
+	  loader.load(path, (gltf) => {
+	    const model = gltf.scene;
+        const wrapper = new THREE.Group();
+	    
+        wrapper.add(model);
+	    wrapper.position.set(0, -9.8, 0.1);
+	    wrapper.scale.set(1, 1, 1);
+	    wrapper.rotation.set(0, 0, 0);
+
+	    model.traverse((child) => {
+	      if (child.isMesh && child.material) {
+	        child.material.transparent = true;
+	        child.material.opacity = 1;
+	        child.material.alphaTest = 0.01;
+	        child.material.depthWrite = true;
+	        child.material.depthTest = true;
+	        child.material.side = THREE.FrontSide;
+	        child.material.renderOrder = 1;
+	        child.material.needsUpdate = true;
+	      }
+	    });
+	    
+		// ✅ 선택한 path 기억
+	    wrapper.userData.path = path;
+	    // ✅ wrapper 안에 model이 다 추가된 이후에 scene에 넣어야 함
+	    scene.add(wrapper);
+	    currentParts.face = wrapper;
+	  });
+
+	  return;
+	}
 
 //✅ 악세사리 해제 로직 보강 (1~8 전부 해제 가능하게)
   if (partGroupKey === 'accessory') {
@@ -289,10 +331,8 @@ console.log(partGroupKey);
 // 모델 추가
 
     loader.load(path, (gltf) => {
-
-
       const model = gltf.scene;
-     
+      model.position.set(0, -12, 0);
    // ✅ userData 설정
      model.userData = {
                     partGroupKey: 'accessory',
@@ -314,17 +354,19 @@ console.log(partGroupKey);
           child.material.metalness = 0;
           child.material.roughness = 1;
           child.material.needsUpdate = true;
+          child.meterial.alphaTest = 0;
         }
         
-     	// ✅ 자동 바인딩 시도
+  /*    	// ✅ 자동 바인딩 시도
         if (child.isSkinnedMesh && character?.skeleton) {
           try {
+        	
             child.bind(character.skeleton); // 바디에 붙이기
             console.log('🧵 파츠가 skeleton에 bind됨!');
           } catch (err) {
             console.warn('⚠️ skeleton bind 실패:', err);
           }
-        }
+        } */
       });
 
       scene.add(model);
@@ -349,6 +391,7 @@ console.log(partGroupKey);
       loader.load(path, (gltf) => {
           const model = gltf.scene;
          
+          model.position.set(0, -12, 0);
           
           model.userData = {
               partGroupKey: 'accessory',
@@ -361,21 +404,21 @@ console.log(partGroupKey);
           console.log('🎒 accessory.main userData:', model.userData);
 
           model.traverse((child) => {
-        	  console.log('📋 ' + child.name + ': ' + child.type + ', isSkinnedMesh: ' + child.isSkinnedMesh);
               if (child.isMesh && child.material) {
-            	  if (child.material.map) {
-                      console.log('  - 텍스처 포맷: ' + child.material.map.format);
-                      console.log('  - 텍스처 타입: ' + child.material.map.type);
-                      console.log('  - 텍스처 크기: ' + (child.material.map.image ? child.material.map.image.width + 'x' + child.material.map.image.height : 'unknown'));
-            	  } 
-                  child.material.transparent = false;
-                  child.material.opacity = 1;
-                  child.material.depthWrite = true;
-                  child.material.depthTest = true;
-                  child.material.side = THREE.FrontSide;
-                  child.material.needsUpdate = true;
+            	  child.material.transparent = true;
+            	  child.material.opacity = 1;
+            	  child.material.depthWrite = true;
+            	  child.material.depthTest = true;
+            	  child.material.side = THREE.FrontSide;
+            	  child.material.alphaTest = 0.01;
+            	  child.material.renderOrder = 1; // 💡 중요: 투명 파츠 렌더링 우선 순위
+            	  child.material.emissive = child.material.color.clone();
+            	  child.material.emissiveIntensity = 0.1;
+            	  child.material.metalness = 0;
+            	  child.material.roughness = 1;
+            	  child.material.needsUpdate = true;
               }
-          	// ✅ 자동 바인딩 시도
+         /*  	// ✅ 자동 바인딩 시도
               if (child.isSkinnedMesh && character?.skeleton) {
                 try {
                   child.bind(character.skeleton); // 바디에 붙이기
@@ -383,22 +426,9 @@ console.log(partGroupKey);
                 } catch (err) {
                   console.warn('⚠️ skeleton bind 실패:', err);
                 }
-              }
-          });
-          let hasSkinnedMesh = false;
-          model.traverse((child) => {
-            if (child.isSkinnedMesh) hasSkinnedMesh = true;
+              } */
           });
 
-          if (!hasSkinnedMesh) {
-            const settings = partSettings[partStyleKey];
-            if (settings) {
-              model.position.set(...settings.position);
-              model.scale.set(...settings.scale);
-              model.rotation.set(...settings.rotation);
-              console.log('⚙️ ' + partStyleKey + ' partSettings 적용됨');
-            }
-          }
           scene.add(model);
           currentParts.accessory.main.push(model);
           console.log('✅ accessory.main 추가됨, 총 개수:', currentParts.accessory.main.length);
@@ -426,7 +456,7 @@ console.log(partGroupKey);
 
   loader.load(path, (gltf) => {
     const model = gltf.scene;
-
+    model.position.set(0, -12, 0);
  // ✅ userData 설정
     model.userData = {
       partGroupKey: partGroupKey,    // "hair", "top" 등
@@ -448,24 +478,20 @@ console.log(partGroupKey);
         child.material.roughness = 1;
         child.material.needsUpdate = true;
       }
-  	// ✅ 자동 바인딩 시도
+ /*  	// ✅ 자동 바인딩 시도
       if (child.isSkinnedMesh && character?.skeleton) {
-        try {  
-        	 const clonedSkeleton = character.skeleton.clone();
-        	    
-        	    // 2. 복제된 스켈레톤의 바인드 매트릭스 수정
-        	    clonedSkeleton.boneInverses.forEach((matrix, i) => {
-        	      matrix.elements[13] -= 1000;
-        	    });
-        	    clonedSkeleton.calculateInverses();
-        	    
-        	    // 3. 수정된 스켈레톤으로 바인딩
-        	    child.bind(clonedSkeleton);
-        	    model.position.copy(character.position); // (0, -10, 0)
+        try {
+        	console.log("💬 카메라 위치:",camera.lookAt(x, y, z));
+        	console.log("💬 파츠 위치:",model.position);  
+        	console.log("💬 캐릭터 위치:", character.position); 
+          child.bind(character.skeleton); // 바디에 붙이기
+          console.log("💬 카메라 위치(바인딩후):",camera.lookAt(x, y, z));
+          console.log("💬 캐릭터 위치 (바인딩후):",character.position);  
+          console.log('🧵 파츠가 skeleton에 bind됨!',model.position);
         } catch (err) {
           console.warn('⚠️ skeleton bind 실패:', err);
         }
-      }
+      } */
     });
 
     scene.add(model);

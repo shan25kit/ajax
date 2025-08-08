@@ -513,38 +513,29 @@ export class MapModule {
 	initAIChatbotDOM() {
 		this.aiChatbot = document.getElementById('aiChatbot');
 		if (!this.aiChatbot) return;
-		// 클릭 이벤트 리스너 추가
+
 		this.aiChatbot.addEventListener('click', (event) => {
 			event.stopPropagation();
-			// 클릭 애니메이션
-			this.aiChatbot.style.animation = 'chatbotClick 0.6s ease-out';
 
-			// 클릭 애니메이션 CSS 추가 (한 번만)
-			if (!document.getElementById('chatbotClickStyle')) {
-				const style = document.createElement('style');
-				style.id = 'chatbotClickStyle';
-				style.textContent = `
-			             @keyframes chatbotClick {
-			                 0% { transform: scale(1); }
-			                 50% { transform: scale(1.2); }
-			                 100% { transform: scale(1); }
-			             }
-			         `;
-				document.head.appendChild(style);
-			}
+			// 기존 transform 값 백업
+			const originalTransform = this.aiChatbot.style.transform || window.getComputedStyle(this.aiChatbot).transform || '';
 
-			// 애니메이션 초기화
+			// 클릭 애니메이션 (translateY만 추가)
+			this.aiChatbot.style.transition = 'transform 0.15s ease';
+			this.aiChatbot.style.transform = `${originalTransform} translateY(-50px)`;
+
+			// 원래 위치로 복귀
 			setTimeout(() => {
-				this.aiChatbot.style.animation = '';
-			}, 600);
+				this.aiChatbot.style.transform = originalTransform;
+			}, 150);
 
-			// 0.8초 후 페이지 이동 (executeTransition 함수 활용)
+			// 0.8초 후 페이지 이동
 			setTimeout(() => {
 				this.executeTransition('chatBot');
 			}, 800);
 		});
-
 	}
+
 	// ===== 휠 이벤트 처리 (줌) =====
 	handleWheel(e) {
 		if (!this.mapDragEnabled) return;

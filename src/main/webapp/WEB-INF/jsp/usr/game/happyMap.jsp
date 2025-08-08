@@ -17,6 +17,7 @@
 
 	<!-- 마스킹 캔버스 -->
 	<canvas id="mapCanvas" width="5055" height="3904"></canvas>
+	<img id="happy_portal" class="happy_portal" src="/resource/img/기쁨의맵마법진.png" />
 	<div class="character-container" id="characterContainer">
 		<div class="character-3d" id="character3D"></div>
 	</div>

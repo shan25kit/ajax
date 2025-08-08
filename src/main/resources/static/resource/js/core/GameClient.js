@@ -44,6 +44,11 @@ export class GameClient {
 				{ id: 'portal_4', x: 1875, y: 1200, targetMap: 'sadMap' },
 				{ id: 'portal_5', x: 1538, y: 1370, targetMap: 'anxietyMap' },
 				{ id: 'portal_6', x: 1625, y: 1525, targetMap: 'startMap' },
+				{ id: 'happy_portal', x: 1625, y: 1525, targetMap: 'startMap' },
+				{ id: 'anxiety_portal', x: 1625, y: 1525, targetMap: 'startMap' },
+				{ id: 'sad_portal', x: 1625, y: 1525, targetMap: 'startMap' },
+				{ id: 'anger_portal', x: 1625, y: 1525, targetMap: 'startMap' },
+				{ id: 'zen_portal', x: 1625, y: 1525, targetMap: 'startMap' },
 				{ id: 'object', x: 2260, y: 1550, type: 'fountain' }
 			]
 		};
