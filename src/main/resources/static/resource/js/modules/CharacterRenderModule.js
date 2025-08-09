@@ -139,7 +139,7 @@ export class CharacterRenderModule {
 		character.scale.set(characterScale, characterScale, characterScale);
 
 		// 회전 설정
-		character.rotation.y = Math.PI / 6;
+		character.rotation.y = 0;
 		character.rotation.x = Math.PI / 8;
 
 		// 사용자 데이터 저장

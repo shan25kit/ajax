@@ -310,7 +310,7 @@ html, body {
 	top: 200px;
 	left: 390px;
 	width: 450px;
-	mix-blend-mode: color-dodge; /* 또는 lighten, overlay 등도 시도 */
+	mix-blend-mode: color-dodge;
 	z-index: 11;
 	pointer-events: none;
 	transform-origin: center center;
@@ -403,6 +403,10 @@ html, body {
 	z-index: 9998;
 	will-change: transform;
 	transform: translateZ(0);
+}
+
+#character3D canvas {
+  outline: none !important;
 }
 
 .player-chat-container {

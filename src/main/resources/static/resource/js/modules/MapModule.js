@@ -87,7 +87,7 @@ export class MapModule {
 				[762.087, 143.519], [748.518, 150.891], [737.416, 143.519],
 				[726.314, 137.376], [674.506, 98.0607], [631.333, 69.8025],
 				[574.59, 40.3157], [453.705, 7.14308], [364.891, 1],
-				[285.945, 7.14308], [200.832, 19.4292], [116.952, 47.6874], 
+				[285.945, 7.14308], [200.832, 19.4292], [116.952, 47.6874],
 				[52.8082, 98.0607], [15.8023, 150.891], [1, 202.493],
 				[15.8023, 236.894], [7.16764, 278.667], [46.6405, 336.412],
 				[110.784, 395.386], [223.035, 481.389], [326.651, 531.762],
@@ -115,48 +115,47 @@ export class MapModule {
 
 		} else if (mapName === 'angerMap') {
 			this.maskingPolygon = [
-				[1240.54, 0.00], [1471.04, 18.50], [1634.11, 55.51], [1781.67, 107.52],
-				  [1910.74, 178.56], [1981.78, 227.59], [2064.90, 335.19], [2101.97, 433.82],
-				  [2083.49, 511.11], [2043.46, 600.20], [1957.36, 689.84], [1849.29, 766.40],
-				  [1658.66, 830.97], [1511.13, 870.98], [1268.04, 892.50], [1031.40, 892.49],
-				  [828.40, 852.99], [637.84, 787.97], [468.25, 689.93], [379.11, 578.81],
-				  [360.51, 471.08], [379.01, 387.89], [412.84, 308.25], [1.30, 126.95],
-				  [99.66, 37.12], [548.39, 196.93], [569.67, 178.62], [619.26, 154.05],
-				  [735.74, 83.07], [871.33, 37.02], [1086.42, 0.00], [1240.54, 0.00], // 경로 닫힘
-
-				  // 🔸 구멍 (반시계 방향)
-				  [1071.64, 203.98], [1323.42, 179.50], [1470.74, 228.43], [1556.58, 308.29],
-				  [1590.45, 387.98], [1532.12, 510.62], [1390.86, 578.01], [1213.01, 599.49],
-				  [1086.61, 578.01], [988.70, 550.53], [896.38, 492.14], [853.50, 335.71],
-				  [945.76, 246.93], [1071.64, 203.98] // 경로 닫힘
+				[2, 115], [118, 29], [590, 181], [624, 157], [768, 79],
+				[954, 29], [1148, 1], [1382, 1], [1580, 29], [1784, 99],
+				[1990, 215], [2078, 321], [2106, 427], [2118, 473], [2078, 583],
+				[2028, 651], [1878, 753], [1580, 857], [1340, 885], [1054, 885],
+				[810, 829], [522, 705], [410, 583], [394, 509], [410, 383],
+				[458, 297], [2, 115]
 			];
+			
+			this.restrictedPolygon = [
+				[944.992, 451.096], [994.512, 487.058], [1088.25, 523.019],
+				[1243.88, 541], [1413.67, 523.019], [1525.09, 467.442],
+				[1564, 410.231], [1564, 338.308], [1516.25, 276.192],
+				[1413.67, 223.885], [1295.17, 201], [1181.98, 201],
+				[1051.11, 235.327], [962.678, 284.365], [922, 346.481],
+				[932.612, 410.231], [944.992, 451.096]
+			];
+			
 			this.restrictedEllipse = {
 				centerX: 0,  // 중심 위치 (X)
 				centerY: -220,  // 중심 위치 (Y)
 				radiusX: 350,
 				radiusY: 200
 			};
-			this.maskingOffsets = { offsetX: -170, offsetY: -150 };
+			this.maskingOffsets = { offsetX: -190, offsetY: -150 };
 
 		} else if (mapName === 'sadMap') {
 			this.maskingPolygon = [
-				[64.5, 671.5], [1.0, 700.0], [103.5, 792.5], [147.0, 881.0],
-				[197.0, 941.5], [246.0, 980.0], [304.5, 1015.5], [316.0, 1034.0],
-				[246.0, 1087.5], [224.0, 1034.0], [180.5, 1015.5], [103.5, 1087.5],
-				[333.0, 1184.5], [509.0, 1106.0], [479.0, 1059.0], [520.5, 1000.0],
-				[584.5, 1025.5], [616.0, 1015.5], [663.0, 1034.0], [901.0, 965.0],
-				[1109.0, 1059.0], [1203.0, 1034.0], [1142.5, 965.0], [998.5, 921.5],
-				[1348.5, 718.5], [1387.5, 643.0], [1397.5, 593.0], [1360.5, 504.0],
-				[1313.5, 417.0], [968.0, 231.0], [921.5, 184.0], [857.5, 130.0],
-				[799.0, 95.0], [789.0, 71.5], [732.0, 23.0], [675.0, 1.0],
-				[633.0, 23.0], [655.0, 39.5], [683.5, 41.5], [717.0, 71.5],
-				[743.5, 145.5], [760.5, 164.0], [807.5, 215.5], [825.5, 262.5],
-				[1167.5, 437.0], [1183.0, 465.5], [1203.0, 519.0], [1213.0, 611.5],
-				[1167.5, 744.0], [705.0, 965.0], [663.0, 953.5], [633.0, 899.5],
-				[509.0, 881.0], [467.0, 899.5], [457.0, 921.5], [445.0, 953.5],
-				[433.5, 980.0], [354.5, 953.5], [304.5, 931.5], [271.0, 899.5],
-				[235.5, 881.0], [224.0, 847.5], [235.5, 809.0], [197.0, 782.5],
-				[180.5, 744.0], [158.5, 718.5], [115.0, 710.0], [64.5, 671.5]
+				[96, 825], [2, 863], [110, 939], [182, 1047], [170, 1067],
+				[388, 1251], [326, 1305], [246, 1231], [170, 1271], [246, 1333],
+				[226, 1355], [410, 1439], [490, 1379], [632, 1333], [612, 1271],
+				[642, 1251], [698, 1271], [770, 1251], [834, 1293], [1104, 1161],
+				[1356, 1293], [1454, 1271], [1454, 1199], [1214, 1115], [1650, 853],
+				[1688, 765], [1660, 629], [1576, 507], [1164, 289], [1056, 157],
+				[1022, 157], [992, 119], [834, 1], [770, 33], [794, 59],
+				[874, 129], [896, 177], [992, 271], [992, 349], [1438, 575],
+				[1466, 683], [1466, 751], [1484, 751], [1484, 795], [1454, 883],
+				[1400, 921], [1324, 955], [1192, 1037], [1008, 1129], [862, 1177],
+				[794, 1105], [698, 1129], [642, 1161], [642, 1177], [600, 1199],
+				[568, 1187], [536, 1187], [490, 1187], [462, 1199], [424, 1161],
+				[362, 1147], [362, 1105], [326, 1089], [284, 1067], [284, 997],
+				[226, 955], [182, 883], [120, 853], [96, 825]
 			];
 			this.restrictedEllipse = {
 				centerX: 0,  // 중심 위치 (X)
@@ -164,58 +163,73 @@ export class MapModule {
 				radiusX: 0,
 				radiusY: 0
 			};
-			this.maskingOffsets = { offsetX: 180, offsetY: -150 };
+			this.maskingOffsets = { offsetX: 80, offsetY: -160 };
 
-			} else if (mapName === 'zenMap') {
-				this.maskingPolygon = [
-					[874.031, 0.500977], [1065.03, 12.501], [1065.05, 12.502], [1065.06, 12.5039],
-					  [1254.56, 37.0039], [1254.62, 37.0117], [1254.68, 37.0332], [1437.18, 107.533],
-					  [1437.23, 107.554], [1437.28, 107.586], [1623.28, 233.586], [1623.34, 233.626],
-					  [1623.38, 233.681], [1712.38, 340.681], [1712.44, 340.75], [1712.47, 340.835],
-					  [1747.97, 442.335], [1748.01, 442.434], [1748.0, 442.538], [1739.0, 560.038],
-					  [1738.99, 560.118], [1738.96, 560.191], [1687.96, 683.191], [1687.92, 683.301],
-					  [1687.83, 683.379], [1559.83, 793.879], [1559.79, 793.912], [1559.74, 793.937],
-					  [1405.74, 879.937], [1405.72, 879.95], [1405.69, 879.961], [1272.19, 935.961],
-					  [1272.14, 935.981], [1272.09, 935.991], [1038.59, 979.991], [1038.56, 979.997],
-					  [1038.53, 979.999], [858.033, 991.999], [857.995, 992.001], [857.956, 991.998],
-					  [721.456, 979.998], [721.438, 979.996], [550.938, 958.996], [550.912, 958.993],
-					  [550.887, 958.987], [370.387, 916.987], [370.335, 916.975], [370.286, 916.952],
-					  [210.786, 841.452], [210.739, 841.43], [210.699, 841.399], [159.699, 802.899],
-					  [159.143, 802.479], [159.718, 802.087], [190.724, 780.924], [103.644, 692.351],
-					  [103.62, 692.327], [103.601, 692.301], [44.1006, 613.301], [44.0801, 613.273],
-					  [44.0635, 613.243], [0.0635, 534.243], [0.0, 534.13], [0.0, 484.5],
-					  [54.8623, 484.5], [89.5264, 463.701], [103.457, 321.9], [44.4014, 309.99],
-					  [44.0, 309.909], [44.0, 263.76], [44.1875, 263.609], [119.212, 203.59],
-					  [119.238, 203.574], [147.738, 186.074], [147.744, 186.07], [147.751, 186.066],
-					  [247.79, 128.544], [247.833, 128.528], [407.333, 72.0283], [407.361, 72.0186],
-					  [407.392, 72.0117], [564.892, 37.0117], [564.904, 37.0088], [564.917, 37.0068],
-					  [710.917, 12.5068], [710.94, 12.5029], [710.963, 12.501], [873.963, 0.500977]
-				];
-				this.restrictedEllipse = {
-					centerX: 0,  // 중심 위치 (X)
-					centerY: 0,  // 중심 위치 (Y)
-					radiusX: 0,
-					radiusY: 0
-				};
-				this.maskingOffsets = { offsetX: -30, offsetY: -20 };
+		} else if (mapName === 'zenMap') {
+			this.maskingPolygon = [
+				[59, 465], [1, 465], [21, 553], [89, 649], [193, 755], [159, 773],
+				[241, 827], [479, 909], [747, 947], [953, 947], [1195, 909], [1407, 827],
+				[1591, 703], [1687, 543], [1697, 437], [1675, 349], [1615, 253], [1551, 201],
+				[1437, 125], [1295, 67], [1019, 11], [837, 1], [689, 11], [499, 41],
+				[353, 79], [241, 125], [149, 177], [59, 241], [59, 299], [149, 309],
+				[193, 331], [229, 263], [605, 349], [659, 309], [353, 241], [309, 219],
+				[427, 149], [559, 103], [747, 79], [941, 79], [1113, 103], [1251, 149],
+				[1387, 219], [1459, 299], [1493, 385], [1493, 465], [1459, 543], [1367, 649],
+				[1215, 727], [1019, 783], [837, 799], [659, 783], [523, 755], [383, 703],
+				[289, 649], [211, 577], [159, 493], [159, 437], [101, 437], [59, 465]
+			];
+						
+			this.restrictedEllipse = {
+				centerX: 0,  // 중심 위치 (X)
+				centerY: 0,  // 중심 위치 (Y)
+				radiusX: 0,
+				radiusY: 0
+			};
+			this.maskingOffsets = { offsetX: 115, offsetY: -45 };
 
-			} else if (mapName === 'anxietyMap') {
-				this.maskingPolygon = [
-					[963.0, 1.5], [1.0, 468.0], [201.5, 603.0],
-					[245.0, 581.5], [320.0, 644.5], [320.0, 673.5],
-					[443.0, 746.0], [1001.5, 1096.5], [1436.5, 806.5],
-					[1526.0, 746.0], [1473.0, 688.0], [1543.0, 673.5],
-					[1620.5, 688.0], [1956.5, 468.0], [963.0, 1.5]
-				];
-				this.restrictedEllipse = {
-					centerX: 0,  // 중심 위치 (X)
-					centerY: 0,  // 중심 위치 (Y)
-					radiusX: 0,
-					radiusY: 0
-				};
-				this.maskingOffsets = { offsetX: 100, offsetY: -150 };
-			
-			} else {
+		} else if (mapName === 'anxietyMap') {
+			this.maskingPolygon = [
+				[962, 0.5],
+				[0, 467],
+				[200.5, 602],
+				[244, 580.5],
+				[319, 643.5],
+				[319, 672.5],
+				[442, 745],
+				[1000.5, 1095.5],
+				[1435.5, 805.5],
+				[1525, 745],
+				[1472, 687],
+				[1542, 672.5],
+				[1619.5, 687],
+				[1955.5, 467],
+				[962, 0.5]
+			];
+
+			this.restrictedPolygon = [
+				[979, 650],
+				[689, 476],
+				[979, 320],
+				[1267, 476],
+				[979, 650]
+			];
+
+			this.restrictedEllipse = {
+				centerX: 0,
+				centerY: 0,
+				radiusX: 0,
+				radiusY: 0
+			};
+
+			this.maskingOffsets = { offsetX: 100, offsetY: -150 };
+
+			// ✅ 이동 가능 영역 내부 && restrictedPolygon 외부일 때만 이동 가능하도록 설정
+			this.isWalkable = (x, y) => {
+				return isInsidePolygon(x, y, this.maskingPolygon) &&
+					!isInsidePolygon(x, y, this.restrictedPolygon) &&
+					!isInsideEllipse(x, y, this.restrictedEllipse);
+			};
+		} else {
 			console.warn(`⚠️ '${mapName}'에 대한 마스킹 데이터가 없습니다.`);
 		}
 
@@ -318,13 +332,11 @@ export class MapModule {
 			console.warn('⛔ 마스킹 데이터가 비어 있어 drawMaskArea를 건너뜁니다.');
 			return;
 		}
-
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
 		this.ctx.fillStyle = 'rgba(255, 255, 0, 0)';
 
 		this.ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
-
 		this.ctx.lineWidth = 2.3;
 
 		const scale = 1;
@@ -340,7 +352,7 @@ export class MapModule {
 		const canvasCenterX = this.canvas.width / 2;
 		const canvasCenterY = this.canvas.height / 2;
 
-		// 1️⃣ 바깥 다각형 마스킹 (이동 불가 영역)
+		// 1️⃣ 바깥 다각형 마스킹 (이동 가능 영역)
 		this.ctx.beginPath();
 		for (let i = 0; i < points.length; i++) {
 			const scaledX = (points[i][0] - maskCenterX) * scale + canvasCenterX + offsetX;
@@ -353,10 +365,10 @@ export class MapModule {
 		this.ctx.fill();
 		this.ctx.stroke();
 
-		// 2️⃣ 이동 가능 타원 (구멍 만들기)
+		// 2️⃣ 이동 불가능 타원 (구멍 만들기)
 		if (this.restrictedEllipse) {
 			this.ctx.save();
-			this.ctx.globalCompositeOperation = 'destination-out'; // 마스크 안에 구멍 만들기
+			this.ctx.globalCompositeOperation = 'destination-out';
 
 			const ellipseX = canvasCenterX + this.restrictedEllipse.centerX;
 			const ellipseY = canvasCenterY + this.restrictedEllipse.centerY;
@@ -368,7 +380,42 @@ export class MapModule {
 			this.ctx.fill();
 			this.ctx.restore();
 		}
+
+		// 3️⃣ restrictedPolygon 다각형 구멍 처리
+		if (this.restrictedPolygon) {
+			this.ctx.save();
+			this.ctx.globalCompositeOperation = 'destination-out';
+
+			this.ctx.beginPath();
+			for (let i = 0; i < this.restrictedPolygon.length; i++) {
+				const x = (this.restrictedPolygon[i][0] - maskCenterX) * scale + canvasCenterX + offsetX;
+				const y = (this.restrictedPolygon[i][1] - maskCenterY) * scale + canvasCenterY + offsetY;
+
+				if (i === 0) this.ctx.moveTo(x, y);
+				else this.ctx.lineTo(x, y);
+			}
+			this.ctx.closePath();
+			this.ctx.fill();
+			this.ctx.restore();
+
+			// 🟥 빨간 테두리 그리기
+			this.ctx.save();
+			this.ctx.beginPath();
+			for (let i = 0; i < this.restrictedPolygon.length; i++) {
+				const x = (this.restrictedPolygon[i][0] - maskCenterX) * scale + canvasCenterX + offsetX;
+				const y = (this.restrictedPolygon[i][1] - maskCenterY) * scale + canvasCenterY + offsetY;
+
+				if (i === 0) this.ctx.moveTo(x, y);
+				else this.ctx.lineTo(x, y);
+			}
+			this.ctx.closePath();
+			this.ctx.strokeStyle = 'red';
+			this.ctx.lineWidth = 2.3;
+			this.ctx.stroke();
+			this.ctx.restore();
+		}
 	}
+
 
 	// ===== 이동 가능 여부 검사 =====
 	isMovementAllowed(position3D) {
@@ -380,6 +427,9 @@ export class MapModule {
 			// 2. 타원 내부에 있는지 검사 (이동 불가능 구멍)
 			if (this.isPointInEllipse(imageCoord, this.restrictedEllipse)) {
 				return false; // 타원 내부는 이동 불가능
+			}
+			if (this.isPointInRestrictedPolygon(imageCoord, this.restrictedPolygon)) {
+				return false; // 이동불가 폴리곤 내부는 이동 불가능
 			}
 			return true; // 다각형 내부이지만 타원 밖은 이동 가능
 		}
@@ -442,8 +492,47 @@ export class MapModule {
 		return (dx * dx) / (ellipse.radiusX * ellipse.radiusX) +
 			(dy * dy) / (ellipse.radiusY * ellipse.radiusY) <= 1;
 	}
+	// ===== 점이 이동불가 다각형 내부에 있는지 검사 =====
+	isPointInRestrictedPolygon(point, polygon) {
+		if (!polygon || polygon.length < 3) return false;
 
+		// 맵 정보와 스케일, 오프셋
+		const mapConfig = this.gameClient.getMapConfig();
+		const scale = 1;
+		const offsetX = this.maskingOffsets?.offsetX ;
+		const offsetY = this.maskingOffsets?.offsetY ;
 
+		// 중심 기준 (이미지 중심)
+		const canvasCenterX = mapConfig.IMAGE_WIDTH / 2;
+		const canvasCenterY = mapConfig.IMAGE_HEIGHT / 2;
+
+		// 마스킹 폴리곤 중심점 구하기
+		const maskCenterX = polygon.reduce((sum, p) => sum + p[0], 0) / polygon.length;
+		const maskCenterY = polygon.reduce((sum, p) => sum + p[1], 0) / polygon.length;
+
+		// 실좌표 기준으로 변환된 폴리곤
+		const transformedPolygon = polygon.map(p => [
+			(p[0] - maskCenterX) * scale + canvasCenterX + offsetX,
+			(p[1] - maskCenterY) * scale + canvasCenterY + offsetY
+		]);
+
+		// 포인트 비교
+		const x = point.x;
+		const y = point.y;
+		let inside = false;
+
+		for (let i = 0, j = transformedPolygon.length - 1; i < transformedPolygon.length; j = i++) {
+			const xi = transformedPolygon[i][0], yi = transformedPolygon[i][1];
+			const xj = transformedPolygon[j][0], yj = transformedPolygon[j][1];
+
+			const intersect = ((yi > y) !== (yj > y)) &&
+				(x < ((xj - xi) * (y - yi)) / (yj - yi) + xi);
+
+			if (intersect) inside = !inside;
+		}
+
+		return inside;
+	}
 	// ===== DOM 포털 초기화 =====
 	initDOMPortals() {
 		const portalPositions = this.gameClient.getPortalPositions();
@@ -497,8 +586,8 @@ export class MapModule {
 				break;
 
 			case 'zenMap':
-				this.aiChatbotMapX = 2250;
-				this.aiChatbotMapY = 1630;
+				this.aiChatbotMapX = 2425;
+				this.aiChatbotMapY = 1600;
 				break;
 
 			default:
@@ -509,7 +598,7 @@ export class MapModule {
 
 		console.log(`🤖 ${mapName} AI 챗봇 위치 설정: (${this.aiChatbotMapX}, ${this.aiChatbotMapY})`);
 	}
-	
+
 	initAIChatbotDOM() {
 		this.aiChatbot = document.getElementById('aiChatbot');
 		if (!this.aiChatbot) return;
@@ -886,7 +975,7 @@ export class MapModule {
 		let redirectPath;
 		if (targetMap === 'chatBot') {
 			const currentMap = this.gameClient.currentMapName;
-			 redirectPath = `/usr/game/chatBot?currentMap=${currentMap}`;
+			redirectPath = `/usr/game/chatBot?currentMap=${currentMap}`;
 			console.log(`🤖 AI 상담 페이지 이동: ${redirectPath}`);
 
 			// AI 챗봇은 즉시 이동 (딜레이 없음)
