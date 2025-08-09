@@ -293,7 +293,12 @@ console.log(partGroupKey);
 	    });
 	    
 		// ✅ 선택한 path 기억
-	    wrapper.userData.path = path;
+	   wrapper.userData = {
+      partGroupKey: 'face',
+      styleNumber: styleNumber,   
+      path: path,                  
+      color: null
+    };
 	    // ✅ wrapper 안에 model이 다 추가된 이후에 scene에 넣어야 함
 	    scene.add(wrapper);
 	    currentParts.face = wrapper;
@@ -970,26 +975,25 @@ $(document).ready(function () {
 	</div>
 
 	<div class="custom-box glossy">
-		
+
 		<div class="nickName-box">
 			<h3 id="nicknameDisplay">${member.getNickName() }</h3>
-			
+
 			<!-- 숨겨진 input -->
-	  		<input type="text" id="nicknameInput" value="${member.nickName}" style="display: none;" />
-			
-			<span>
+			<input type="text" id="nicknameInput" value="${member.nickName}"
+				style="display: none;" /> <span>
 				<button type="button" id="editNicknameBtn">
 					<i class="fa-regular fa-pen-to-square"></i>
 				</button>
-			</span>
-			<span>
+			</span> <span>
 				<button type="button" id="saveNicknameBtn" style="display: none;">
-					<i class="fa-regular fa-square-check" style="font-size:1.1rem !important;"></i>
+					<i class="fa-regular fa-square-check"
+						style="font-size: 1.1rem !important;"></i>
 				</button>
 			</span>
 		</div>
-		
-		
+
+
 		<div class="custom-ui">
 
 			<div id="three-container">
