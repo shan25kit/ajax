@@ -1,0 +1,51 @@
+DROP DATABASE IF EXISTS ajaxDB;
+CREATE DATABASE ajaxDB;
+USE ajaxDB;
+
+CREATE TABLE `member` (
+    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT
+    , regDate DATETIME NOT NULL
+    , updateDate DATETIME NOT NULL
+    , loginType VARCHAR(20)
+    , email VARCHAR(50) UNIQUE
+    , loginId VARCHAR(50) UNIQUE
+    , loginPw VARCHAR(100)
+);
+
+CREATE TABLE memberInfo (
+    memberId INT UNSIGNED NOT NULL
+    , nickName VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE custom_character (
+  memberId INT UNSIGNED NOT NULL
+  , skinColor CHAR(10)
+  , face TINYINT
+  , hair TINYINT
+  , hairColor CHAR(10)
+  , top TINYINT
+  , bottom TINYINT
+  , dress TINYINT
+  , shoes TINYINT
+  , accessoryMain JSON
+  , accessoryDetail TINYINT
+);
+
+#이메일 인증코드 발송용
+CREATE TABLE email_auth (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255) NOT NULL,
+    auth_code VARCHAR(20) NOT NULL,
+    created_at DATETIME NOT NULL,
+    expired_at DATETIME NOT NULL
+);
+
+SELECT * FROM `member`;
+SELECT * FROM `memberInfo`;
+SELECT * FROM custom_character;
+
+
+TRUNCATE TABLE `member`;
+TRUNCATE TABLE memberInfo;
+TRUNCATE TABLE custom_character;
+
