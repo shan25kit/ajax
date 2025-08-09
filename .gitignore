@@ -31,3 +31,18 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# 로그 파일 (API 키가 로그에 남을 수 있음)
+*.log
+logs/
+log/
+
+# 임시 파일
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# 데이터베이스설정관련
+db.yml

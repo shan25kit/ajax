@@ -1,0 +1,793 @@
+@charset "UTF-8";
+
+.background {
+	width: 100vw;
+	height: 100vh;
+	background-image: url("/resource/img/background-image.jpg");
+	background-position: center;
+	background-size: cover;
+	position: relative;
+}
+
+.logo-top{
+	display: blcok;
+	width:100%;
+	height:100px;
+}
+
+
+
+.glossy{
+  background: rgba(255, 255, 255, 0.2); /* 더 투명하게 */
+  border: 1px solid rgba(255, 255, 255, 0.25); /* 덜 강한 테두리 */
+  color: #fff; /* 글씨는 밝게 (배경 대비 더 잘 보임) */
+  backdrop-filter: blur(14px) saturate(100%);
+  -webkit-backdrop-filter: blur(14px) saturate(100%);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.3),
+    0 8px 24px rgba(0, 0, 0, 0.2);
+  background-image: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.15) 20%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transition: all 0.3s ease;
+}
+ 
+.logo-top img{
+	display: block;
+	width:150px;
+	height:auto;
+	float:right;
+	margin-top:2%;
+	margin-right:2.5%;
+}
+
+
+
+/* login */
+
+input{
+	font-size:0.8rem !important;
+	color:#777;
+}
+
+.login-box{
+	width:450px;
+	margin:0 auto;
+	padding-top:50px;
+	padding-bottom:40px;
+	border-radius: 50px;
+	margin-top:130px;
+}
+
+.login_header{
+	font-family: 'Pretendard-Regular';
+	font-size:2.2rem;
+	font-weight:900;
+	color:#fff;
+	letter-spacing: 2px;
+	text-align: center;
+	margin-bottom:30px;
+}
+
+
+.login-box form{
+	width:55%;
+	margin:0 auto;
+	
+}
+
+.login-box form input{
+	box-sizing:border-box;
+	border:none;
+	outline: 3px solid rgba(255,255,255, 0);
+	width:100%;
+	height:35px; 
+	padding-left:12px;
+	margin-top:10px; 
+	border-radius: 8px;
+	background-color:rgba(255,255,255,0.7);
+	line-height: 35px;
+}
+
+.login-box form input::placeholder{
+	color:#a1a1a1;
+	font-size:0.7rem;
+}
+
+.login-box form input:focus{
+	outline:2px solid rgba(144,70,206, 0.6);
+}
+
+.find_pw{
+	display: block;
+	float:right;
+	color:#fff;
+	text-decoration: none;
+	opacity: 0.5;
+	font-size:0.7rem;
+	font-weight:100;
+	height:15px;
+	line-height: 15px;
+	padding-top:10px;
+}
+
+.login-box form button{
+	width:100%;
+	height:35px;
+	border:none;
+	border-radius: 8px;
+	letter-spacing: 1.5px;
+	font-weight:400;
+	color:#fff;
+	margin-top:15px;
+	cursor: pointer;
+	font-size:0.7rem;
+	background-color:#9a42b3;
+	box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.2),
+    0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.login-box form button:hover{
+	background-color:#662c77;
+}
+
+.or{
+	font-family: 'Pretendard-Regular';
+	font-size:1rem;
+	font-weight:300;
+	color:#fff;
+	text-align: center;
+	margin-top:20px;
+	margin-bottom:20px;
+	letter-spacing: 1px;
+}
+
+
+.social_login_button{
+	display: flex;
+	width:32%; 
+	margin:0 auto;
+	justify-content: space-around;
+}
+
+.social_login_button a{
+	width:32px;
+	height: auto;
+}
+
+.social_login_button a img{
+	width:32px;
+	height: auto;	
+}
+
+
+.line{
+	width:55%;
+	height:1px;
+	background-color: #fff;
+	margin: 0 auto;
+	margin-top:20px;
+	margin-bottom:20px;
+	opacity: 0.5;
+}
+
+.signup_bottom{
+	display:block;
+	width:100%;
+	text-align: center;
+	color:#fff;
+	text-decoration: none;
+	font-weight:300;
+	font-size:0.9rem;
+	letter-spacing: 1px;
+	margin-top:30px;
+}
+
+/* sing up */
+
+
+.social_sign_button{
+	display: block;
+	width:55%;
+	margin:0 auto;
+}
+
+.social_sign_button a{
+	display: block;
+	box-sizing:border-box;
+	width:100%; 
+	height:45px;
+	padding:5px;
+	padding-left:20px;
+	line-height: 35px;
+	border-radius: 15px;
+	margin-bottom:15px;
+	text-decoration: none;
+	color:#fff;
+	letter-spacing: 0.5px;
+	background-color:rgba(255,255,255,0.2);
+	border:1px solid rgba(255,255,255,0.07);
+}
+
+.social_sign_button a:hover{
+	box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.2),
+    0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.social_sign_button a:last-child{
+	height:30px;
+	background-color:rgba(255,255,255,0);
+	line-height: 30px;
+	text-align: center;
+	padding-left:0;
+	font-size:0.8rem;
+	border:none;
+}
+
+.social_sign_button a:last-child:hover{
+	box-shadow:none;
+}
+
+
+
+.social_sign_button a span{
+	padding-left:10px;
+	font-weight: 400;
+}
+
+.social_sign_button a img{
+	display: block;
+	float:left;
+	margin-top:5px;
+	height:25px;
+	width:auto;
+}
+
+/* 이메일 회원가입 */
+
+input {
+	box-sizing: border-box; /* ✅ 패딩, 테두리를 포함한 고정 크기 유지 */
+	width: 100%;            /* 혹은 네가 원하는 고정 width */
+	padding: 0.5rem;        /* 원하는 padding */
+	transition: border 0.3s ease;
+}
+
+.input-error {
+	outline: 2px solid rgba(252,3,26,0.5) !important;
+	border: none !important; /* 기존 border 제거 */
+}
+
+.input-success {
+	outline: 2px solid rgba(14,166,0,0.5) !important;
+	border: none !important;
+}
+
+.pw-msg {
+	font-size: 0.85rem;
+	margin-left: 4px;
+	display: block;
+}
+
+#pwChkMsg {
+	font-size: 0.7rem;
+	color: red;
+	margin-top: 4px;
+	margin-left: 4px;
+	display: block;
+}
+
+.nickname_inner_box {
+	display: block;
+	width: 70%;
+	margin: 0 auto;
+	margin-top:20px;
+}
+
+.nickname_inner_box h2 {
+	display: block;
+	margin-left: 10px;
+	font-size: 1.5rem;
+}
+
+.nickname_inner_box h2 > span {
+	font-size: 0.9rem;
+	font-weight: 300;
+}
+
+.nickname_inner_box > form {
+	width: 100%;
+	margin: 0 auto;
+	text-align: center;
+	height: 130px;
+}
+
+.nickname_inner_box > form > input {
+	width: 75%;
+	margin-right: 3px;
+}
+
+.nickname_inner_box > form > button {
+	width: 22%;
+	font-size: 0.8rem;
+	font-weight: 300;
+}
+
+.nickname_inner_box > form > #nickNameDupChkMsg {
+	display: block;
+	font-size: 0.7rem;
+	text-align: left;
+	margin-left: 10px;
+	margin-top: 5px;
+}
+
+/* 경희 수정 시작  */ 
+ 
+.submit_button{
+	margin-top:30px !important;
+	margin-bottom:20px;
+}
+
+.email_check{
+	display: flex;
+	justify-content: space-between;
+}
+
+
+.email_check input{
+	width:67% !important;
+}
+
+.email_check_button{
+	width:30% !important; 
+	margin-top:10px !important;
+	letter-spacing: 0px !important;
+}
+
+
+.email_check_box input{
+	width:67% !important;
+}
+
+
+.email_check_confirm{
+	width:30% !important;
+	margin-top:10px !important;
+	float:right;
+}
+
+.signUp_box input:disabled{
+	background-color:rgba(255,255,255,0.2);
+}
+
+.signUp_box input:disabled::placeholder{
+	color:rgba(255,255,255,0.6);
+}
+
+
+#emailDupMsg{
+	display:none;
+	width:100%;
+	font-size:0.7rem;
+	padding-top:5px;
+	padding-left:5px;
+}
+
+#loginIdDupChkMsg{
+	display:none;
+	width:100%;
+	font-size:0.7rem;
+	padding-top:5px;
+	padding-left:5px;
+}
+
+#pwChkMsg{
+	display:none;
+	width:100%;
+	font-size:0.7rem;
+	padding-top:5px;
+	padding-left:5px;
+}
+
+
+/* 비밀번호찾기 */
+
+.find-box {
+	width:500px;
+	margin:0 auto;
+	padding-top:50px;
+	padding-bottom:60px;
+	border-radius: 50px;
+	margin-top:130px;
+}
+
+.find_header{
+	font-family: 'Pretendard-Regular';
+	font-size:2.2rem;
+	font-weight:900;
+	color:#fff;
+	letter-spacing: 2px;
+	text-align: center;
+	margin-bottom:30px;
+}
+
+.find_inner_box {
+	display: block;
+	width: 55%;
+	margin: 0 auto;
+}
+
+.find_inner_box input{
+	box-sizing:border-box;
+	border:none;
+	outline: 3px solid rgba(255,255,255, 0);
+	width:100%;
+	height:35px; 
+	padding-left:20px;
+	margin-top:10px; 
+	border-radius: 8px;
+	background-color:rgba(255,255,255,0.7);
+	line-height: 35px;
+}
+
+.find_inner_box input::placeholder{
+	color:#a1a1a1;
+	font-size:0.7rem;
+}
+
+.find_inner_box input:focus{
+	outline:2px solid rgba(144,70,206, 0.6);
+}
+
+.find_inner_box button{
+	width:100%;
+	height:35px;
+	border:none;
+	border-radius: 8px;
+	letter-spacing: 1.5px;
+	font-weight:400;
+	color:#fff;
+	margin-top:15px;
+	cursor: pointer;
+	font-size:0.7rem;
+	background-color:#9a42b3;
+	box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.2),
+    0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.find_inner_box button:hover{
+	background-color:#662c77;
+}
+
+.find_inner_box .find-pw {
+	padding-top:10px;
+	
+}
+
+.find_inner_box .find-pw a {
+	display: block;
+	float:right;
+	color:#fff;
+	text-decoration: none;
+	opacity: 0.5;
+	font-size:0.7rem;
+	font-weight:100;
+	height:15px;
+	line-height: 15px;
+	text-align: right;
+}
+
+
+/* 커스텀 페이지 */
+
+.custom-box {
+	width:1000px;
+	height:500px;
+	margin:0 auto;
+	margin-top: calc((100vh - 770px) / 2);
+	padding-top:50px;
+	/* padding-bottom:50px; */
+	border-radius: 60px;
+	position: relative;
+}
+
+.nickName-box{
+	display: flex;
+	position: relative;
+}
+
+.nickName-box h3 {
+	display:block;
+	font-family: 'Pretendard-Regular';
+	font-size:2.2rem;
+	font-weight:900;
+	color:#fff;
+	letter-spacing: 2px;
+	margin-left: 90px;
+	padding-left:10px;
+}
+
+.nickName-box input {
+	margin-left: 100px;
+	width:150px;
+	height:41px;
+	font-size:1.8rem !important;
+	font-family: 'Pretendard-Regular';
+	font-weight:900;
+	color:#fff;
+	letter-spacing: 2px;
+	background-color:rgba(255,255,255,0.2);
+	border-radius : 10px;
+	border:none;
+	padding :10px;
+}
+
+.nickName-box input:focus {
+  outline: none;
+}
+
+.nickName-box button{
+	position:absolute;
+	bottom:0;
+	margin-left:10px;
+	display:block;
+	width:20px;
+	height:20px;
+	border:none;
+	background-color:rgba(0,0,0,0);
+	cursor: pointer;
+	color:#fff;
+	opacity: 0.6;
+}
+
+
+.custom-box .custom-ui {
+	margin-left:30px;
+	display: flex;
+	align-items: center;
+}
+
+#three-container {
+    width: 220px;
+    height: 350px;
+    border-radius: 100%;
+    margin-left: 70px;
+    position: relative;
+  }
+  
+ .allow{
+ 	position:absolute;
+ 	width:160px;
+ 	height:50px;
+ 	left: 30px;
+ 	bottom:-10px;
+ }
+ 
+ .allow ul{
+ 	list-style:none;
+ 	width:100%;
+ 	height:100%;
+ 	display: flex;
+ 	justify-content: space-between;
+ }
+  
+#three-container canvas {
+   /* margin-top:90px;
+   margin-left:100px; */
+   width: 260px;
+   height: 350px ;
+   display: block;
+}
+
+.custom-options {
+	display: flex;
+	flex-flow: column;
+}
+ 
+.custom-options button {
+   width: 40px;
+   height: 40px;
+   border-radius: 50%;
+   background: white;
+   border: none;
+   cursor: pointer;
+}
+
+.custom-options button:first-child img {
+	width: 40px;
+	height: 40px;
+}
+
+.custom-options button:not(:first-child) img {
+	width: 60px;
+	height: 60px;
+	display: block;
+	margin-top: -10px;
+	margin-left: -10px;
+}
+
+
+.custom-options button{
+	margin-top:5px; 
+	margin-bottom:5px;
+}
+
+.bottom{
+	margin-top:5px;
+	margin-bottom:5px;
+	margin-left:80px;
+}
+
+.top , .dress{
+	margin-left:70px;	
+}
+
+.hair, .shoes{
+	margin-left:50px;	
+}
+
+.hair{
+	margin-top:0px !important;
+}
+
+.shoes{
+	margin-bottom:0px !important;
+}
+
+.skin-face, .accessory{
+	margin-left:20px;
+	margin-top:0px !important;
+	margin-bottom:0px !important;
+}
+
+.custom-select-box {
+	background: rgba(255, 255, 255, 0.5);
+	width:auto;
+	height: 340px;
+	border-radius: 50px;
+	margin: 0 70px 0 70px;
+	position: relative;
+}
+
+.custom-select-box h3 {
+	font-family: 'Pretendard-Regular';
+	font-size: 1.7rem;
+	font-weight: 600;
+	color: #fff;
+	margin-top: 30px;
+	margin-left: 50px;
+	margin-bottom: 0;
+}
+
+.color-picker {
+	width: 100%;
+	margin-left: 50px;
+}
+
+.color-picker button {
+	width: 20px;
+	height: 20px;
+	border-radius: 50px;
+	border:2px solid #fff;
+	background-color: #fff;
+	margin-top:10px;
+	margin-right: 3px;
+	cursor: pointer;
+}
+
+.line{
+	width:340px;
+	margin:0 auto;
+	height:1px;
+	background-color:#fff;
+	margin-top:15px;
+	margin-bottom:15px;
+}
+.style-select {
+	width:340px;
+	margin-top: 10px;
+	margin-left:50px;
+	margin-right:50px;
+}
+
+.style-select-option {
+	width:340px;
+	margin-top: 45px;
+	margin-left:50px;
+	margin-right:50px;
+}
+
+.style-Wrap{
+	width:100%;
+	display: flex;
+	justify-content: space-between;
+}
+
+.style-select button {
+	width: 75px;
+	height: 75px;
+	margin-bottom:8px;
+	border-radius: 20px;
+	border: 2px solid #fff;
+	background-color: rgba(255, 255, 255, 0.2);
+	cursor: pointer;
+}
+
+.style-select-option button {
+	width: 75px;
+	height: 75px;
+	margin-bottom:8px;
+	border-radius: 20px;
+	border: 2px solid #fff;
+	background-color: rgba(255, 255, 255, 0.2);
+	cursor: pointer;
+}
+
+.style-select button img.face {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.style-select button img {
+  width: 160%;
+  margin: -24px;
+  height: auto;
+  object-fit: contain;
+}
+
+.style-select-option button img {
+  width: 160%;
+  margin: -24px;
+  height: auto;
+  object-fit: contain;
+}
+
+
+.btn_box{
+	display: flex;
+	width:220px;
+	justify-content: space-between;
+	position: absolute;
+	bottom:45px;
+	right:160px;
+}
+
+.btn_box button{
+	width:100px;
+	height:40px;
+	border:none;
+	border-radius: 10px;
+	background-color:#9a42b3;
+	box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.2),
+    0 6px 12px rgba(0, 0, 0, 0.1);
+    color:#fff;
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
