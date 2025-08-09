@@ -909,7 +909,58 @@ async function saveAvatar() {
         alert('저장 중 오류가 발생했습니다.');
     }
 }
-  
+
+$(document).ready(function () {
+	  const $nicknameDisplay = $("#nicknameDisplay");
+	  const $nicknameInput = $("#nicknameInput");
+	  const $editBtn = $("#editNicknameBtn");
+	  const $saveBtn = $("#saveNicknameBtn");
+
+	  // ✅ 닉네임 수정 버튼 클릭 시
+	  $editBtn.on("click", function () {
+	  $nicknameInput.show();
+	  $nicknameDisplay.hide();
+	  $editBtn.hide();
+	  $saveBtn.show();
+	
+	  // 🔸 자동 커서 + 커서 위치 맨 뒤로!
+	  const currentVal = $nicknameInput.val(); // 현재 값 저장
+	  $nicknameInput.focus().val("").val(currentVal); // 비웠다가 다시 넣기
+	});
+
+	  // ✅ 닉네임 저장 버튼 클릭 시
+	  $saveBtn.on("click", function () {
+	    const newNickName = $nicknameInput.val();
+	    const memberId = ${member.id}; // 서버에서 넘어온 member ID
+
+	    if (!newNickName.trim()) {
+	      alert("닉네임을 입력해주세요!");
+	      return;
+	    }
+
+	    // ✅ 닉네임 저장 AJAX
+	    $.ajax({
+	      type: "POST",
+	      url: "/usr/custom/updateNickName",
+	      data: {
+	        memberId: memberId,
+	        nickName: newNickName
+	      },
+	      success: function (response) {
+	        alert("닉네임이 저장되었습니다!");
+	        $nicknameDisplay.text(newNickName);
+	        $nicknameInput.hide();
+	        $nicknameDisplay.show();
+	        $editBtn.show();
+	        $saveBtn.hide();
+	      },
+	      error: function (xhr, status, error) {
+	        console.error("❌ 닉네임 저장 실패:", error);
+	        alert("닉네임 저장 중 오류가 발생했습니다.");
+	      }
+	    });
+	  });
+	});
 </script>
 
 <div class="background">
@@ -919,9 +970,26 @@ async function saveAvatar() {
 	</div>
 
 	<div class="custom-box glossy">
-
-		<h3>${member.getNickName() }</h3>
-
+		
+		<div class="nickName-box">
+			<h3 id="nicknameDisplay">${member.getNickName() }</h3>
+			
+			<!-- 숨겨진 input -->
+	  		<input type="text" id="nicknameInput" value="${member.nickName}" style="display: none;" />
+			
+			<span>
+				<button type="button" id="editNicknameBtn">
+					<i class="fa-regular fa-pen-to-square"></i>
+				</button>
+			</span>
+			<span>
+				<button type="button" id="saveNicknameBtn" style="display: none;">
+					<i class="fa-regular fa-square-check" style="font-size:1.1rem !important;"></i>
+				</button>
+			</span>
+		</div>
+		
+		
 		<div class="custom-ui">
 
 			<div id="three-container">

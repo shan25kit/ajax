@@ -480,4 +480,5 @@ export class GameClient {
 		}
 		this.cleanup();
 	}
+
 }

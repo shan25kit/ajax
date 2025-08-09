@@ -102,6 +102,12 @@ public interface MemberDao {
 			""")
 	Member getMemberById(int id);
 
-	
-	}
+	@Update("""
+			UPDATE `memberInfo`
+			 	SET nickName = #{nickName}
+			 	WHERE memberId = #{memberId}
+			""")
+	void updateNickName(int memberId, String nickName);
+
+}
 
