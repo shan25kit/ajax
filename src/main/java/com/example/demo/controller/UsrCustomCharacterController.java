@@ -57,7 +57,6 @@ public class UsrCustomCharacterController {
 	@PostMapping("/usr/custom/updateNickName")
 	@ResponseBody
 	public ResultData updateNickName(@RequestParam int memberId, @RequestParam String nickName) {
-		
 		Member member = this.memberService.getMemberByNickName(nickName);
 
 		if (member != null) {

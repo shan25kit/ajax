@@ -981,16 +981,21 @@ $(document).ready(function () {
 
 			<!-- 숨겨진 input -->
 			<input type="text" id="nicknameInput" value="${member.nickName}"
-				style="display: none;" /> <span>
-				<button type="button" id="editNicknameBtn">
-					<i class="fa-regular fa-pen-to-square"></i>
-				</button>
-			</span> <span>
-				<button type="button" id="saveNicknameBtn" style="display: none;">
-					<i class="fa-regular fa-square-check"
-						style="font-size: 1.1rem !important;"></i>
-				</button>
-			</span>
+				style="display: none;" />
+			<c:if test="${fromMap == 'true'}">
+
+				<span>
+					<button type="button" id="editNicknameBtn">
+						<i class="fa-regular fa-pen-to-square"></i>
+					</button>
+				</span>
+				<span>
+					<button type="button" id="saveNicknameBtn" style="display: none;">
+						<i class="fa-regular fa-square-check"
+							style="font-size: 1.1rem !important;"></i>
+					</button>
+				</span>
+			</c:if>
 		</div>
 
 
