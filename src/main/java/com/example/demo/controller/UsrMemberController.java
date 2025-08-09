@@ -377,7 +377,7 @@ public class UsrMemberController {
 	}
 
 	@GetMapping("/usr/member/customCharacterPage")
-	public String customCharacterPage(Model model) {
+	public String customCharacterPage(Model model, @RequestParam(required = false) String fromMap) {
 		int id = req.getLoginedMember().getId();
 
 		Member member = this.memberService.getMemberById(id);
@@ -385,7 +385,7 @@ public class UsrMemberController {
 		model.addAttribute("member", member);
 		model.addAttribute("memberId", member.getId());
 	    model.addAttribute("nickName", member.getNickName());
-
+	    model.addAttribute("fromMap", fromMap);
 
 		return "usr/member/customCharacterPage";
 	}

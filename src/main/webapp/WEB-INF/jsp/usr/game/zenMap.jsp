@@ -4,7 +4,7 @@
 <c:set var="pageTitle" value="zenMap" />
 <%@ include file="/WEB-INF/jsp/common/header.jsp"%>
 <div class="top-nav">
-		<a href="/usr/member/customCharacterPage" class="nav-icon"><i class="fa-solid fa-circle-user"></i>
+		<a href="/usr/member/customCharacterPage?fromMap=true" class="nav-icon"><i class="fa-solid fa-circle-user"></i>
 		<span class="nav-text">MYPAGE</span></a>
 		<a href="/usr/member/logout" class="nav-icon"><i class="fa-solid fa-right-from-bracket"></i>
 		<span class="nav-text">LOGOUT</span></a>

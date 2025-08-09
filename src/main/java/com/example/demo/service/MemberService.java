@@ -98,6 +98,8 @@ public class MemberService {
 	}
 
 	public void updateNickName(int memberId, String nickName) {
+		System.out.println(memberId);
+		System.out.println(nickName);
 		this.memberDao.updateNickName(memberId, nickName);
 	}
 
