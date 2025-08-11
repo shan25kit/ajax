@@ -256,7 +256,6 @@ export class WebsocketChatModule {
 
 			await characterRenderModule.loadCharacter(
 				avatarInfo,
-				myPlayer.position,
 				myPlayer.memberId,
 				myPlayer.sessionId,
 				myPlayer.nickName
@@ -272,7 +271,6 @@ export class WebsocketChatModule {
 
 				await characterRenderModule.loadCharacter(
 					avatarInfo,
-					player.position,
 					player.memberId,
 					player.sessionId,
 					player.nickName
@@ -322,15 +320,6 @@ export class WebsocketChatModule {
 		if (mapModule) {
 			mapModule.executeTransition(message.targetMap);
 		}
-		/*// ✅ 새 맵에 join-map 요청 
-		setTimeout(async () => {
-			console.log(`🚪 새 맵 ${message.targetMap} 입장 시작`);
-			try {
-				await this.joinMap(this.gameClient.player);
-			} catch (error) {
-				console.error('새 맵 입장 실패:', error);
-			}
-		}, 200);*/
 	}
 
 	// ===== 플레이어 맵 이동 처리 =====
