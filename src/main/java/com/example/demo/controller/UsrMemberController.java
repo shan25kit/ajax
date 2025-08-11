@@ -386,7 +386,6 @@ public class UsrMemberController {
 		model.addAttribute("memberId", member.getId());
 	    model.addAttribute("nickName", member.getNickName());
 	    model.addAttribute("fromMap", fromMap);
-
 		return "usr/member/customCharacterPage";
 	}
 
