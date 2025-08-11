@@ -90,7 +90,7 @@ private final RestTemplate restTemplate;
         return Map.of(
             "model", "gpt-3.5-turbo",
             "messages", messages,
-            "max_tokens", 50,
+            "max_tokens", 150,
             "temperature", 0.3
         );
     }

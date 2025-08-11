@@ -95,9 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
   controls.enablePan = false;
   controls.minPolarAngle = Math.PI / 2;
   controls.maxPolarAngle = Math.PI / 2; */
-//✅ 바로 여기!!
-  /* controls.target.set(0, 1, 0);   // 캐릭터 목 정도 위치를 바라보게
-  camera.lookAt(controls.target); // 카메라 시선 재설정 */
  
  
 const controls = new THREE.OrbitControls(camera, renderer.domElement);

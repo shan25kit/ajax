@@ -32,7 +32,7 @@ export class GameClient {
 				'angerMap': { x: 8.9, y: 0, z: 1 },
 				'zenMap': { x: 1, y: 0, z: 8 },
 				'happyMap': { x: 1, y: 0, z: 2.4 },
-				'sadMap': { x: -11, y: 0, z: 1.5 },
+				'sadMap': { x: -10, y: 0, z: 4},
 				'anxietyMap': { x: 3, y: 0, z: 2.5},
 				'default': { x: 0, y: 0, z: 0 }
 			},
@@ -43,12 +43,15 @@ export class GameClient {
 				{ id: 'portal_3', x: 2795, y: 1350, targetMap: 'happyMap' },
 				{ id: 'portal_4', x: 1875, y: 1200, targetMap: 'sadMap' },
 				{ id: 'portal_5', x: 1538, y: 1370, targetMap: 'anxietyMap' },
-				{ id: 'happy_portal', x: 1625, y: 1525, targetMap: 'startMap' },
-				{ id: 'anxiety_portal', x: 1625, y: 1525, targetMap: 'startMap' },
-				{ id: 'sad_portal', x: 1538, y: 1370, targetMap: 'startMap' },
-				{ id: 'anger_portal', x: 1625, y: 1525, targetMap: 'startMap' },
-				{ id: 'zen_portal', x: 1625, y: 1525, targetMap: 'startMap' },
-				{ id: 'object', x: 2260, y: 1550, type: 'fountain' }
+				{ id: 'happy_portal', x: 2400, y: 1900, targetMap: 'startMap' },
+				{ id: 'anxiety_portal', x: 2420, y: 1900, targetMap: 'startMap' },
+				{ id: 'sad_portal', x: 1630, y: 1700, targetMap: 'startMap' },
+				{ id: 'anger_portal', x: 2900, y: 1800, targetMap: 'startMap' },
+				{ id: 'zen_portal', x: 2400, y: 2070, targetMap: 'startMap' },
+				{ id: 'object', x: 2300, y:1600, type: 'fountain' }/*,
+				{ id: 'object', x: 2300, y:1600, type: 'chair' },
+				{ id: 'object', x: 2300, y:1600, type: 'fire' }*/
+						
 			]
 		};
 
