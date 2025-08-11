@@ -338,7 +338,7 @@ export class MapModule {
 
 		this.ctx.fillStyle = 'rgba(255, 255, 0, 0)';
 
-		this.ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
+		this.ctx.strokeStyle = 'rgba(255, 0, 0, 0)';
 		this.ctx.lineWidth = 2.3;
 
 		const scale = 1;
@@ -411,8 +411,6 @@ export class MapModule {
 				else this.ctx.lineTo(x, y);
 			}
 			this.ctx.closePath();
-			this.ctx.strokeStyle = 'red';
-			this.ctx.lineWidth = 2.3;
 			this.ctx.stroke();
 			this.ctx.restore();
 		}
@@ -891,11 +889,11 @@ export class MapModule {
 			'portal_3': { x: -20, y: 20 },
 			'portal_4': { x: 1, y: 15 },
 			'portal_5': { x: 0, y: 0 },
-			'sad_portal': { x: 50, y: 200 },
-			'happy_portal': { x: 650, y: 260 },
-			'anger_portal': { x: 1100, y: 100 },
-			'anxiety_portal': { x: 675, y: 280 },
-			'zen_portal': { x: 400, y: 450 }
+			'sad_portal': { x: 0, y: 0 },
+			'happy_portal': { x: 0, y: 0 },
+			'anger_portal': { x: -150, y: 0 },
+			'anxiety_portal': { x: 0, y: 0 },
+			'zen_portal': { x: 0, y: 0 }
 		};
 		return offsets[portalId] || { x: 0, y: 0 };
 	}
