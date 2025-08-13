@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -96,6 +97,7 @@ public class ChatController {
 		String response = chatService.sendMessageWithRole(request.getMessage(), botType);
 		return AIChatMessage.createResponse(response);
 	}
+	
 	private AIChatMessage handleEmotionCheck(String actualEmotion, String rawMessage, String botType) {
 	    // emotionCheckCount 증가
 	    aiChatMessage.setEmotionCheckCount(aiChatMessage.getEmotionCheckCount() + 1);
@@ -103,41 +105,68 @@ public class ChatController {
 	    
 	    System.out.println("감정 확인 횟수: " + checkCount + "회");
 	    System.out.println("현재 맵 감정: " + aiChatMessage.getEmotion());
-	    System.out.println("추출된 실제 감정: " + actualEmotion);
 	    
-	    // 감정 일치 확인
-	    boolean emotionMatches = actualEmotion.equals(aiChatMessage.getEmotion());
-	    
-	    // 1. 감정이 일치하고 명확한 감정이 추출된 경우 (neutral 제외)
-	    if (emotionMatches && !actualEmotion.equals("neutral")) {
-	        aiChatMessage.setPhase(2); // 감정 확인 완료
-	        aiChatMessage.saveEmotionToSession(); // 세션에 저장
+	    if (checkCount == 1) {
+	        // 1차: 키워드 분석 처리
+	        System.out.println("1차 키워드 분석 - 추출된 실제 감정: " + actualEmotion);
 	        
-	        String confirmMessage = generateEmotionConfirmMessage(actualEmotion);
-	        return AIChatMessage.createResponse(confirmMessage);
-	    }
-	    
-	    // 2. 감정이 다르고 3회 이상 확인한 경우 - 맵 이동 제안
-	    if (!emotionMatches && !actualEmotion.equals("neutral") && checkCount >= 3) {
-	        String redirectMessage = generateRedirectSuggestion(actualEmotion);
-	        return AIChatMessage.createResponse(redirectMessage);
-	    }
-	    
-	    // 3. 5회 이상 확인해도 결론이 안 나는 경우 - 현재 맵 감정으로 진행
-	    if (checkCount >= 5) {
-	        aiChatMessage.setPhase(2); // 감정 확인 완료
-	        aiChatMessage.saveEmotionToSession(); // 세션에 저장
+	        // 감정 일치 확인
+	        boolean emotionMatches = actualEmotion.equals(aiChatMessage.getEmotion());
 	        
-	        String forceMessage = "충분히 대화해보니 " + getEmotionDisplayName(aiChatMessage.getEmotion()) + 
-	                            " 상담을 진행하는 것이 좋겠습니다. 상담을 시작하겠습니다.";
+	        // 감정이 일치하고 명확한 감정이 추출된 경우 (neutral 제외)
+	        if (emotionMatches && !actualEmotion.equals("neutral")) {
+	            aiChatMessage.setPhase(2); // 감정 확인 완료
+	            aiChatMessage.saveEmotionToSession(); // 세션에 저장
+	            
+	            String confirmMessage = generateEmotionConfirmMessage(actualEmotion);
+	            return AIChatMessage.createResponse(confirmMessage);
+	        }
+	        
+	        // 1차에서 확정되지 않으면 2차 이모티콘 선택으로 진행
+	        AIChatMessage response = AIChatMessage.createResponse("감정을 선택해주세요.");
+	        response.setMessageType("emotion_select");
+	        return response;
+	        
+	    } else if (checkCount == 2) {
+	        // 2차: 직접 감정 선택 받음
+	        String selectedEmotion = rawMessage; // "anger", "sad", "happy", "anxiety", "zen"
+	        System.out.println("2차 선택된 감정: " + selectedEmotion);
+	        
+	        // 유효한 감정인지 확인
+	        if (isValidEmotion(selectedEmotion)) {
+	            boolean emotionMatches = selectedEmotion.equals(aiChatMessage.getEmotion());
+	            
+	            if (emotionMatches) {
+	                // 감정 일치 - 상담 시작
+	                aiChatMessage.setPhase(2);
+	                aiChatMessage.saveEmotionToSession();
+	                
+	                String confirmMessage = generateEmotionConfirmMessage(selectedEmotion);
+	                return AIChatMessage.createResponse(confirmMessage);
+	            } else {
+	                // 감정 불일치 - 맵 이동 제안
+	                String redirectMessage = generateRedirectSuggestion(selectedEmotion);
+	                return AIChatMessage.createResponse(redirectMessage);
+	            }
+	        }
+	        
+	        // 유효하지 않은 선택인 경우 현재 맵으로 강제 진행
+	        aiChatMessage.setPhase(2);
+	        aiChatMessage.saveEmotionToSession();
+	        
+	        String forceMessage = "현재 " + getEmotionDisplayName(aiChatMessage.getEmotion()) + 
+	                            " 상담실에서 상담을 진행하겠습니다.";
+	        return AIChatMessage.createResponse(forceMessage);
+	        
+	    } else {
+	        // 3회 이상 (안전장치)
+	        aiChatMessage.setPhase(2);
+	        aiChatMessage.saveEmotionToSession();
+	        
+	        String forceMessage = "현재 맵에서 상담을 진행하겠습니다.";
 	        return AIChatMessage.createResponse(forceMessage);
 	    }
-	    
-	    // 4. 계속 감정 확인 질문
-	    String questionMessage = generateEmotionCheckQuestion(checkCount, botType);
-	    return AIChatMessage.createResponse(questionMessage);
 	}
-
 	// 감정 확인 완료 메시지 생성
 	private String generateEmotionConfirmMessage(String emotion) {
 	    String emotionName = getEmotionDisplayName(emotion);
@@ -153,21 +182,6 @@ public class ChatController {
 	           mapName + "으로 이동해서 전문 상담을 받아보시겠어요?";
 	}
 
-	// 점진적 감정 확인 질문 생성
-	private String generateEmotionCheckQuestion(int checkCount, String botType) {
-	    switch(checkCount) {
-	        case 1:
-	            return "안녕하세요! 오늘 어떤 일이 있으셨나요?";
-	        case 2:
-	            return "그 상황에서 어떤 기분이 드셨는지 좀 더 자세히 말씀해주세요.";
-	        case 3:
-	            return "지금 가장 강하게 느끼시는 감정은 무엇인가요?";
-	        case 4:
-	            return "마음 속 깊은 곳의 감정을 솔직하게 표현해보세요.";
-	        default:
-	            return "지금까지 말씀해주신 내용을 바탕으로 상담을 진행하겠습니다.";
-	    }
-	}
 	
 	// 감정명 표시용 변환
 	private String getEmotionDisplayName(String emotion) {
@@ -191,5 +205,9 @@ public class ChatController {
 	        case "zen": return "평온의 호수";
 	        default: return "시작 맵";
 	    }
+	}
+	
+	private boolean isValidEmotion(String emotion) {
+	    return Arrays.asList("anger", "sad", "happy", "anxiety", "zen").contains(emotion);
 	}
 }

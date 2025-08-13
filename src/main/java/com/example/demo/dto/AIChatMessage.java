@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 public class AIChatMessage {
 	private String message;
 	private String botType;
-
+	private String messageType = "normal"; // "normal", "emotion_select", "redirect_choice"
 	// 응답용 필드
 	private String response;
 	private Long timestamp;
@@ -129,6 +129,7 @@ public class AIChatMessage {
 		AIChatMessage AIChatMessage = new AIChatMessage();
 		AIChatMessage.setResponse(response.replace("\n", "<br>")); // 기존 로직 유지
 		AIChatMessage.setTimestamp(System.currentTimeMillis());
+		AIChatMessage.setMessageType("normal");
 		return AIChatMessage;
 	}
 }
