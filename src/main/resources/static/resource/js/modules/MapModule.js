@@ -998,12 +998,13 @@ export class MapModule {
 
 		let redirectPath;
 		if (targetMap === 'chatBot') {
-			const currentMap = this.gameClient.currentMapName;
-			redirectPath = `/usr/game/chatBot?currentMap=${currentMap}`;
+			this.createChatBotModal();
+		
+			/*redirectPath = `/usr/game/chatBot?currentMap=${currentMap}`;
 			console.log(`🤖 AI 상담 페이지 이동: ${redirectPath}`);
 
 			// AI 챗봇은 즉시 이동 (딜레이 없음)
-			window.location.href = redirectPath;
+			window.location.href = redirectPath;*/
 			return;
 		}
 
@@ -1034,6 +1035,250 @@ export class MapModule {
 		}, 2000);
 	}
 
+	createChatBotModal() {
+	    // 기존 모달이 있으면 제거
+	    const existingModal = document.getElementById('chatBotModal');
+	    if (existingModal) {
+	        existingModal.remove();
+	    }
+
+	    // 현재 맵 정보 가져오기
+	    const currentMap = this.gameClient.currentMapName;
+	    
+	    // 맵별 챗봇 타입 매핑 (기존 chatBot.jsp와 동일)
+	    const mapToBotType = {
+	        'startMap': null,
+	        'angerMap': 'Anger',
+	        'happyMap': 'Joy',
+	        'sadMap': 'Hope',
+	        'anxietyMap': 'Calm',
+	        'zenMap': 'Zen'
+	    };
+
+	    // 봇 이모지 매핑 (기존과 동일)
+	    const botEmojis = {
+	        'Anger': '😤',
+	        'Hope': '😢', 
+	        'Calm': '😰',
+	        'Joy': '😊',
+	        'Zen': '😌'
+	    };
+
+	    // 봇 이름 매핑 (기존과 동일)
+	    const getBotDisplayName = (botType) => {
+	        const names = {
+	            'Anger': '버럭이',
+	            'Hope': '슬픔이', 
+	            'Calm': '소심이',
+	            'Joy': '기쁨이',
+	            'Zen': '평온이'
+	        };
+	        return names[botType] || '상담사';
+	    };
+
+	    // 환영 메시지 매핑 (기존과 동일)
+	    const mapWelcomeMessages = {
+	        'angerMap': '분노의 세계에서 오셨군요. 버럭이가 당신의 화를 이해하고 도와드릴게요. 무엇이 화나게 했나요?',
+	        'happyMap': '행복의 공간에서 오셨네요! 기쁨이와 함께 더 많은 기쁨을 나누어봐요. 오늘 좋은 일이 있으셨나요?',
+	        'sadMap': '슬픔의 공간에서 오셨군요. 슬픔이가 당신의 마음을 이해하고 위로해드릴게요. 무엇이 슬프게 했나요?',
+	        'anxietyMap': '불안의 공간에서 오셨네요. 소심이가 당신의 불안감을 달래드릴게요. 어떤 것이 불안하신가요?',
+	        'zenMap': '평온의 호수에서 오셨군요. 평온이와 함께 마음의 평화를 찾아봐요. 어떻게 도와드릴까요?'
+	    };
+
+	    // 모달 HTML 구조 생성 (기존 chatBot.jsp 구조 활용)
+	    const modalHTML = `
+	        <div id="chatBotModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; justify-content: center; align-items: center;">
+	            <div class="chatBot-container" style="width: 90%; max-width: 600px; height: 80%; max-height: 700px; display: flex; flex-direction: column;">
+	                <!-- 헤더 -->
+	                <div class="chatBot-header">
+	                    <h1>감정별 전문 상담 AI 챗봇</h1>
+	                    <button id="closeChatBotModal" class="map-icon-btn">
+	                        🗺️ <span class="tooltip">맵으로 돌아가기</span>
+	                    </button>
+	                </div>
+
+	                <!-- 현재 모드 표시 -->
+	                <div class="current-mode">
+	                    <span id="currentMode">일반 채팅 모드</span>
+	                </div>
+
+	                <!-- 메시지 영역 -->
+	                <div class="chat-messages" id="chatMessages" style="flex: 1;">
+	                    <div class="typing" id="typing">AI가 답변을 생각하고 있습니다</div>
+	                </div>
+
+	                <!-- 입력 영역 -->
+	                <div class="chat-input">
+	                    <textarea id="messageInput" placeholder="메시지를 입력하세요..." rows="1"></textarea>
+	                    <button id="sendBtn">전송</button>
+	                </div>
+	            </div>
+	        </div>
+	    `;
+
+	    // 모달을 body에 추가
+	    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+	    // 현재 맵에 따른 봇 설정
+	    const currentBotType = mapToBotType[currentMap];
+	    let currentBotEmoji = '🤖';
+
+	    // 모달 요소들 참조
+	    const modal = document.getElementById('chatBotModal');
+	    const chatMessages = document.getElementById('chatMessages');
+	    const currentModeElement = document.getElementById('currentMode');
+	    const messageInput = document.getElementById('messageInput');
+	    const sendBtn = document.getElementById('sendBtn');
+	    const closeBtn = document.getElementById('closeChatBotModal');
+	    const typing = document.getElementById('typing');
+
+	    // 봇 설정 및 환영 메시지
+	    if (currentBotType) {
+	        currentBotEmoji = botEmojis[currentBotType];
+	        currentModeElement.textContent = getBotDisplayName(currentBotType) + ' 모드';
+	        
+	        const welcomeMessage = mapWelcomeMessages[currentMap];
+	        if (welcomeMessage) {
+	            addMessage('bot', welcomeMessage);
+	        }
+	        
+	        messageInput.disabled = false;
+	        messageInput.placeholder = '메시지를 입력하세요...';
+	        sendBtn.disabled = false;
+	    } else {
+	        messageInput.disabled = true;
+	        messageInput.placeholder = '상담사를 먼저 선택해주세요...';
+	        sendBtn.disabled = true;
+	        currentModeElement.textContent = '상담사를 선택해주세요';
+	    }
+
+	    // 메시지 추가 함수 (기존 chatBot.jsp와 동일)
+	    function addMessage(sender, content) {
+	        let avatar;
+	        if (sender === 'user') {
+	            avatar = '👤';
+	        } else {
+	            avatar = currentBotEmoji || '🤖';
+	        }
+	        
+	        const messageHtml = `
+	            <div class="message ${sender}">
+	                <div class="avatar">${avatar}</div>
+	                <div class="message-bubble">${content}</div>
+	            </div>
+	        `;
+	        
+	        typing.insertAdjacentHTML('beforebegin', messageHtml);
+	        scrollToBottom();
+	    }
+
+	    // 타이핑 표시/숨김 함수
+	    function showTyping() {
+	        typing.style.display = 'block';
+	        scrollToBottom();
+	    }
+
+	    function hideTyping() {
+	        typing.style.display = 'none';
+	    }
+
+	    // 스크롤을 맨 아래로
+	    function scrollToBottom() {
+	        chatMessages.scrollTop = chatMessages.scrollHeight;
+	    }
+
+	    // 메시지 전송 함수 (기존 chatBot.jsp 로직 활용)
+	    function sendMessage() {
+	        const message = messageInput.value.trim();
+	        if (!message) return;
+
+	        // 봇이 선택되지 않은 경우 처리
+	        if (!currentBotType) {
+	            addMessage('bot', '먼저 상담사를 선택해주세요!');
+	            return;
+	        }
+
+	        // 사용자 메시지 추가
+	        addMessage('user', message);
+	        messageInput.value = '';
+	        messageInput.style.height = 'auto';
+	        sendBtn.disabled = true;
+
+	        // 타이핑 표시
+	        showTyping();
+
+	        // API 호출 (기존 로직과 동일)
+	        const apiUrl = `/api/chat/message/${currentBotType}`;
+	        
+	        fetch(apiUrl, {
+	            method: 'POST',
+	            headers: {
+	                'Content-Type': 'application/json',
+	            },
+	            body: JSON.stringify({ 
+	                message: message, 
+	                botType: currentBotType 
+	            })
+	        })
+	        .then(response => response.json())
+	        .then(data => {
+	            hideTyping();
+	            addMessage('bot', data.response);
+	            
+	            if (data.response && data.response.includes('상담이 일시 중단됩니다')) {
+	                messageInput.disabled = true;
+	                messageInput.placeholder = '상담이 종료되었습니다.';
+	                messageInput.style.backgroundColor = '#f5f5f5';
+	                sendBtn.disabled = true;
+	                sendBtn.textContent = '종료됨';
+	                sendBtn.style.backgroundColor = '#ccc';
+	                currentModeElement.textContent = '상담 종료';
+	                currentModeElement.style.color = '#ff4444';
+	                return;
+	            }
+	            sendBtn.disabled = false;
+	        })
+	        .catch(error => {
+	            console.error('오류 상세:', error);
+	            hideTyping();
+	            addMessage('bot', '죄송합니다. 오류가 발생했습니다.');
+	            sendBtn.disabled = false;
+	        });
+	    }
+
+	    // 이벤트 리스너 등록
+	    // 엔터키로 메시지 전송
+	    messageInput.addEventListener('keypress', function(e) {
+	        if (e.key === 'Enter' && !e.shiftKey) {
+	            e.preventDefault();
+	            sendMessage();
+	        }
+	    });
+
+	    // 전송 버튼 클릭
+	    sendBtn.addEventListener('click', sendMessage);
+
+	    // 입력창 자동 높이 조절
+	    messageInput.addEventListener('input', function() {
+	        this.style.height = 'auto';
+	        this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+	    });
+
+	    // 모달 닫기 버튼
+	    closeBtn.addEventListener('click', () => {
+	        modal.remove();
+	    });
+
+
+	    // 입력창에 포커스
+	    setTimeout(() => {
+	        if (!messageInput.disabled) {
+	            messageInput.focus();
+	        }
+	    }, 100);
+
+	    console.log('🤖 ChatBot 모달 생성 완료');
+	}
 	// ===== 전환 효과 제거 =====
 	hideTransitionEffect() {
 		if (this.transitionOverlay) {

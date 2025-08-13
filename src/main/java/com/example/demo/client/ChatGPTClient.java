@@ -102,7 +102,6 @@ private final RestTemplate restTemplate;
             Map<String, Object> firstChoice = choices.get(0);
             Map<String, Object> message = (Map<String, Object>) firstChoice.get("message");
             String content = (String) message.get("content");
-            
             // finish_reason 확인으로 끊김 감지
             String finishReason = (String) firstChoice.get("finish_reason");
             

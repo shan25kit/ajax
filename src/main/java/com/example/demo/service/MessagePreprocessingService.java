@@ -21,7 +21,7 @@ public class MessagePreprocessingService {
 
 	private static final List<Pattern> SELF_HARM_PATTERNS = List.of(Pattern.compile(".*죽.*(고싶|하고싶|을래|어야지).*"),
 			Pattern.compile(".*자해.*(하고싶|할래|했어|하자).*"), Pattern.compile(".*사라지.*(고싶|을래|버리고).*"),
-			Pattern.compile(".*끝내.*(고싶|버리고싶|야겠).*"), Pattern.compile(".*생을.*(마감|끝).*"));
+			Pattern.compile(".*끝내.*(고싶|버리고싶|야겠).*"), Pattern.compile(".*생을.*(마감|끝).*"),Pattern.compile(".자*살."));
 
 	// 긍정적 표현 예외 (오탐지 방지)
 	private static final List<Pattern> POSITIVE_EXCEPTIONS = List.of(Pattern.compile(".*죽을만큼.*(좋|행복|기뻐).*"),
@@ -68,7 +68,7 @@ public class MessagePreprocessingService {
 			throw new IllegalArgumentException("메시지가 너무 깁니다.");
 		}
 		return message.toLowerCase().replaceAll("\\s+", "") // 공백 제거
-				.replaceAll("[!@#$%^&*(),.?\":{}|<>]", "") // 특수문자 제거
+				.replaceAll("[!@#$%^&*(),.?\":{}|<>0-9]", "") // 특수문자,숫자 제거
 				.replaceAll("ㅋ+", "") // 웃음 표현 제거
 				.replaceAll("ㅠ+", "") // 울음 표현 정규화
 				.replaceAll("ㅜ+", ""); // 울음 표현 정규화

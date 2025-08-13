@@ -44,16 +44,14 @@ public class GameController {
         return "usr/game/startMap";
     }
 
-	@GetMapping("/usr/game/chatBot")
-	public String chatBot(@RequestParam(value = "currentMap", defaultValue = "startMap") String currentMap, Model model) {
-		int memberId = this.req.getLoginedMember().getId();
-		Player player = this.gameService.selectPlayerByMemberId(memberId);
-		 if (player != null) {
-		        model.addAttribute("currentMap", currentMap);
-		        model.addAttribute("player", player);
-		    }
-		return "usr/game/chatBot";
-	}
+	/*
+	 * @GetMapping("/usr/game/chatBot") public String chatBot(@RequestParam(value =
+	 * "currentMap", defaultValue = "startMap") String currentMap, Model model) {
+	 * int memberId = this.req.getLoginedMember().getId(); Player player =
+	 * this.gameService.selectPlayerByMemberId(memberId); if (player != null) {
+	 * model.addAttribute("currentMap", currentMap); model.addAttribute("player",
+	 * player); } return "usr/game/chatBot"; }
+	 */
 	
 	@GetMapping("/usr/game/happyMap")
 	public String happyMap(Model model) {

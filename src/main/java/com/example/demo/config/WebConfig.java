@@ -29,13 +29,12 @@ public class WebConfig implements WebMvcConfigurer {
 		registry.addInterceptor(needLoginInterceptor).addPathPatterns("/usr/game/startMap")
 				.addPathPatterns("/usr/game/happyMap").addPathPatterns("/usr/game/angerMap")
 				.addPathPatterns("/usr/game/anxietyMap").addPathPatterns("/usr/game/sadMap")
-				.addPathPatterns("/usr/game/zenMap").addPathPatterns("/usr/game/chatBot")
-				.addPathPatterns("/usr/member/info").addPathPatterns("/usr/member/customCharacterPage");
+				.addPathPatterns("/usr/game/zenMap").addPathPatterns("/usr/member/info")
+				.addPathPatterns("/usr/member/customCharacterPage");
 
 		registry.addInterceptor(needLogoutInterceptor).addPathPatterns("/usr/member/signup")
 				.addPathPatterns("/usr/member/doSignUp").addPathPatterns("/usr/member/emailSignUp")
-				.addPathPatterns("/usr/member/doLogin")
-				;
+				.addPathPatterns("/usr/member/doLogin");
 
 	}
 
