@@ -309,3 +309,135 @@
         font-size: 11px;
     }
 }
+
+/* ===== 이모티콘 선택 버튼 ===== */
+.emotion-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    margin-top: 5px;
+}
+
+.emotion-btn {
+    flex: 1;
+    min-width: 80px;
+    padding: 10px 12px;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 28px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.emotion-btn:hover {
+    background: #e3f2fd;
+    border-color: #2196f3;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
+}
+
+.emotion-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 4px rgba(33, 150, 243, 0.3);
+}
+
+/* ===== 예/아니오 선택 버튼 ===== */
+.choice-buttons {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    margin-top: 5px;
+}
+
+.choice-btn {
+    flex: 1;
+    padding: 12px 20px;
+    border: 2px solid;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.yes-btn {
+    background: white;
+    border-color: #4caf50;
+    color: #4caf50;
+}
+
+.yes-btn:hover {
+    background: #4caf50;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.no-btn {
+    background: white;
+    border-color: #f44336;
+    color: #f44336;
+}
+
+.no-btn:hover {
+    background: #f44336;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
+}
+
+.choice-btn:active {
+    transform: translateY(0);
+}
+
+/* ===== 반응형 처리 ===== */
+@media (max-width: 768px) {
+    .emotion-buttons {
+        gap: 6px;
+        padding: 10px;
+    }
+    
+    .emotion-btn {
+        min-width: 70px;
+        padding: 8px 10px;
+        font-size: 13px;
+    }
+    
+    .choice-buttons {
+        gap: 10px;
+        padding: 10px;
+    }
+    
+    .choice-btn {
+        padding: 10px 16px;
+        font-size: 15px;
+    }
+}
+
+/* ===== 버튼 컨테이너 공통 스타일 ===== */
+.emotion-buttons, .choice-buttons {
+    /* 부드러운 등장 애니메이션 */
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

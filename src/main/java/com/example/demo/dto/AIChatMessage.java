@@ -23,13 +23,14 @@ import lombok.NoArgsConstructor;
 public class AIChatMessage {
 	private String message;
 	private String botType;
-	private String messageType = "normal"; // "normal", "emotion_select", "redirect_choice"
+	private String messageType = "normal"; // "normal", "emotion_select", "redirect_choice" "map_redirect"
 	// 응답용 필드
 	private String response;
 	private Long timestamp;
 	// 감정분석 필드
 	private String emotion;
 	private int emotionCheckCount;
+	private boolean waitingForRedirectChoice = false;
 	// 상담 단계
 	private int phase = 1;
 
@@ -130,6 +131,7 @@ public class AIChatMessage {
 		AIChatMessage.setResponse(response.replace("\n", "<br>")); // 기존 로직 유지
 		AIChatMessage.setTimestamp(System.currentTimeMillis());
 		AIChatMessage.setMessageType("normal");
+		AIChatMessage.setEmotion(null); 
 		return AIChatMessage;
 	}
 }

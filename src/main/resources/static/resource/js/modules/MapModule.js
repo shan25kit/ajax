@@ -124,7 +124,7 @@ export class MapModule {
 				[810, 829], [522, 705], [410, 583], [394, 509], [410, 383],
 				[458, 297], [2, 115]
 			];
-			
+
 			this.restrictedPolygon = [
 				[944.992, 451.096], [994.512, 487.058], [1088.25, 523.019],
 				[1243.88, 541], [1413.67, 523.019], [1525.09, 467.442],
@@ -133,7 +133,7 @@ export class MapModule {
 				[1051.11, 235.327], [962.678, 284.365], [922, 346.481],
 				[932.612, 410.231], [944.992, 451.096]
 			];
-			
+
 			this.restrictedEllipse = {
 				centerX: 0,  // 중심 위치 (X)
 				centerY: -220,  // 중심 위치 (Y)
@@ -179,7 +179,7 @@ export class MapModule {
 				[1215, 727], [1019, 783], [837, 799], [659, 783], [523, 755], [383, 703],
 				[289, 649], [211, 577], [159, 493], [159, 437], [101, 437], [59, 465]
 			];
-						
+
 			this.restrictedEllipse = {
 				centerX: 0,  // 중심 위치 (X)
 				centerY: 0,  // 중심 위치 (Y)
@@ -499,8 +499,8 @@ export class MapModule {
 		// 맵 정보와 스케일, 오프셋
 		const mapConfig = this.gameClient.getMapConfig();
 		const scale = 1;
-		const offsetX = this.maskingOffsets?.offsetX ;
-		const offsetY = this.maskingOffsets?.offsetY ;
+		const offsetX = this.maskingOffsets?.offsetX;
+		const offsetY = this.maskingOffsets?.offsetY;
 
 		// 중심 기준 (이미지 중심)
 		const canvasCenterX = mapConfig.IMAGE_WIDTH / 2;
@@ -999,7 +999,7 @@ export class MapModule {
 		let redirectPath;
 		if (targetMap === 'chatBot') {
 			this.createChatBotModal();
-		
+
 			/*redirectPath = `/usr/game/chatBot?currentMap=${currentMap}`;
 			console.log(`🤖 AI 상담 페이지 이동: ${redirectPath}`);
 
@@ -1036,57 +1036,59 @@ export class MapModule {
 	}
 
 	createChatBotModal() {
-	    // 기존 모달이 있으면 제거
-	    const existingModal = document.getElementById('chatBotModal');
-	    if (existingModal) {
-	        existingModal.remove();
-	    }
+		
+		this.disableMapControls();
+		// 기존 모달이 있으면 제거
+		const existingModal = document.getElementById('chatBotModal');
+		if (existingModal) {
+			existingModal.remove();
+		}
 
-	    // 현재 맵 정보 가져오기
-	    const currentMap = this.gameClient.currentMapName;
-	    
-	    // 맵별 챗봇 타입 매핑 (기존 chatBot.jsp와 동일)
-	    const mapToBotType = {
-	        'startMap': null,
-	        'angerMap': 'Anger',
-	        'happyMap': 'Joy',
-	        'sadMap': 'Hope',
-	        'anxietyMap': 'Calm',
-	        'zenMap': 'Zen'
-	    };
+		// 현재 맵 정보 가져오기
+		const currentMap = this.gameClient.currentMapName;
 
-	    // 봇 이모지 매핑 (기존과 동일)
-	    const botEmojis = {
-	        'Anger': '😤',
-	        'Hope': '😢', 
-	        'Calm': '😰',
-	        'Joy': '😊',
-	        'Zen': '😌'
-	    };
+		// 맵별 챗봇 타입 매핑 (기존 chatBot.jsp와 동일)
+		const mapToBotType = {
+			'startMap': null,
+			'angerMap': 'Anger',
+			'happyMap': 'Joy',
+			'sadMap': 'Hope',
+			'anxietyMap': 'Calm',
+			'zenMap': 'Zen'
+		};
 
-	    // 봇 이름 매핑 (기존과 동일)
-	    const getBotDisplayName = (botType) => {
-	        const names = {
-	            'Anger': '버럭이',
-	            'Hope': '슬픔이', 
-	            'Calm': '소심이',
-	            'Joy': '기쁨이',
-	            'Zen': '평온이'
-	        };
-	        return names[botType] || '상담사';
-	    };
+		// 봇 이모지 매핑 (기존과 동일)
+		const botEmojis = {
+			'Anger': '😤',
+			'Hope': '😢',
+			'Calm': '😰',
+			'Joy': '😊',
+			'Zen': '😌'
+		};
 
-	    // 환영 메시지 매핑 (기존과 동일)
-	    const mapWelcomeMessages = {
-	        'angerMap': '분노의 세계에서 오셨군요. 버럭이가 당신의 화를 이해하고 도와드릴게요. 무엇이 화나게 했나요?',
-	        'happyMap': '행복의 공간에서 오셨네요! 기쁨이와 함께 더 많은 기쁨을 나누어봐요. 오늘 좋은 일이 있으셨나요?',
-	        'sadMap': '슬픔의 공간에서 오셨군요. 슬픔이가 당신의 마음을 이해하고 위로해드릴게요. 무엇이 슬프게 했나요?',
-	        'anxietyMap': '불안의 공간에서 오셨네요. 소심이가 당신의 불안감을 달래드릴게요. 어떤 것이 불안하신가요?',
-	        'zenMap': '평온의 호수에서 오셨군요. 평온이와 함께 마음의 평화를 찾아봐요. 어떻게 도와드릴까요?'
-	    };
+		// 봇 이름 매핑 (기존과 동일)
+		const getBotDisplayName = (botType) => {
+			const names = {
+				'Anger': '버럭이',
+				'Hope': '슬픔이',
+				'Calm': '소심이',
+				'Joy': '기쁨이',
+				'Zen': '평온이'
+			};
+			return names[botType] || '상담사';
+		};
 
-	    // 모달 HTML 구조 생성 (기존 chatBot.jsp 구조 활용)
-	    const modalHTML = `
+		// 환영 메시지 매핑 (기존과 동일)
+		const mapWelcomeMessages = {
+			'angerMap': '분노의 세계에서 오셨군요. 버럭이가 당신의 화를 이해하고 도와드릴게요. 무엇이 화나게 했나요?',
+			'happyMap': '행복의 공간에서 오셨네요! 기쁨이와 함께 더 많은 기쁨을 나누어봐요. 오늘 좋은 일이 있으셨나요?',
+			'sadMap': '슬픔의 공간에서 오셨군요. 슬픔이가 당신의 마음을 이해하고 위로해드릴게요. 무엇이 슬프게 했나요?',
+			'anxietyMap': '불안의 공간에서 오셨네요. 소심이가 당신의 불안감을 달래드릴게요. 어떤 것이 불안하신가요?',
+			'zenMap': '평온의 호수에서 오셨군요. 평온이와 함께 마음의 평화를 찾아봐요. 어떻게 도와드릴까요?'
+		};
+
+		// 모달 HTML 구조 생성 (기존 chatBot.jsp 구조 활용)
+		const modalHTML = `
 	        <div id="chatBotModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; justify-content: center; align-items: center;">
 	            <div class="chatBot-container" style="width: 90%; max-width: 600px; height: 80%; max-height: 700px; display: flex; flex-direction: column;">
 	                <!-- 헤더 -->
@@ -1116,168 +1118,281 @@ export class MapModule {
 	        </div>
 	    `;
 
-	    // 모달을 body에 추가
-	    document.body.insertAdjacentHTML('beforeend', modalHTML);
+		// 모달을 body에 추가
+		document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-	    // 현재 맵에 따른 봇 설정
-	    const currentBotType = mapToBotType[currentMap];
-	    let currentBotEmoji = '🤖';
+		// 현재 맵에 따른 봇 설정
+		const currentBotType = mapToBotType[currentMap];
+		let currentBotEmoji = '🤖';
 
-	    // 모달 요소들 참조
-	    const modal = document.getElementById('chatBotModal');
-	    const chatMessages = document.getElementById('chatMessages');
-	    const currentModeElement = document.getElementById('currentMode');
-	    const messageInput = document.getElementById('messageInput');
-	    const sendBtn = document.getElementById('sendBtn');
-	    const closeBtn = document.getElementById('closeChatBotModal');
-	    const typing = document.getElementById('typing');
+		// 모달 요소들 참조
+		const modal = document.getElementById('chatBotModal');
+		const chatMessages = document.getElementById('chatMessages');
+		const currentModeElement = document.getElementById('currentMode');
+		const messageInput = document.getElementById('messageInput');
+		const sendBtn = document.getElementById('sendBtn');
+		const closeBtn = document.getElementById('closeChatBotModal');
+		const typing = document.getElementById('typing');
 
-	    // 봇 설정 및 환영 메시지
-	    if (currentBotType) {
-	        currentBotEmoji = botEmojis[currentBotType];
-	        currentModeElement.textContent = getBotDisplayName(currentBotType) + ' 모드';
-	        
-	        const welcomeMessage = mapWelcomeMessages[currentMap];
-	        if (welcomeMessage) {
-	            addMessage('bot', welcomeMessage);
-	        }
-	        
-	        messageInput.disabled = false;
-	        messageInput.placeholder = '메시지를 입력하세요...';
-	        sendBtn.disabled = false;
-	    } else {
-	        messageInput.disabled = true;
-	        messageInput.placeholder = '상담사를 먼저 선택해주세요...';
-	        sendBtn.disabled = true;
-	        currentModeElement.textContent = '상담사를 선택해주세요';
-	    }
+		// 봇 설정 및 환영 메시지
+		if (currentBotType) {
+			currentBotEmoji = botEmojis[currentBotType];
+			currentModeElement.textContent = getBotDisplayName(currentBotType) + ' 모드';
 
-	    // 메시지 추가 함수 (기존 chatBot.jsp와 동일)
-	    function addMessage(sender, content) {
-	        let avatar;
-	        if (sender === 'user') {
-	            avatar = '👤';
-	        } else {
-	            avatar = currentBotEmoji || '🤖';
-	        }
-	        
-	        const messageHtml = `
+			const welcomeMessage = mapWelcomeMessages[currentMap];
+			if (welcomeMessage) {
+				addMessage('bot', welcomeMessage);
+			}
+
+			messageInput.disabled = false;
+			messageInput.placeholder = '메시지를 입력하세요...';
+			sendBtn.disabled = false;
+		} else {
+			messageInput.disabled = true;
+			messageInput.placeholder = '상담사를 먼저 선택해주세요...';
+			sendBtn.disabled = true;
+			currentModeElement.textContent = '상담사를 선택해주세요';
+		}
+
+		// 메시지 추가 함수 (기존 chatBot.jsp와 동일)
+		function addMessage(sender, content) {
+			let avatar;
+			if (sender === 'user') {
+				avatar = '👤';
+			} else {
+				avatar = currentBotEmoji || '🤖';
+			}
+
+			const messageHtml = `
 	            <div class="message ${sender}">
 	                <div class="avatar">${avatar}</div>
 	                <div class="message-bubble">${content}</div>
 	            </div>
 	        `;
-	        
-	        typing.insertAdjacentHTML('beforebegin', messageHtml);
-	        scrollToBottom();
-	    }
 
-	    // 타이핑 표시/숨김 함수
-	    function showTyping() {
-	        typing.style.display = 'block';
-	        scrollToBottom();
-	    }
+			typing.insertAdjacentHTML('beforebegin', messageHtml);
+			scrollToBottom();
+		}
 
-	    function hideTyping() {
-	        typing.style.display = 'none';
-	    }
+		// 타이핑 표시/숨김 함수
+		function showTyping() {
+			typing.style.display = 'block';
+			scrollToBottom();
+		}
 
-	    // 스크롤을 맨 아래로
-	    function scrollToBottom() {
-	        chatMessages.scrollTop = chatMessages.scrollHeight;
-	    }
+		function hideTyping() {
+			typing.style.display = 'none';
+		}
 
-	    // 메시지 전송 함수 (기존 chatBot.jsp 로직 활용)
-	    function sendMessage() {
-	        const message = messageInput.value.trim();
-	        if (!message) return;
+		// 스크롤을 맨 아래로
+		function scrollToBottom() {
+			chatMessages.scrollTop = chatMessages.scrollHeight;
+		}
 
-	        // 봇이 선택되지 않은 경우 처리
-	        if (!currentBotType) {
-	            addMessage('bot', '먼저 상담사를 선택해주세요!');
-	            return;
-	        }
+		// 메시지 전송 함수 (기존 chatBot.jsp 로직 활용)
+		function sendMessage() {
+			const message = messageInput.value.trim();
+			if (!message) return;
 
-	        // 사용자 메시지 추가
-	        addMessage('user', message);
-	        messageInput.value = '';
-	        messageInput.style.height = 'auto';
-	        sendBtn.disabled = true;
+			// 봇이 선택되지 않은 경우 처리
+			if (!currentBotType) {
+				addMessage('bot', '먼저 상담사를 선택해주세요!');
+				return;
+			}
 
-	        // 타이핑 표시
-	        showTyping();
+			// 사용자 메시지 추가
+			addMessage('user', message);
+			messageInput.value = '';
+			messageInput.style.height = 'auto';
+			sendBtn.disabled = true;
 
-	        // API 호출 (기존 로직과 동일)
-	        const apiUrl = `/api/chat/message/${currentBotType}`;
-	        
-	        fetch(apiUrl, {
-	            method: 'POST',
-	            headers: {
-	                'Content-Type': 'application/json',
-	            },
-	            body: JSON.stringify({ 
-	                message: message, 
-	                botType: currentBotType 
-	            })
-	        })
-	        .then(response => response.json())
-	        .then(data => {
-	            hideTyping();
-	            addMessage('bot', data.response);
-	            
-	            if (data.response && data.response.includes('상담이 일시 중단됩니다')) {
-	                messageInput.disabled = true;
-	                messageInput.placeholder = '상담이 종료되었습니다.';
-	                messageInput.style.backgroundColor = '#f5f5f5';
-	                sendBtn.disabled = true;
-	                sendBtn.textContent = '종료됨';
-	                sendBtn.style.backgroundColor = '#ccc';
-	                currentModeElement.textContent = '상담 종료';
-	                currentModeElement.style.color = '#ff4444';
-	                return;
-	            }
-	            sendBtn.disabled = false;
-	        })
-	        .catch(error => {
-	            console.error('오류 상세:', error);
-	            hideTyping();
-	            addMessage('bot', '죄송합니다. 오류가 발생했습니다.');
-	            sendBtn.disabled = false;
-	        });
-	    }
+			// 타이핑 표시
+			showTyping();
 
-	    // 이벤트 리스너 등록
-	    // 엔터키로 메시지 전송
-	    messageInput.addEventListener('keypress', function(e) {
-	        if (e.key === 'Enter' && !e.shiftKey) {
-	            e.preventDefault();
-	            sendMessage();
-	        }
-	    });
+			// API 호출 (기존 로직과 동일)
+			const apiUrl = `/api/chat/message/${currentBotType}`;
 
-	    // 전송 버튼 클릭
-	    sendBtn.addEventListener('click', sendMessage);
+			fetch(apiUrl, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					message: message,
+					botType: currentBotType
+				})
+			})
+				.then(response => response.json())
+				.then(data => {
+					hideTyping();
+					//messageType에 따른 분기 처리
+					if (data.messageType === "emotion_select") {
+						const emotionButtonsHtml = `
+						                <div class="message bot">
+						                <div class="avatar">${currentBotEmoji || '🤖'}</div>
+						                       <div class="message-bubble">${data.response}</div>
+						                   </div>
+						                   <div class="message bot">
+						                       <div class="avatar">${currentBotEmoji || '🤖'}</div>
+						                       <div class="emotion-buttons">
+						                           <button class="emotion-btn" data-emotion="anger" >😤</button>
+												   <button class="emotion-btn" data-emotion="sad" >😢</button>
+												   <button class="emotion-btn" data-emotion="happy" >😊</button>
+												   <button class="emotion-btn" data-emotion="anxiety" >😰</button>
+												   <button class="emotion-btn" data-emotion="zen" >😌</button>
+						                       </div>
+						                   </div>
+						               `;
+						typing.insertAdjacentHTML('beforebegin', emotionButtonsHtml);
+						document.querySelectorAll('.emotion-btn').forEach(btn => {
+							btn.addEventListener('click', () => {
+								const emotion = btn.dataset.emotion;
+								const display = btn.textContent;;
+								sendEmotion(emotion, display);
+							});
+						});
+					} else {
+						// 일반 메시지 표시
+						addMessage('bot', data.response);
+					}
+					scrollToBottom();
 
-	    // 입력창 자동 높이 조절
-	    messageInput.addEventListener('input', function() {
-	        this.style.height = 'auto';
-	        this.style.height = Math.min(this.scrollHeight, 100) + 'px';
-	    });
+					if (data.response && data.response.includes('상담이 일시 중단됩니다')) {
+						messageInput.disabled = true;
+						messageInput.placeholder = '상담이 종료되었습니다.';
+						messageInput.style.backgroundColor = '#f5f5f5';
+						sendBtn.disabled = true;
+						sendBtn.textContent = '종료됨';
+						sendBtn.style.backgroundColor = '#ccc';
+						currentModeElement.textContent = '상담 종료';
+						currentModeElement.style.color = '#ff4444';
+						return;
+					}
+					sendBtn.disabled = false;
+				})
+				.catch(error => {
+					console.error('오류 상세:', error);
+					hideTyping();
+					addMessage('bot', '죄송합니다. 오류가 발생했습니다.');
+					sendBtn.disabled = false;
+				});
+		}
 
-	    // 모달 닫기 버튼
-	    closeBtn.addEventListener('click', () => {
-	        modal.remove();
-	    });
+		// 이벤트 리스너 등록
+		// 엔터키로 메시지 전송
+		messageInput.addEventListener('keypress', function(e) {
+			if (e.key === 'Enter' && !e.shiftKey) {
+				e.preventDefault();
+				sendMessage();
+			}
+		});
+
+		// 전송 버튼 클릭
+		sendBtn.addEventListener('click', sendMessage);
+
+		// 입력창 자동 높이 조절
+		messageInput.addEventListener('input', function() {
+			this.style.height = 'auto';
+			this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+		});
+
+		// 모달 닫기 버튼
+		closeBtn.addEventListener('click', () => {
+			this.enableMapControls();
+			modal.remove();
+		});
 
 
-	    // 입력창에 포커스
-	    setTimeout(() => {
-	        if (!messageInput.disabled) {
-	            messageInput.focus();
-	        }
-	    }, 100);
+		// 입력창에 포커스
+		setTimeout(() => {
+			if (!messageInput.disabled) {
+				messageInput.focus();
+			}
+		}, 100);
+		// 통합 전송 함수 - 감정 선택과 예/아니오 선택 모두 처리
+		function sendChoice(value, displayText) {
+			// 사용자 선택 표시
+			addMessage('user', displayText);
 
-	    console.log('🤖 ChatBot 모달 생성 완료');
+			// 버튼들 제거
+			document.querySelectorAll('.emotion-buttons, .choice-buttons').forEach(el => el.parentElement.remove());
+
+			// 서버로 전송
+			sendBtn.disabled = true;
+			showTyping();
+
+			fetch(`/api/chat/message/${currentBotType}`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ message: value, botType: currentBotType })
+			})
+				.then(response => response.json())
+				.then(data => {
+					hideTyping();
+					if (data.messageType === "redirect_choice") {
+						// 예/아니오 선택 버튼 표시
+						const choiceButtonsHtml = `
+					               <div class="message bot">
+					                   <div class="avatar">${currentBotEmoji || '🤖'}</div>
+					                   <div class="message-bubble">${data.response}</div>
+					               </div>
+					               <div class="message bot">
+					                   <div class="avatar">${currentBotEmoji || '🤖'}</div>
+					                   <div class="choice-buttons">
+					                       <button class="choice-btn yes-btn" onclick="sendChoice('yes', '네, 이동하겠습니다')">예</button>
+					                       <button class="choice-btn no-btn" onclick="sendChoice('no', '아니오, 여기서 계속할게요')">아니오</button>
+					                   </div>
+					               </div>
+					           `;
+						typing.insertAdjacentHTML('beforebegin', choiceButtonsHtml);
+
+					} else if (data.messageType === "map_redirect") {
+						// 맵 이동 처리
+						addMessage('bot', data.response);
+
+						setTimeout(() => {
+							const newEmotion = data.emotion || 'unknown';
+							if (newEmotion === 'unknown') {
+								console.warn('감정 정보가 없어 startMap으로 이동');
+								window.location.href = '/usr/game/startMap';
+								return;
+							}
+
+							let targetMap;
+							switch (newEmotion) {
+								case 'anger': targetMap = '/usr/game/angerMap'; break;
+								case 'sad': targetMap = '/usr/game/sadMap'; break;
+								case 'happy': targetMap = '/usr/game/happyMap'; break;
+								case 'anxiety': targetMap = '/usr/game/anxietyMap'; break;
+								case 'zen': targetMap = '/usr/game/zenMap'; break;
+								default: targetMap = '/usr/game/startMap';
+							}
+
+							window.location.href = targetMap;
+						}, 2000);
+
+					} else {
+						// 일반 메시지 표시 (normal 타입)
+						addMessage('bot', data.response);
+					}
+
+					scrollToBottom();
+					sendBtn.disabled = false;
+				})
+				.catch(error => {
+					hideTyping();
+					addMessage('bot', '오류가 발생했습니다.');
+					sendBtn.disabled = false;
+				});
+		}
+
+		// 감정 선택용 (sendChoice 재사용)
+		function sendEmotion(emotion, displayText) {
+			sendChoice(emotion, displayText);
+		}
+
+
+		console.log('🤖 ChatBot 모달 생성 완료');
 	}
 	// ===== 전환 효과 제거 =====
 	hideTransitionEffect() {
@@ -1556,6 +1671,15 @@ export class MapModule {
 			console.log(`  타입: ${portal.type}, 반경: ${portal.collisionRadius}`);
 			console.log('---');
 		});
+	}
+	disableMapControls() {
+	    this.mapControlsEnabled = false;
+	    document.body.style.overflow = 'hidden'; // 스크롤도 방지
+	}
+
+	enableMapControls() {
+	    this.mapControlsEnabled = true;
+	    document.body.style.overflow = '';
 	}
 	// ===== 리소스 정리 =====
 	dispose() {
