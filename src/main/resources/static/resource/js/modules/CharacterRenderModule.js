@@ -16,9 +16,109 @@ export class CharacterRenderModule {
 			MODEL: { base: '/resource/model/', ext: '.glb' },
 			FACE: { base: '/resource/face/', ext: '.glb' }
 		};
+		this.NAME_TAG_OFFSET = 23;      // ← 머리 위로 올리는 높이(로컬 단위). 숫자 키우면 더 ↑
+		this.NAME_TAG_SCALE  = { x: 9.0, y: 2.8 }; // ← 닉네임 스프라이트 크기. 필요시 더 키워
 
 		console.log('📦 CharacterRenderModule 생성됨');
 	}
+	// ✅ 닉네임 스프라이트(텍스트만) 생성 - 말풍선 없음
+	createNameLabel(text) {
+	  const canvas = document.createElement('canvas');
+	  const dpr = window.devicePixelRatio || 1;
+	  const W = 1400, H = 350;                // 넉넉한 캔버스
+	  canvas.width = W * dpr;
+	  canvas.height = H * dpr;
+
+	  const ctx = canvas.getContext('2d');
+	  ctx.scale(dpr, dpr);
+
+	  // 패딩 & 폰트
+	  const PAD_X = 60;
+	  const PAD_Y = 90;                        // 상단 여유 ↑
+	  const FONT_SIZE = 280;                   // 글씨 크게
+	  ctx.font = `bold ${FONT_SIZE}px system-ui, Apple SD Gothic Neo, Segoe UI, Arial`;
+	  ctx.textAlign = 'center';
+	  ctx.textBaseline = 'alphabetic';
+
+	  const metrics = ctx.measureText(text);
+	  const ascent  = metrics.actualBoundingBoxAscent || FONT_SIZE * 0.8;
+	  const descent = metrics.actualBoundingBoxDescent || FONT_SIZE * 0.2;
+	  const textH   = ascent + descent;
+	  const usableH = H - PAD_Y * 2;
+	  const baseY   = PAD_Y + (usableH - textH) / 2 + ascent;
+
+	  // 외곽선 + 본문
+	  ctx.strokeStyle = 'rgba(0,0,0,1)';
+	  ctx.lineWidth = 20;
+	  ctx.strokeText(text, W/2, baseY);
+	  ctx.fillStyle = '#ffffff';
+	  ctx.fillText(text, W/2, baseY);
+
+	  const texture = new THREE.CanvasTexture(canvas);
+	  texture.needsUpdate = true;
+	  texture.anisotropy = 8;
+
+	  const material = new THREE.SpriteMaterial({
+	    map: texture,
+	    transparent: true,
+	    depthTest: false,
+	    depthWrite: false,
+	    sizeAttenuation: false,                // ✅ 거리와 상관없이 동일한 화면 크기!
+	  });
+
+	  const sprite = new THREE.Sprite(material);
+	  sprite.center.set(0.5, 0);            // ✅ 아래(바닥) 기준 → 위로 잘림 방지
+	  // ✅ 크기: 상수 사용 (원하면 this.NAME_TAG_SCALE만 바꾸면 됨)
+	  sprite.scale.set(this.NAME_TAG_SCALE.x, this.NAME_TAG_SCALE.y, 1);
+	
+	  sprite.renderOrder = 999;
+	  sprite.userData.isNameLabel = true;
+	  return sprite;
+	}
+	
+	// 닉네임 스프라이트의 "화면 좌표(뷰포트 기준 px)" 구하기
+	getNameLabelScreenPos(sessionId) {
+	  const inst = this.playerRenderInstances.get(sessionId);
+	  const character = this.playerCharacters.get(sessionId);
+	  if (!inst || !character) return null;
+
+	  const tag = character.userData?.nameLabel;
+	  const cam = inst.threeInstance?.getCamera?.() || inst.threeInstance?.camera;
+	  const canvas = inst.threeInstance?.getCanvas?.() || inst.canvas;
+	  if (!tag || !cam || !canvas) return null;
+
+	  // 닉네임 스프라이트의 월드 좌표 → NDC → 화면(px)
+	  const p = new THREE.Vector3();
+	  tag.getWorldPosition(p);
+	  p.project(cam);
+
+	  const rect = canvas.getBoundingClientRect(); // 캔버스의 화면상 위치/크기
+	  const x = (p.x * 0.5 + 0.5) * rect.width  + rect.left;
+	  const y = (-p.y * 0.5 + 0.5) * rect.height + rect.top;
+
+	  return { x, y }; // 뷰포트 기준 좌표
+	}
+
+	
+	// 캐릭터의 "로컬" 높이 계산 (회전/카메라 영향 없음)
+	computeLocalHeight(character) {
+	  character.updateWorldMatrix(true, true);
+	  const inv = new THREE.Matrix4().copy(character.matrixWorld).invert();
+	  const localBox = new THREE.Box3();
+
+	  character.traverse((child) => {
+	    if (!(child.isMesh || child.isSkinnedMesh) || !child.geometry) return;
+
+	    if (!child.geometry.boundingBox) child.geometry.computeBoundingBox();
+	    const box = child.geometry.boundingBox.clone();     // child 로컬
+	    box.applyMatrix4(child.matrixWorld);                // → 월드
+	    box.applyMatrix4(inv);                              // → 캐릭터 로컬로 변환
+	    localBox.union(box);
+	  });
+
+	  return localBox.max.y - localBox.min.y; // 로컬 높이
+	}
+
 
 	// ===== 모듈 초기화 =====
 	async initialize() {
@@ -59,6 +159,12 @@ export class CharacterRenderModule {
 	// ===== 캐릭터 로딩 =====
 	async loadCharacter(avatarInfo, memberId, sessionId, nickName, mapName = null) {
 
+		console.log("🆔 loadCharacter 호출됨");
+		    console.log("  - nickName:", nickName);
+		    console.log("  - sessionId:", sessionId);
+		    console.log("  - memberId:", memberId);
+		    console.log("  - avatarInfo:", avatarInfo);
+		
 		let threeInstance;
 
 		const character3D = document.getElementById('character3D');
@@ -94,6 +200,41 @@ export class CharacterRenderModule {
 					// 씬에 추가
 					const scene = threeInstance.getScene();
 					scene.add(character);
+					
+					console.log("🎯 닉네임 라벨 부착 시작:", nickName);
+					
+					// ✅ (중요) 로컬 높이 한 번만 계산해서 저장
+					const localHeight = this.computeLocalHeight(character);
+					character.userData.headHeight = localHeight;
+
+					// ✅ 라벨 생성
+					const nameLabel = this.createNameLabel(nickName);
+
+					// 항상 보이게/가려지지 않게 (UI 성격)
+					nameLabel.frustumCulled = false;
+					if (nameLabel.material) {
+					  nameLabel.material.depthTest = false;
+					  nameLabel.material.depthWrite = false;
+					  if (nameLabel.material.map) nameLabel.material.map.needsUpdate = true;
+					}
+					nameLabel.renderOrder = 999;
+
+					// 🔧 스프라이트 기준점을 "아래"로 (윗부분 잘림 방지)
+					nameLabel.center.set(0.5, 0.0);
+
+					// ✅ 머리 꼭대기 + 오프셋(상수)
+					nameLabel.position.set(0, localHeight + this.NAME_TAG_OFFSET, 0);
+
+					// 캐릭터 스케일에 맞춰 라벨도 보정
+//					const charScale = this.gameClient?.getCharacterConfig?.().SCALE ?? 1;
+//					nameLabel.scale.multiplyScalar(charScale);
+
+					// 캐릭터에 종속
+					character.add(nameLabel);
+					console.log("✅ 라벨 부착 완료, 캐릭터 children:", character.children);
+
+					// 레퍼런스 저장(선택)
+					character.userData.nameLabel = nameLabel;
 
 					// 캐릭터 맵에 저장
 					this.playerCharacters.set(sessionId, character);
@@ -216,34 +357,88 @@ export class CharacterRenderModule {
 	}
 
 	updateAllPlayersAnimation(delta) {
-		// 모든 플레이어 순회 처리
-		this.playerRenderInstances.forEach((data, sessionId) => {
-			// 🎬 애니메이션 업데이트
-			if (data.mixer) {
-				data.mixer.update(delta);
-			}
-			const character = this.playerCharacters.get(sessionId);
-			if (character) {
-				// 파츠 애니메이션 업데이트
-				character.traverse(child => child.userData?.mixer?.update(delta));
+	  // 모든 플레이어 순회 처리
+	  this.playerRenderInstances.forEach((data, sessionId) => {
+	    // 🎬 애니메이션 업데이트
+	    if (data.mixer) {
+	      data.mixer.update(delta);
+	    }
 
-				// 🆕 본 위치 동기화 (1줄)
-				character.traverse(child => {
-					if (child.isSkinnedMesh) {
-						child.skeleton?.bones.forEach(bone => {
-							if (bone.userData.baseBone) {
-								bone.matrix.copy(bone.userData.baseBone.matrix);
-							}
-						});
-					}
-				});
+	    const character = this.playerCharacters.get(sessionId);
+	    if (character) {
+	      // 파츠 애니메이션 업데이트
+	      character.traverse(child => child.userData?.mixer?.update(delta));
+
+	      // 🆕 본 위치 동기화 (1줄)
+	      character.traverse(child => {
+	        if (child.isSkinnedMesh) {
+	          child.skeleton?.bones.forEach(bone => {
+	            if (bone.userData.baseBone) {
+	              bone.matrix.copy(bone.userData.baseBone.matrix);
+	            }
+	          });
+	        }
+	      });
+
+	      // ✅✅✅ 닉네임(라벨) 보정 — 여기 추가! (render() 호출 직전)
+	      const cam =
+	        (data.threeInstance?.getCamera && data.threeInstance.getCamera()) ||
+	        data.threeInstance?.camera ||
+	        null;
+
+			// ✅ render() 호출 직전에: 라벨 위치/표시 보정
+			if (cam) {
+			  const tag = character.userData?.nameLabel;
+			  if (tag) {
+			    // 1) 로컬 기준 "머리 높이"를 한 번만 확보 (없으면 지금 계산해서 저장)
+			    if (!character.userData.headHeight) {
+			      if (this.computeLocalHeight) {
+			        character.userData.headHeight = this.computeLocalHeight(character);
+			      } else {
+			        // computeLocalHeight를 아직 안 넣었다면 임시 대안 (스케일 보정 포함)
+			        const tmp = new THREE.Box3().setFromObject(character);
+			        const s = character.scale?.y || 1;
+			        character.userData.headHeight = (tmp.max.y - tmp.min.y) / s;
+			      }
+			    }
+
+			    const base = character.userData.headHeight;
+
+				// ✅ 머리 꼭대기 + 오프셋(상수) — 숫자만 바꾸면 바로 반영됨
+			    tag.position.set(0, base + (this.NAME_TAG_OFFSET ?? 1.2), 0);
+
+			    // 3) 항상 보이게 + 컬링/깊이 문제 방지
+			    tag.visible = true;
+			    tag.frustumCulled = false;
+
+			    if (!tag.userData._initDepthTuning) {
+			      if (tag.material) {
+			        tag.material.depthTest = false;
+			        tag.material.depthWrite = false;
+			        if (tag.material.map) tag.material.map.needsUpdate = true;
+			      }
+			      tag.renderOrder = 999;
+			      tag.userData._initDepthTuning = true;
+			    }
+
+			    // ❌ 각도 기반 가시성 토글은 사용하지 않음 (측면에서 사라지는 원인)
+			    // const toCam = new THREE.Vector3().subVectors(cam.position, character.position).normalize();
+			    // const fwd   = new THREE.Vector3(0, 0, -1).applyQuaternion(cam.quaternion);
+			    // tag.visible = toCam.dot(fwd) > 0;
+			  }
 			}
-			// 🖼️ 렌더링
-			if (data.threeInstance) {
-				data.threeInstance.render();
-			}
-		});
+
+
+	      // ✅✅✅ 여기까지
+	    }
+
+	    // 🖼️ 렌더링
+	    if (data.threeInstance) {
+	      data.threeInstance.render();
+	    }
+	  });
 	}
+
 
 	startPlayerWalkAnimation(sessionId) {
 		const instance = this.playerRenderInstances.get(sessionId);

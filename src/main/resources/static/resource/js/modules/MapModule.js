@@ -3,6 +3,7 @@ export class MapModule {
 	constructor(gameClient, mapName) {
 		this.gameClient = gameClient;
 		this.isInitialized = false;
+		this.USER_MAX_SCALE = 0.85;  // 🔒 내가 허용할 최대 확대 배율(예: 0.85)
 
 		// ===== 맵 렌더링 관련 =====
 		this.container = null;
@@ -638,9 +639,17 @@ export class MapModule {
 		const mapConfig = this.gameClient.getMapConfig();
 		const prevScale = this.scale;
 
-		this.scale = e.deltaY < 0
-			? Math.min(mapConfig.MAX_SCALE, this.scale + mapConfig.ZOOM_STEP)
-			: Math.max(mapConfig.MIN_SCALE, this.scale - mapConfig.ZOOM_STEP);
+		// ✅ 실제 허용 최대 배율 = (설정의 MAX_SCALE)와 (내가 정한 상한) 중 더 작은 값
+		const maxAllowed = Math.min(mapConfig.MAX_SCALE, this.USER_MAX_SCALE ?? Infinity);
+		const minAllowed = mapConfig.MIN_SCALE;
+
+		if (e.deltaY < 0) {
+		  // 줌인
+		  this.scale = Math.min(maxAllowed, this.scale + mapConfig.ZOOM_STEP);
+		} else {
+		  // 줌아웃
+		  this.scale = Math.max(minAllowed, this.scale - mapConfig.ZOOM_STEP);
+		}
 
 		const scaleChange = this.scale / prevScale;
 		this.posX = mouseX - (mouseX - this.posX) * scaleChange;

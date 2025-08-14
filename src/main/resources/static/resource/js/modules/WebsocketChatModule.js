@@ -11,6 +11,7 @@ export class WebsocketChatModule {
 		this.reconnectDelay = 1000;
 		this.activeBubbles = new Map();
 		this.currentMapName = 'startMap';
+		this.BUBBLE_NICK_OFFSET = 100; // 닉네임까지 띄울 픽셀. 값만 바꿔서 조절
 		console.log('📦 WebSocketChatModule 생성됨');
 	}
 
@@ -353,71 +354,74 @@ export class WebsocketChatModule {
 		}
 	}
 	createChatBubble(playerId, message) {
-		// 기존 버블 제거
-		this.removeChatBubble(playerId);
-		const characterRenderModule = this.gameClient.getCharacterRenderModule();
-		const mapModule = this.gameClient.getMapModule();
-		let playerMesh = null;
+	  // 기존 버블 제거
+	  this.removeChatBubble(playerId);
 
-		// 내 캐릭터인지 확인
-		if (playerId === this.gameClient.player.sessionId) {
-			playerMesh = characterRenderModule.getMyCharacter();
-		} else {
-			playerMesh = characterRenderModule.getCharacter(playerId);
-		}
+	  const characterRenderModule = this.gameClient.getCharacterRenderModule();
+	  const mapModule = this.gameClient.getMapModule();
 
-		if (!playerMesh) {
-			console.log('플레이어 메쉬를 찾을 수 없음:', playerId);
-			return;
-		}
+	  // 컨테이너 기준 설정(없으면 위치 어긋남)
+	  const mapContainer = document.getElementById('mapContainer');
+	  if (getComputedStyle(mapContainer).position === 'static') {
+	    mapContainer.style.position = 'relative';
+	  }
 
-		// 🔥 MapModule로 3D → 2D → 화면 좌표 변환
-		const imageCoord = mapModule.worldToImageCoordinates(
-			playerMesh.position.x,
-			playerMesh.position.z
-		);
+	  // === 닉네임 스프라이트의 '화면 좌표' 사용 ===
+	  let leftX, topY;
+	  const labelPos = characterRenderModule.getNameLabelScreenPos?.(playerId);
 
-		const mapTransform = mapModule.getTransform();
-		const screenX = imageCoord.x * mapTransform.scale + mapTransform.posX;
-		const screenY = imageCoord.y * mapTransform.scale + mapTransform.posY;
+	  if (labelPos) {
+	    // 컨테이너 좌표계로 변환 + 닉네임 바로 위/오른쪽 살짝
+	    const rect = mapContainer.getBoundingClientRect();
+	    const GAP_Y = 20;    // 닉네임 위 여백(px) — ↑ 더 띄우려면 키워
+	    const GAP_X = 0;   // 오른쪽으로 밀기(px) — 왼쪽은 음수
+	    leftX = labelPos.x - rect.left + GAP_X;
+	    topY  = labelPos.y - rect.top  - GAP_Y;
+	  } else {
+	    // 폴백: 기존 방식 (월드→이미지→스크린)
+	    const playerMesh = (playerId === this.gameClient.player.sessionId)
+	      ? characterRenderModule.getMyCharacter()
+	      : characterRenderModule.getCharacter(playerId);
+	    if (!playerMesh) return;
 
-		console.log('버블 위치 계산:', {
-			playerId,
-			world3D: { x: playerMesh.position.x, z: playerMesh.position.z },
-			image2D: imageCoord,
-			mapTransform,
-			screen2D: { x: screenX, y: screenY }
-		});
-		// 버블 생성
-		const bubble = document.createElement('div');
-		bubble.textContent = message;
-		bubble.style.cssText = `
-	        position: absolute;
-	        left: ${screenX + 15}px;
-	        top: ${screenY - 85}px;
-	        background: white;
-	        color: black;
-			border: 0.5px solid black;
-	        padding: 8px 10px;
-	        border-radius: 10px;
-	        font-size: 10px;
-	        max-width: 200px;
-			max-height: 100px;
-			word-wrap: break-word;
-			word-break: break-all;
-			white-space: pre-wrap;
-	        transform: translateX(-50%) translateY(-100%);
-	        z-index: 1000;
-	        pointer-events: none;
-			box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-	    `;
-		const mapContainer = document.getElementById('mapContainer');
-		mapContainer.appendChild(bubble);
-		this.activeBubbles.set(playerId, bubble);
+	    const imageCoord = mapModule.worldToImageCoordinates(
+	      playerMesh.position.x,
+	      playerMesh.position.z
+	    );
+	    const t = mapModule.getTransform(); // { scale, posX, posY }
+	    leftX = imageCoord.x * t.scale + t.posX + 20;
+	    topY  = imageCoord.y * t.scale + t.posY - 160 * t.scale;
+	  }
 
-		// 1초 후 제거
-		setTimeout(() => this.removeChatBubble(playerId), 1000);
+	  // 버블 생성
+	  const bubble = document.createElement('div');
+	  bubble.textContent = message;
+	  bubble.style.cssText = `
+	    position: absolute;
+	    left: ${leftX}px;
+	    top: ${topY}px;
+	    background: white;
+	    color: black;
+	    border: 0.5px solid rgba(0,0,0,0.6);
+	    padding: 8px 10px;
+	    border-radius: 10px;
+	    font-size: 12px;
+	    max-width: 220px;
+	    word-wrap: break-word;
+	    word-break: break-all;
+	    white-space: pre-wrap;
+	    transform: translate(-50%, -100%);
+	    z-index: 100000;        /* 항상 위 */
+	    pointer-events: none;
+	    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+	  `;
+	  mapContainer.appendChild(bubble);
+	  this.activeBubbles.set(playerId, bubble);
+
+	  // 1초 후 제거 (기존 로직 유지)
+	  setTimeout(() => this.removeChatBubble(playerId), 1000);
 	}
+
 
 	removeChatBubble(playerId) {
 		const bubble = this.activeBubbles.get(playerId);

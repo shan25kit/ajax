@@ -93,8 +93,8 @@ export class ThreeInit {
 	// ===== 공통 카메라 설정 메서드 =====
 	createCamera() {
 		const camera = new THREE.OrthographicCamera(
-			-35, 35,  // left, right
-			35, -35,  // top, bottom
+			-40, 40,  // left, right
+			40, -40,  // top, bottom
 			0.1, 1000 // near, far
 		);
 		camera.position.set(0, 0, 30);

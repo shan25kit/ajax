@@ -842,75 +842,79 @@ function updateSelectBox(option) {
   console.log('🔄 아바타 초기화 완료!');
 }
 
-async function saveAvatar() {
-    try {
-        // currentParts에서 데이터 추출
-           const avatarInfo = {
-            skinColor: currentSkinColor,
-            parts: {}
-        };
-        
-        // ✅ 중첩 구조에 맞춰 순회
-           for (let partGroup in currentParts) {
-               const part = currentParts[partGroup];
-               
-               if (partGroup === 'accessory') {
-                   // ✅ 액세서리 그룹 처리
-                   const accessoryGroup = {};
-                   if (part.main && part.main.length > 0) {
-                       accessoryGroup.main = part.main.map(model => ({
-                           style: model.userData.styleNumber
-                       }));
-                   }
-                   
-                   if (part.detail && part.detail.userData) {
-                       accessoryGroup.detail = {
-                           style: part.detail.userData.styleNumber
-                       };
-                   }
-                   
-                   // 데이터가 있을 때만 추가
-                   if (Object.keys(accessoryGroup).length > 0) {
-                       avatarInfo.parts.accessory = accessoryGroup;
-                   }   
-               } else if (part && part.userData) {
-                   // 일반 파트 처리
-                   avatarInfo.parts[partGroup] = {
-                       style: part.userData.styleNumber
-                   };
-                   
-                   // 헤어 색상 추가
-                   if (partGroup === 'hair' && part.userData.color) {
-                       avatarInfo.parts[partGroup].color = part.userData.color;
-                   }
-               }
-           }
-        console.log('💾 전송할 데이터:', avatarInfo);
+  async function saveAvatar() {
+	  let avatarInfo; // 바깥 스코프에 선언(에러 로그용)
 
-        // AJAX 전송
-        const response = await fetch('/usr/custom/save', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(avatarInfo)
-        });
+	  try {
+	    // 1) 기존 로직 그대로: 페이로드 구성
+	    avatarInfo = {
+	      skinColor: currentSkinColor,
+	      parts: {}
+	    };
 
-        // ResultData 응답 처리
-        const result = await response.json();
-        
-        if (result.rsCode.startsWith('S-')) {
-            // 성공 시 메시지 표시 후 페이지 이동
-            alert(result.rsMsg); // "캐릭터 저장 완료"
-            window.location.href = '/usr/game/startMap';
-        } else {
-            // 실패 시 에러 메시지 표시
-            alert(result.rsMsg); // 서버에서 온 구체적인 에러 메시지
-        }
+	    for (let partGroup in currentParts) {
+	      const part = currentParts[partGroup];
 
-    } catch (error) {
-        console.error('❌ 저장 중 오류:', error);
-        alert('저장 중 오류가 발생했습니다.');
-    }
-}
+	      if (partGroup === 'accessory') {
+	        const accessoryGroup = {};
+	        if (part?.main && part.main.length > 0) {
+	          accessoryGroup.main = part.main.map(m => ({
+	            style: m?.userData?.styleNumber
+	          }));
+	        }
+	        if (part?.detail?.userData) {
+	          accessoryGroup.detail = {
+	            style: part.detail.userData.styleNumber
+	          };
+	        }
+	        if (Object.keys(accessoryGroup).length > 0) {
+	          avatarInfo.parts.accessory = accessoryGroup;
+	        }
+	      } else if (part?.userData) {
+	        avatarInfo.parts[partGroup] = {
+	          style: part.userData.styleNumber
+	        };
+	        if (partGroup === 'hair' && part.userData.color) {
+	          avatarInfo.parts[partGroup].color = part.userData.color;
+	        }
+	      }
+	    }
+
+	    // 2) 디버그 로그(반드시 확인용)
+	    console.log('[saveAvatar] payload:', JSON.stringify(avatarInfo));
+
+	    // 3) 서버로 전송 (추가 필드 절대 안 붙임! ← 서버 파서 깨질 수 있어요)
+	    const res = await fetch('/usr/custom/save', {
+	      method: 'POST',
+	      headers: { 'Content-Type': 'application/json' },
+	      body: JSON.stringify(avatarInfo)
+	    });
+	    const result = await res.json();
+
+	    // 4) 성공/실패 처리 + 최소 변경 리다이렉트
+	    if (result?.rsCode && result.rsCode.startsWith('S-')) {
+	      alert(result.rsMsg || '캐릭터 저장 완료');
+
+	      // 우선순위: ?returnMap=happyMap → referrer에서 /usr/game/<map> → 기본 startMap
+	      const params = new URLSearchParams(location.search);
+	      const qMap = params.get('returnMap') || params.get('currentMap');
+	      const ref  = document.referrer || '';
+	      const refMap = (ref.match(/\/usr\/game\/([a-zA-Z0-9_-]+)/) || [])[1];
+	      const returnMap = qMap || refMap || 'startMap';
+
+	      console.log('[saveAvatar] returnMap =', returnMap);
+
+	      // 템플릿 문자열 주의: 백틱(`) 쓰거나 문자열 연결 사용
+	      window.location.href = '/usr/game/' + returnMap;
+	    } else {
+	      console.warn('[saveAvatar] server response:', result);
+	      alert(result?.rsMsg || '저장에 실패했습니다.');
+	    }
+	  } catch (e) {
+	    console.error('❌ 저장 중 오류:', e, avatarInfo);
+	    alert('저장 중 오류가 발생했습니다.');
+	  }
+	}
 
 $(document).ready(function () {
 	  const $nicknameDisplay = $("#nicknameDisplay");

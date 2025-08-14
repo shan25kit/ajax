@@ -397,7 +397,7 @@ html, body {
 
 .character-3d canvas {
 	position: absolute;
-	height: 350px !important;
+	height: 400px !important;
 	width: auto !important;
 	transform-origin: center bottom;
 	z-index: 9998;
