@@ -18,7 +18,7 @@ let currentParts = {
 		  bottom: null,
 		  dress: null,
 		  shoes: null,
-		  
+		  face: null,
 		  accessory: {
 		        main: [],      // accessory1~4 (배열)
 		        detail: null   // accessory5~8 (단일)

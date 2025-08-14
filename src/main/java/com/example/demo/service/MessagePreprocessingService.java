@@ -68,8 +68,7 @@ public class MessagePreprocessingService {
 			throw new IllegalArgumentException("메시지가 너무 깁니다.");
 		}
 		return message.toLowerCase().replaceAll("\\s+", "") // 공백 제거
-				.replaceAll("[!@#$%^&*(),.?\":{}|<>]", "") // 특수문자 제거
-				.replaceAll("ㅋ+", "") // 웃음 표현 제거
+				.replaceAll("[!@#$%^&*(),.?\":{}|<>0-9]", "") // 특수문자,숫자 제거
 				.replaceAll("ㅠ+", "") // 울음 표현 정규화
 				.replaceAll("ㅜ+", ""); // 울음 표현 정규화
 	}
